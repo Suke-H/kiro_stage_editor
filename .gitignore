@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Terraform
+.terraform
+*.tfvars
+*.tfstate
+*.tfstate.*
