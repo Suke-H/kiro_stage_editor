@@ -5,17 +5,28 @@ import { Panel } from '../types';
 
 interface PanelListProps {
   panels: Panel[];
-  onRemovePanel: (panelId: string) => void;
-  onPanelDragStart: (panel: Panel) => void;
-  onPanelDragEnd: () => void;
+  setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
+  setDraggingPanel: React.Dispatch<React.SetStateAction<Panel | null>>;
 }
 
 export const PanelList: React.FC<PanelListProps> = ({
   panels,
-  onRemovePanel,
-  onPanelDragStart,
-  onPanelDragEnd
+  setPanels,
+  setDraggingPanel,
 }) => {
+
+  const removePanel = (panelId: string) => {
+      setPanels(panels.filter(panel => panel.id !== panelId));
+    };
+    
+  const handlePanelDragStart = (panel: Panel) => {
+    setDraggingPanel(panel);
+  };
+  
+  const handlePanelDragEnd = () => {
+    setDraggingPanel(null);
+  };
+
   return (
     <Card className="w-64">
       <CardHeader>
@@ -27,8 +38,8 @@ export const PanelList: React.FC<PanelListProps> = ({
             key={panel.id}
             className="flex items-center gap-2 mb-2"
             draggable
-            onDragStart={() => onPanelDragStart(panel)}
-            onDragEnd={onPanelDragEnd}
+            onDragStart={() => handlePanelDragStart(panel)}
+            onDragEnd={handlePanelDragEnd}
           >
             <div
               className="grid gap-1"
@@ -48,7 +59,7 @@ export const PanelList: React.FC<PanelListProps> = ({
                 )),
               )}
             </div>
-            <Button variant="ghost" size="icon" onClick={() => onRemovePanel(panel.id)}>
+            <Button variant="ghost" size="icon" onClick={() => removePanel(panel.id)}>
               <Trash2 size={16} />
             </Button>
             <Move size={16} className="text-gray-500" />
