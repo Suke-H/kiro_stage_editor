@@ -1,60 +1,160 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Move } from 'lucide-react';
-import { Panel } from '../types';
+import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '../types';
 
 interface PanelListProps {
   panels: Panel[];
-  onRemovePanel: (panelId: string) => void;
-  onPanelDragStart: (panel: Panel) => void;
-  onPanelDragEnd: () => void;
+  setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
+  panelPlacementMode: PanelPlacementModeType;
+  setPanelPlacementMode: React.Dispatch<React.SetStateAction<PanelPlacementModeType>>;
+  panelPlacementHistory: PanelPlacementHistoryType[];
+  setPanelPlacementHistory: React.Dispatch<React.SetStateAction<PanelPlacementHistoryType[]>>;
+  setGrid: React.Dispatch<React.SetStateAction<CellType[][]>>;
+  gridHistory: CellType[][][];
+  setGridHistory: React.Dispatch<React.SetStateAction<CellType[][][]>>;
 }
 
 export const PanelList: React.FC<PanelListProps> = ({
   panels,
-  onRemovePanel,
-  onPanelDragStart,
-  onPanelDragEnd
+  setPanels,
+  panelPlacementMode,
+  setPanelPlacementMode,
+  panelPlacementHistory,
+  setPanelPlacementHistory,
+  setGrid,
+  gridHistory,
+  setGridHistory,
 }) => {
+
+  const removePanel = (panelId: string) => {
+      setPanels(panels.filter(panel => panel.id !== panelId));
+    };
+    
+  // パネル配置モードの開始
+  const startPanelPlacement = (panel: Panel) => {
+    let firstBlackCell = null;
+    for (let i = 0; i < panel.cells.length; i++) {
+      for (let j = 0; j < panel.cells[0].length; j++) {
+        if (panel.cells[i][j] === 'black') {
+          firstBlackCell = { row: i, col: j };
+          break;
+        }
+      }
+      if (firstBlackCell) break;
+    }
+  
+    setPanelPlacementMode({
+      panel: panel,
+      highlightedCell: firstBlackCell || { row: 0, col: 0 }
+    });
+  };
+
+    // 「1つ戻す」メソッド
+  const undoLastPlacement = () => {
+    if (gridHistory.length > 1) {
+      const newGridHistory = [...gridHistory];
+      newGridHistory.pop(); // 最後の状態を削除
+      setGrid(newGridHistory[newGridHistory.length - 1]);
+      setGridHistory(newGridHistory);
+
+      const newPanelPlacementHistory = [...panelPlacementHistory];
+      newPanelPlacementHistory.pop();
+      setPanelPlacementMode(
+        newPanelPlacementHistory.length > 0 
+          ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
+          : { panel: null, highlightedCell: null }
+      );
+      setPanelPlacementHistory(newPanelPlacementHistory);
+    }
+  };
+
+  // 「リセット」メソッド
+  const resetPanelPlacement = () => {
+    if (gridHistory.length > 1) {
+      setGrid(gridHistory[0]);
+      setGridHistory([gridHistory[0]]);
+      setPanelPlacementMode({ panel: null, highlightedCell: null });
+      setPanelPlacementHistory([]);
+    }
+  };
+
+  // パネルビューのレンダリングを修正
+  const renderPanels = () => {
+    return panels.map((panel) => (
+      <div
+        key={panel.id}
+        className="flex items-center gap-2 mb-2 relative"
+      >
+        <div
+          className="grid gap-1"
+          style={{
+            gridTemplateColumns: `repeat(${panel.cells[0].length}, 40px)`,
+            maxWidth: '160px',
+          }}
+        >
+          {panel.cells.map((row, rowIndex) =>
+            row.map((cellType, colIndex) => (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                className={`h-10 w-10 border ${
+                  cellType === 'black' 
+                    ? (panelPlacementMode.panel === panel && 
+                      rowIndex === 0 && colIndex === 0 
+                      ? 'bg-red-500' 
+                      : 'bg-gray-500') 
+                    : 'bg-white'
+                }`}
+              />
+            ))
+          )}
+        </div>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => removePanel(panel.id)}
+        >
+          <Trash2 size={16} />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => startPanelPlacement(panel)}
+        >
+          <Move size={16} />
+        </Button>
+      </div>
+    ));
+  };
+
   return (
-    <Card className="w-64">
-      <CardHeader>
-        <CardTitle>パネル</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {panels.map((panel) => (
-          <div
-            key={panel.id}
-            className="flex items-center gap-2 mb-2"
-            draggable
-            onDragStart={() => onPanelDragStart(panel)}
-            onDragEnd={onPanelDragEnd}
-          >
-            <div
-              className="grid gap-1"
-              style={{
-                gridTemplateColumns: `repeat(${panel.cells[0].length}, 40px)`,
-                maxWidth: '160px',
-              }}
-            >
-              {panel.cells.map((row, rowIndex) =>
-                row.map((cellType, colIndex) => (
-                  <div
-                    key={`${rowIndex}-${colIndex}`}
-                    className={`h-10 w-10 border ${
-                      cellType === 'black' ? 'bg-gray-500' : 'bg-white'
-                    }`}
-                  />
-                )),
-              )}
-            </div>
-            <Button variant="ghost" size="icon" onClick={() => onRemovePanel(panel.id)}>
-              <Trash2 size={16} />
-            </Button>
-            <Move size={16} className="text-gray-500" />
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+    <div className="flex gap-4">
+      {/* パネル設置取り消しボタン */}
+      <div className="flex gap-2 mt-2">
+        <Button 
+          onClick={undoLastPlacement} 
+          disabled={gridHistory.length <= 1}
+          className="flex-grow"
+        >
+          1つ戻す
+        </Button>
+        <Button 
+          onClick={resetPanelPlacement} 
+          disabled={gridHistory.length <= 1}
+          variant="destructive"
+          className="flex-grow"
+        >
+          リセット
+        </Button>
+      </div>
+      <Card className="w-64">
+        <CardHeader>
+          <CardTitle>パネル</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {renderPanels()}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
