@@ -51,110 +51,110 @@ export const PanelList: React.FC<PanelListProps> = ({
   };
 
     // 「1つ戻す」メソッド
-const undoLastPlacement = () => {
-  if (gridHistory.length > 1) {
-    const newGridHistory = [...gridHistory];
-    newGridHistory.pop(); // 最後の状態を削除
-    setGrid(newGridHistory[newGridHistory.length - 1]);
-    setGridHistory(newGridHistory);
+  const undoLastPlacement = () => {
+    if (gridHistory.length > 1) {
+      const newGridHistory = [...gridHistory];
+      newGridHistory.pop(); // 最後の状態を削除
+      setGrid(newGridHistory[newGridHistory.length - 1]);
+      setGridHistory(newGridHistory);
 
-    const newPanelPlacementHistory = [...panelPlacementHistory];
-    newPanelPlacementHistory.pop();
-    setPanelPlacementMode(
-      newPanelPlacementHistory.length > 0 
-        ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
-        : { panel: null, highlightedCell: null }
-    );
-    setPanelPlacementHistory(newPanelPlacementHistory);
-  }
-};
+      const newPanelPlacementHistory = [...panelPlacementHistory];
+      newPanelPlacementHistory.pop();
+      setPanelPlacementMode(
+        newPanelPlacementHistory.length > 0 
+          ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
+          : { panel: null, highlightedCell: null }
+      );
+      setPanelPlacementHistory(newPanelPlacementHistory);
+    }
+  };
 
-// 「リセット」メソッド
-const resetPanelPlacement = () => {
-  if (gridHistory.length > 1) {
-    setGrid(gridHistory[0]);
-    setGridHistory([gridHistory[0]]);
-    setPanelPlacementMode({ panel: null, highlightedCell: null });
-    setPanelPlacementHistory([]);
-  }
-};
+  // 「リセット」メソッド
+  const resetPanelPlacement = () => {
+    if (gridHistory.length > 1) {
+      setGrid(gridHistory[0]);
+      setGridHistory([gridHistory[0]]);
+      setPanelPlacementMode({ panel: null, highlightedCell: null });
+      setPanelPlacementHistory([]);
+    }
+  };
 
-// パネルビューのレンダリングを修正
-const renderPanels = () => {
-  return panels.map((panel) => (
-    <div
-      key={panel.id}
-      className="flex items-center gap-2 mb-2 relative"
-    >
+  // パネルビューのレンダリングを修正
+  const renderPanels = () => {
+    return panels.map((panel) => (
       <div
-        className="grid gap-1"
-        style={{
-          gridTemplateColumns: `repeat(${panel.cells[0].length}, 40px)`,
-          maxWidth: '160px',
-        }}
+        key={panel.id}
+        className="flex items-center gap-2 mb-2 relative"
       >
-        {panel.cells.map((row, rowIndex) =>
-          row.map((cellType, colIndex) => (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              className={`h-10 w-10 border ${
-                cellType === 'black' 
-                  ? (panelPlacementMode.panel === panel && 
-                     rowIndex === 0 && colIndex === 0 
-                     ? 'bg-red-500' 
-                     : 'bg-gray-500') 
-                  : 'bg-white'
-              }`}
-            />
-          ))
-        )}
+        <div
+          className="grid gap-1"
+          style={{
+            gridTemplateColumns: `repeat(${panel.cells[0].length}, 40px)`,
+            maxWidth: '160px',
+          }}
+        >
+          {panel.cells.map((row, rowIndex) =>
+            row.map((cellType, colIndex) => (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                className={`h-10 w-10 border ${
+                  cellType === 'black' 
+                    ? (panelPlacementMode.panel === panel && 
+                      rowIndex === 0 && colIndex === 0 
+                      ? 'bg-red-500' 
+                      : 'bg-gray-500') 
+                    : 'bg-white'
+                }`}
+              />
+            ))
+          )}
+        </div>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => removePanel(panel.id)}
+        >
+          <Trash2 size={16} />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => startPanelPlacement(panel)}
+        >
+          <Move size={16} />
+        </Button>
       </div>
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        onClick={() => removePanel(panel.id)}
-      >
-        <Trash2 size={16} />
-      </Button>
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        onClick={() => startPanelPlacement(panel)}
-      >
-        <Move size={16} />
-      </Button>
-    </div>
-  ));
-};
+    ));
+  };
 
   return (
     <div className="flex gap-4">
-        {/* パネル設置取り消しボタン */}
-        <div className="flex gap-2 mt-2">
-          <Button 
-            onClick={undoLastPlacement} 
-            disabled={gridHistory.length <= 1}
-            className="flex-grow"
-          >
-            1つ戻す
-          </Button>
-          <Button 
-            onClick={resetPanelPlacement} 
-            disabled={gridHistory.length <= 1}
-            variant="destructive"
-            className="flex-grow"
-          >
-            リセット
-          </Button>
-        </div>
-    <Card className="w-64">
-      <CardHeader>
-        <CardTitle>パネル</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {renderPanels()}
-      </CardContent>
-    </Card>
+      {/* パネル設置取り消しボタン */}
+      <div className="flex gap-2 mt-2">
+        <Button 
+          onClick={undoLastPlacement} 
+          disabled={gridHistory.length <= 1}
+          className="flex-grow"
+        >
+          1つ戻す
+        </Button>
+        <Button 
+          onClick={resetPanelPlacement} 
+          disabled={gridHistory.length <= 1}
+          variant="destructive"
+          className="flex-grow"
+        >
+          リセット
+        </Button>
+      </div>
+      <Card className="w-64">
+        <CardHeader>
+          <CardTitle>パネル</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {renderPanels()}
+        </CardContent>
+      </Card>
     </div>
   );
 };

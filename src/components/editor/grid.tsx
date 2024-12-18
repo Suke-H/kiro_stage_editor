@@ -100,8 +100,6 @@ export const Grid: React.FC<GridProps> = ({
     });
   };
 
-
-
   const exportStage = () => {
       const stageData = {
         rows: grid.length,
@@ -118,20 +116,20 @@ export const Grid: React.FC<GridProps> = ({
       link.click();
     };
     
-    const importStage = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const stageData = JSON.parse(e.target?.result as string);
-          setGrid(stageData.cells);
-          setPanels(stageData.panels || []);
-        };
-        reader.readAsText(file);
-      }
-    };
+  const importStage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const stageData = JSON.parse(e.target?.result as string);
+        setGrid(stageData.cells);
+        setPanels(stageData.panels || []);
+      };
+      reader.readAsText(file);
+    }
+  };
 
-      // グリッドビューのレンダリングを修正
+  // グリッドビューのレンダリングを修正
   const renderGridCell = (cellType: CellType, rowIndex: number, colIndex: number) => {
     return (
       <div
@@ -141,8 +139,6 @@ export const Grid: React.FC<GridProps> = ({
       />
     );
   };
-
-
 
   return (
     <Card className="flex-grow">
