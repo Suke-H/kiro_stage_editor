@@ -1,27 +1,31 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, MinusCircle, Download, Upload } from 'lucide-react';
-import { CellType, Panel } from '../types';
-import { CELL_TYPES } from '../../constants/cell-types';
+import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '../types';
+import { CELL_TYPES} from '../../constants/cell-types';
 
 interface GridProps {
   grid: CellType[][];
   setGrid: React.Dispatch<React.SetStateAction<CellType[][]>>;
+  setGridHistory: React.Dispatch<React.SetStateAction<CellType[][][]>>;
   selectedCellType: CellType;
   panels: Panel[];
   setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
-  draggingPanel: Panel | null;
-  setDraggingPanel: React.Dispatch<React.SetStateAction<Panel | null>>;
+  panelPlacementMode: PanelPlacementModeType;
+  setPanelPlacementMode: React.Dispatch<React.SetStateAction<PanelPlacementModeType>>;
+  setPanelPlacementHistory: React.Dispatch<React.SetStateAction<PanelPlacementHistoryType[]>>;
 }
 
 export const Grid: React.FC<GridProps> = ({
   grid,
   setGrid,
+  setGridHistory,
   selectedCellType,
   panels,
   setPanels,
-  draggingPanel,
-  setDraggingPanel,
+  panelPlacementMode,
+  setPanelPlacementMode,
+  setPanelPlacementHistory,
 }) => {
 
   const adjustGridSize = (rowDelta: number, colDelta: number) => {
@@ -49,54 +53,54 @@ export const Grid: React.FC<GridProps> = ({
     });
   };
 
-  const handleCellClick = (rowIndex: number, colIndex: number) => {
-    const newGrid = [...grid];
-    newGrid[rowIndex][colIndex] = selectedCellType;
-    setGrid(newGrid);
-  };
+  // グリッドセルのクリックハンドラを修正
+  const handleGridCellClick = (rowIndex: number, colIndex: number) => {
+    // 通常のセル選択モード
+    if (!panelPlacementMode.panel) {
+      const newGrid = [...grid];
+      newGrid[rowIndex][colIndex] = selectedCellType;
+      setGrid(newGrid);
+      setGridHistory(prev => [...prev, newGrid]);
+      return;
+    }
 
-  const handleGridDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-  
-  const handleGridDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    if (!draggingPanel) return;
-  
-    const rect = e.currentTarget.getBoundingClientRect();
-    const cellWidth = rect.width / grid[0].length;
-    const cellHeight = rect.height / grid.length;
-  
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-  
-    const rowIndex = Math.floor(y / cellHeight);
-    const colIndex = Math.floor(x / cellWidth);
-  
-    const panelRows = draggingPanel.cells.length;
-    const panelCols = draggingPanel.cells[0].length;
-  
+    // パネル配置モード
+    const placingPanel = panelPlacementMode.panel;
+    const panelRows = placingPanel.cells.length;
+    const panelCols = placingPanel.cells[0].length;
+
+    // パネルを配置できるかチェック
     const canPlacePanel =
       rowIndex + panelRows <= grid.length &&
       colIndex + panelCols <= grid[0].length;
-  
+
     if (canPlacePanel) {
       const updatedGrid = grid.map((row) => [...row]);
-  
+
       for (let i = 0; i < panelRows; i++) {
         for (let j = 0; j < panelCols; j++) {
-          if (draggingPanel.cells[i][j] === 'black') {
-            const currentCell = updatedGrid[rowIndex + i][colIndex + j];
-            updatedGrid[rowIndex + i][colIndex + j] =
-              currentCell === 'black' ? 'white' : 'black';
+          if (placingPanel.cells[i][j] === 'black') {
+            updatedGrid[rowIndex + i][colIndex + j] = 
+              updatedGrid[rowIndex + i][colIndex + j] === 'black' ? 'white' : 'black';
           }
         }
       }
-  
+
+      // 現在のグリッド状態を履歴に追加
+      setGridHistory(prev => [...prev, updatedGrid]);
+      setPanelPlacementHistory(prev => [...prev, panelPlacementMode]);
+
       setGrid(updatedGrid);
     }
-  
-    setDraggingPanel(null);
+
+    // パネル配置モードをリセット
+    setPanelPlacementMode({
+      panel: null,
+      highlightedCell: null,
+    });
   };
+
+
 
   const exportStage = () => {
       const stageData = {
@@ -127,6 +131,18 @@ export const Grid: React.FC<GridProps> = ({
       }
     };
 
+      // グリッドビューのレンダリングを修正
+  const renderGridCell = (cellType: CellType, rowIndex: number, colIndex: number) => {
+    return (
+      <div
+        key={`${rowIndex}-${colIndex}`}
+        className={`h-10 w-10 border ${CELL_TYPES[cellType].color}`}
+        onClick={() => handleGridCellClick(rowIndex, colIndex)}
+      />
+    );
+  };
+
+
 
   return (
     <Card className="flex-grow">
@@ -140,16 +156,10 @@ export const Grid: React.FC<GridProps> = ({
             gridTemplateColumns: `repeat(${grid[0].length}, 40px)`,
             gap: '4px',
           }}
-          onDragOver={handleGridDragOver}
-          onDrop={handleGridDrop}
         >
           {grid.map((row, rowIndex) =>
             row.map((cellType, colIndex) => (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                className={`h-10 w-10 border ${CELL_TYPES[cellType].color}`}
-                onClick={() => handleCellClick(rowIndex, colIndex)}
-              />
+              renderGridCell(cellType, rowIndex, colIndex)
             )),
           )}
         </div>

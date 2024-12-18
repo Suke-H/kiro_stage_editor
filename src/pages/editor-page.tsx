@@ -3,10 +3,10 @@ import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
-import { CellType, Panel } from '@/components/types';
+import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '@/components/types';
 
 const EditorPage: React.FC = () => {
-  
+
   const [grid, setGrid] = useState<CellType[][]>([
     ['white', 'white', 'white'],
     ['white', 'white', 'white'],
@@ -35,7 +35,13 @@ const EditorPage: React.FC = () => {
     Array(3).fill(null).map(() => Array(3).fill('white')),
   );
 
-  const [draggingPanel, setDraggingPanel] = useState<Panel | null>(null);
+  const [panelPlacementMode, setPanelPlacementMode] = useState<PanelPlacementModeType>({
+    panel: null,
+    highlightedCell: null,
+  });
+
+  const [gridHistory, setGridHistory] = useState<CellType[][][]>([grid]);
+  const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType[]>([]);
 
   return (
     <div className="flex flex-col p-4 gap-4">
@@ -45,13 +51,15 @@ const EditorPage: React.FC = () => {
           onCellTypeChange={setSelectedCellType} 
         />
         <Grid 
-          grid={grid}
-          setGrid={setGrid}
-          selectedCellType={selectedCellType}
-          panels={panels}
-          setPanels={setPanels}
-          draggingPanel={draggingPanel}
-          setDraggingPanel={setDraggingPanel}
+          grid={grid} 
+          setGrid={setGrid} 
+          setGridHistory={setGridHistory} 
+          selectedCellType={selectedCellType} 
+          panels={panels} 
+          setPanels={setPanels} 
+          panelPlacementMode={panelPlacementMode} 
+          setPanelPlacementMode={setPanelPlacementMode} 
+          setPanelPlacementHistory={setPanelPlacementHistory}
         />
       </div>
   
@@ -59,7 +67,13 @@ const EditorPage: React.FC = () => {
         <PanelList 
           panels={panels}
           setPanels={setPanels}
-          setDraggingPanel={setDraggingPanel}
+          panelPlacementMode={panelPlacementMode}
+          setPanelPlacementMode={setPanelPlacementMode}
+          panelPlacementHistory={panelPlacementHistory}
+          setPanelPlacementHistory={setPanelPlacementHistory}
+          setGrid={setGrid}
+          gridHistory={gridHistory}
+          setGridHistory={setGridHistory}
         />
         <NewPanelCreator 
           newPanelGrid={newPanelGrid}
