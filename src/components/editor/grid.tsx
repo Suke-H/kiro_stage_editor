@@ -1,8 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, MinusCircle, Download, Upload } from 'lucide-react';
+import { PlusCircle, MinusCircle, Download, Upload, Link } from 'lucide-react';
 import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '../types';
-import { CELL_TYPES} from '../../constants/cell-types';
+import { CELL_TYPES } from '../../constants/cell-types';
+import { exportStageToJson, importStageFromJson } from '../../utils/json';
+// import { shareStageUrl } from '../../utils/url';
+import { shareStageUrl } from '../../utils/url';
 
 interface GridProps {
   grid: CellType[][];
@@ -100,37 +103,9 @@ export const Grid: React.FC<GridProps> = ({
     });
   };
 
-  const exportStage = () => {
-      const stageData = {
-        rows: grid.length,
-        cols: grid[0].length,
-        cells: grid,
-        panels: panels,
-      };
-      const jsonString = JSON.stringify(stageData, null, 2);
-      const blob = new Blob([jsonString], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'stage.json';
-      link.click();
-    };
-    
-  const importStage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const stageData = JSON.parse(e.target?.result as string);
-        setGrid(stageData.cells);
-        setPanels(stageData.panels || []);
-      };
-      reader.readAsText(file);
-    }
-  };
-
   // グリッドビューのレンダリングを修正
   const renderGridCell = (cellType: CellType, rowIndex: number, colIndex: number) => {
+    console.log(cellType);
     return (
       <div
         key={`${rowIndex}-${colIndex}`}
@@ -176,13 +151,13 @@ export const Grid: React.FC<GridProps> = ({
         </div>
 
         <div className="flex gap-2 mt-4">
-          <Button onClick={exportStage} className="flex items-center gap-2">
+          <Button onClick={() => exportStageToJson(grid, panels)} className="flex items-center gap-2">
             <Download size={16} /> JSONエクスポート
           </Button>
           <input
             type="file"
             accept=".json"
-            onChange={importStage}
+            onChange={(event) => importStageFromJson(event, setGrid, setPanels)}
             className="hidden"
             id="jsonImport"
           />
@@ -191,6 +166,9 @@ export const Grid: React.FC<GridProps> = ({
               <Upload size={16} /> JSONインポート
             </Button>
           </label>
+          <Button onClick={() => shareStageUrl(grid, panels)} className="mt-4 flex items-center gap-2">
+            <Link size={16} /> URLを生成
+          </Button>
         </div>
       </CardContent>
     </Card>

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
 import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '@/components/types';
+import { decodeStageFromUrl } from '../utils/url';
 
 const EditorPage: React.FC = () => {
 
@@ -42,6 +43,19 @@ const EditorPage: React.FC = () => {
 
   const [gridHistory, setGridHistory] = useState<CellType[][][]>([grid]);
   const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType[]>([]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cells = params.get('cells');
+    const panels = params.get('panels');
+    
+    if (cells && panels) {
+      const stageData = `cells=${cells}&panels=${panels}`;
+      const parsedData = decodeStageFromUrl(stageData);
+      setGrid(parsedData.cells);
+      setPanels(parsedData.panels);
+    }
+  }, []);
 
   return (
     <div className="flex flex-col p-4 gap-4">
