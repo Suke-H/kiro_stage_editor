@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, MinusCircle, Download, Upload } from 'lucide-react';
+import { PlusCircle, MinusCircle, Download, Upload, Link } from 'lucide-react';
 import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '../types';
 import { CELL_TYPES } from '../../constants/cell-types';
 import { exportStageToJson, importStageFromJson } from '../../utils/json';
+// import { shareStageUrl } from '../../utils/url';
+import { shareStageUrl } from '../../utils/url';
 
 interface GridProps {
   grid: CellType[][];
@@ -103,6 +105,7 @@ export const Grid: React.FC<GridProps> = ({
 
   // グリッドビューのレンダリングを修正
   const renderGridCell = (cellType: CellType, rowIndex: number, colIndex: number) => {
+    console.log(cellType);
     return (
       <div
         key={`${rowIndex}-${colIndex}`}
@@ -163,6 +166,9 @@ export const Grid: React.FC<GridProps> = ({
               <Upload size={16} /> JSONインポート
             </Button>
           </label>
+          <Button onClick={() => shareStageUrl(grid, panels)} className="mt-4 flex items-center gap-2">
+            <Link size={16} /> URLを生成
+          </Button>
         </div>
       </CardContent>
     </Card>

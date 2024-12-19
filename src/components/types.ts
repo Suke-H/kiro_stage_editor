@@ -7,6 +7,7 @@ export interface Panel {
 export interface CellTypeConfig {
   label: string;
   color: string;
+  code: string;
 }
 
 export interface PanelPlacementModeType {
