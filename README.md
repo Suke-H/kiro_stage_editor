@@ -1,6 +1,6 @@
 # 『帰路』Stage Editor
 
-目下作成中のパズルゲーム『帰路』にて、Unityに依存せず、 受け渡しはJsonで行えるような補助ツールを作成したく、取り組んでいます。 
+目下作成中のパズルゲーム『帰路』にて、Unityに依存せず、 受け渡しはJsonで行えるような補助ツールを作成したく、取り組んでいます。   
 https://kiro-stage-editor-708973678663.asia-northeast1.run.app/
 <img src="https://github.com/user-attachments/assets/690452b7-e1ae-448a-bde9-c8afe3567e11" alt="kiro-stage-editor" width="600"/>
 
