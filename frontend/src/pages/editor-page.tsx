@@ -45,6 +45,7 @@ const EditorPage: React.FC = () => {
   const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType[]>([]);
 
   useEffect(() => {
+
     const params = new URLSearchParams(window.location.search);
     const cells = params.get('cells');
     const panels = params.get('panels');
@@ -55,6 +56,24 @@ const EditorPage: React.FC = () => {
       setGrid(parsedData.cells);
       setPanels(parsedData.panels);
     }
+  }, []);
+
+  // FastAPIの疎通確認
+  useEffect(() => {
+    const checkApiConnection = async () => {
+      try {
+        const response = await fetch('/api/health'); // FastAPIのエンドポイント
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('API疎通確認成功:', data);
+      } catch (error) {
+        console.error('API疎通確認エラー:', error);
+      }
+    };
+
+    checkApiConnection();
   }, []);
 
   return (
