@@ -103,17 +103,17 @@ export const Grid: React.FC<GridProps> = ({
     });
   };
 
-  // グリッドビューのレンダリングを修正
   const renderGridCell = (cellType: CellType, rowIndex: number, colIndex: number) => {
-    console.log(cellType);
+    const isEmpty = cellType === 'empty';
     return (
       <div
         key={`${rowIndex}-${colIndex}`}
-        className={`h-10 w-10 border ${CELL_TYPES[cellType].color}`}
+        className={`h-10 w-10 ${isEmpty ? '' : 'border'} ${CELL_TYPES[cellType].color}`}
         onClick={() => handleGridCellClick(rowIndex, colIndex)}
       />
     );
   };
+  
 
   return (
     <Card className="flex-grow">
