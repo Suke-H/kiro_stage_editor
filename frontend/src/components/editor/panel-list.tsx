@@ -98,11 +98,12 @@ export const PanelList: React.FC<PanelListProps> = ({
               <div
                 key={`${rowIndex}-${colIndex}`}
                 className={`h-10 w-10 border ${
-                  cellType === 'black' 
-                    ? (panelPlacementMode.panel === panel && 
-                      rowIndex === 0 && colIndex === 0 
-                      ? 'bg-red-500' 
-                      : 'bg-gray-500') 
+                  panelPlacementMode.panel === panel &&
+                  rowIndex === 0 &&
+                  colIndex === 0
+                    ? 'bg-red-500'
+                    : cellType === 'black'
+                    ? 'bg-gray-500'
                     : 'bg-white'
                 }`}
               />
