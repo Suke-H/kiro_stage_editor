@@ -13,16 +13,16 @@ export const CellTypeSelector: React.FC<CellTypeSelectorProps> = ({
   onCellTypeChange 
 }) => {
   return (
-    <Card className="w-64">
+    <Card className="w-full max-w-32 mx-auto">
       <CardHeader>
         <CardTitle>セル種類</CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-2">
+      <CardContent className="flex flex-col gap-2">
         {(Object.keys(CELL_TYPES) as CellType[]).map((type) => (
           <Button
             key={type}
             variant={selectedCellType === type ? 'default' : 'outline'}
-            className={`${CELL_TYPES[type].color} text-white`}
+            className={`w-full ${CELL_TYPES[type].color} ${type === 'white' || type === 'empty' ? 'text-black' : 'text-white'} truncate`} // 文字の省略を防止
             onClick={() => onCellTypeChange(type)}
           >
             {CELL_TYPES[type].label}

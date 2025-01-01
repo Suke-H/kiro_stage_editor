@@ -56,7 +56,6 @@ export const Grid: React.FC<GridProps> = ({
     });
   };
 
-  // グリッドセルのクリックハンドラを修正
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
     // 通常のセル選択モード
     if (!panelPlacementMode.panel) {
@@ -66,20 +65,16 @@ export const Grid: React.FC<GridProps> = ({
       setGridHistory(prev => [...prev, newGrid]);
       return;
     }
-
+  
     // パネル配置モード
     const placingPanel = panelPlacementMode.panel;
-    const panelRows = placingPanel.cells.length;
-    const panelCols = placingPanel.cells[0].length;
-
-    // パネルを配置できるかチェック
-    const canPlacePanel =
-      rowIndex + panelRows <= grid.length &&
-      colIndex + panelCols <= grid[0].length;
-
-    if (canPlacePanel) {
+  
+    if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
       const updatedGrid = grid.map((row) => [...row]);
-
+  
+      const panelRows = placingPanel.cells.length;
+      const panelCols = placingPanel.cells[0].length;
+  
       for (let i = 0; i < panelRows; i++) {
         for (let j = 0; j < panelCols; j++) {
           if (placingPanel.cells[i][j] === 'black') {
@@ -88,32 +83,63 @@ export const Grid: React.FC<GridProps> = ({
           }
         }
       }
-
+  
       // 現在のグリッド状態を履歴に追加
       setGridHistory(prev => [...prev, updatedGrid]);
       setPanelPlacementHistory(prev => [...prev, panelPlacementMode]);
-
+  
       setGrid(updatedGrid);
     }
-
+  
     // パネル配置モードをリセット
     setPanelPlacementMode({
       panel: null,
       highlightedCell: null,
     });
   };
+  
 
-  // グリッドビューのレンダリングを修正
   const renderGridCell = (cellType: CellType, rowIndex: number, colIndex: number) => {
-    console.log(cellType);
+    const isEmpty = cellType === 'empty';
     return (
       <div
         key={`${rowIndex}-${colIndex}`}
-        className={`h-10 w-10 border ${CELL_TYPES[cellType].color}`}
+        className={`h-10 w-10 ${isEmpty ? '' : 'border'} ${CELL_TYPES[cellType].color}`}
         onClick={() => handleGridCellClick(rowIndex, colIndex)}
       />
     );
   };
+
+  const canPlacePanelAtLocation = (
+    grid: CellType[][],
+    rowIndex: number,
+    colIndex: number,
+    panel: Panel
+  ): boolean => {
+    const panelRows = panel.cells.length;
+    const panelCols = panel.cells[0].length;
+  
+    // グリッド範囲内に収まるか
+    if (rowIndex + panelRows > grid.length || colIndex + panelCols > grid[0].length) {
+      return false;
+    }
+  
+    // パネルを配置するセルがすべて white または black であるかチェック
+    for (let i = 0; i < panelRows; i++) {
+      for (let j = 0; j < panelCols; j++) {
+        if (panel.cells[i][j] === 'black') {
+          const targetCell = grid[rowIndex + i][colIndex + j];
+          if (targetCell !== 'white' && targetCell !== 'black') {
+            return false;
+          }
+        }
+      }
+    }
+  
+    return true;
+  };
+  
+  
 
   return (
     <Card className="flex-grow">
