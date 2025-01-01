@@ -44,7 +44,7 @@ export const NewPanelCreator: React.FC<NewPanelCreatorProps> = ({
 
     const handleNewPanelCellClick = (rowIndex: number, colIndex: number) => {
       const newPanelGridCopy = newPanelGrid.map((row) => [...row]);
-      newPanelGridCopy[rowIndex][colIndex] = 'black';
+      newPanelGridCopy[rowIndex][colIndex] = newPanelGridCopy[rowIndex][colIndex] === 'black' ? 'white' : 'black';
       setNewPanelGrid(newPanelGridCopy);
     };
   
