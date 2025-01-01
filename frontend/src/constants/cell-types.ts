@@ -5,5 +5,6 @@ export const CELL_TYPES: Record<CellType, CellTypeConfig> = {
   'black': { label: '黒', color: 'bg-black', code: 'b' },
   'start': { label: '開始', color: 'bg-green-500', code: 's' },
   'goal': { label: 'ゴール', color: 'bg-blue-500', code: 'g' },
-  'obstacle': { label: '障害物', color: 'bg-red-500', code: 'o' },
+  'dummy-goal': { label: 'ダミーゴール', color: 'bg-red-500', code: 'd' },
+  'crow': { label: 'カラス', color: 'bg-yellow-500', code: 'c' },
 };
