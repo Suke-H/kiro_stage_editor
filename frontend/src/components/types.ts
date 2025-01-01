@@ -1,4 +1,4 @@
-export type CellType =  'empty' | 'white' | 'black' | 'start' | 'goal' | 'dummy-goal' | 'crow';
+export type CellType =  'empty' | 'white' | 'black' | 'start' | 'goal' | 'dummy-goal' | 'crow' | 'obstacle';
 
 export interface Panel {
   id: string;

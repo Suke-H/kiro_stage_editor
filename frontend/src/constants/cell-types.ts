@@ -8,4 +8,5 @@ export const CELL_TYPES: Record<CellType, CellTypeConfig> = {
   'goal': { label: 'ゴール', color: 'bg-blue-500', code: 'g' },
   'dummy-goal': { label: 'ダミーゴール', color: 'bg-red-500', code: 'd' },
   'crow': { label: 'カラス', color: 'bg-yellow-500', code: 'c' },
+  'obstacle': { label: '障害物', color: 'bg-gray-500', code: 'o' },
 };
