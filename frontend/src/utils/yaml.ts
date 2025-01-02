@@ -86,45 +86,82 @@ export const importStageFromYaml = (
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const yamlData: YamlStageData = parse(e.target?.result as string);
-      const { Height, Width, Cells, Panels } = yamlData.StageRawData;
+      try {
+        const yamlData: YamlStageData = parse(e.target?.result as string);
+        const { Height, Width, Cells, Panels } = yamlData.StageRawData;
 
-      // グリッド変換
-      const grid: CellType[][] = Cells.map((row) =>
-        row.map((cell) => {
-          if (cell.Type.Type === 'N') {
-            return cell.StartColor.toLowerCase() as CellType; // "black", "white", "empty"
-          }
-          const typeMap: Record<string, CellType> = {
-            S: 'start',
-            G: 'goal',
-            D: 'dummy-goal',
-            C: 'crow',
-            O: 'obstacle',
-          };
-          return typeMap[cell.Type.Type];
-        })
-      );
-
-      // パネル変換
-      const panels: Panel[] = Panels.map((panel, index) => {
-        const panelGrid: CellType[][] = Array.from({ length: Height }, () =>
-          Array.from({ length: Width }, () => 'empty')
+        // グリッド変換
+        const grid: CellType[][] = Cells.map((row) =>
+          row.map((cell) => {
+            if (cell.Type.Type === 'N') {
+              return cell.StartColor.toLowerCase() as CellType;
+            }
+            const typeMap: Record<string, CellType> = {
+              S: 'start',
+              G: 'goal',
+              D: 'dummy-goal',
+              C: 'crow',
+              O: 'obstacle',
+            };
+            return typeMap[cell.Type.Type];
+          })
         );
-        panel.Coordinates.forEach(({ x, y }) => {
-          panelGrid[y][x] = 'black'; // "black"セルのみパネルに反映
-        });
-        return {
-          id: `panel-${index}`,
-          cells: panelGrid,
-        };
-      });
 
-      setGrid(grid);
-      setPanels(panels);
+        // パネル変換とトリム
+        const panels: Panel[] = Panels.map((panel, index) => {
+          const panelGrid: CellType[][] = Array.from({ length: Height }, () =>
+            Array.from({ length: Width }, () => 'empty')
+          );
+          panel.Coordinates.forEach(({ x, y }) => {
+            panelGrid[y][x] = 'black';
+          });
+          return {
+            id: `panel-${index}`,
+            cells: panelGrid,
+          };
+        });
+
+        // パネルのトリム処理
+        const trimmedPanels = trimPanels(panels);
+
+        setGrid(grid);
+        setPanels(trimmedPanels);
+      } catch (error) {
+        console.error('Error importing YAML:', error);
+      }
     };
     reader.readAsText(file);
   }
 };
 
-  
+// Panels全体をトリムする関数
+const trimPanels = (panels: Panel[]): Panel[] => panels.map(trimPanelCells);
+
+const trimPanelCells = (panel: Panel): Panel => {
+  // "black"セルの座標を取得
+  const coordinates = panel.cells.flatMap((row, rowIndex) =>
+    row.map((cell, colIndex) => (cell === 'black' ? { x: colIndex, y: rowIndex } : null))
+      .filter(coord => coord !== null)
+  );
+
+  if (coordinates.length === 0) {
+    // セルがない場合、空のパネルとして返す
+    return { id: panel.id, cells: [] };
+  }
+
+  // x, yの最小値と最大値を計算
+  const minX = Math.min(...coordinates.map(coord => coord!.x));
+  const maxX = Math.max(...coordinates.map(coord => coord!.x));
+  const minY = Math.min(...coordinates.map(coord => coord!.y));
+  const maxY = Math.max(...coordinates.map(coord => coord!.y));
+
+  // トリムされたセルを作成
+  const trimmedCells = panel.cells.slice(minY, maxY + 1)
+    .map(row => row.slice(minX, maxX + 1));
+
+  return {
+    id: panel.id,
+    cells: trimmedCells,
+  };
+};
+

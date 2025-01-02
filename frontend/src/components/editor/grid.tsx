@@ -139,6 +139,12 @@ export const Grid: React.FC<GridProps> = ({
     return true;
   };
   
+  const triggerFileInput = () => {
+    const input = document.getElementById('yamlImport') as HTMLInputElement;
+    if (input) {
+      input.click();
+    }
+  };
   
 
   return (
@@ -188,7 +194,7 @@ export const Grid: React.FC<GridProps> = ({
             id="yamlImport"
           />
           <label htmlFor="yamlImport" className="cursor-pointer">
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button onClick={triggerFileInput} variant="outline" className="flex items-center gap-2">
               <Upload size={16} /> YAMLインポート
             </Button>
           </label>
