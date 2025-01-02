@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, MinusCircle, Download, Upload, Link } from 'lucide-react';
 import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '../types';
 import { CELL_TYPES } from '../../constants/cell-types';
-import { exportStageToJson, importStageFromJson } from '../../utils/json';
-// import { shareStageUrl } from '../../utils/url';
+// import { exportStageToJson, importStageFromJson } from '../../utils/json';
+import { exportStageToYaml, importStageFromYaml } from '../../utils/yaml';
 import { shareStageUrl } from '../../utils/url';
 
 interface GridProps {
@@ -139,6 +139,12 @@ export const Grid: React.FC<GridProps> = ({
     return true;
   };
   
+  const triggerFileInput = () => {
+    const input = document.getElementById('yamlImport') as HTMLInputElement;
+    if (input) {
+      input.click();
+    }
+  };
   
 
   return (
@@ -177,19 +183,19 @@ export const Grid: React.FC<GridProps> = ({
         </div>
 
         <div className="flex gap-2 mt-4">
-          <Button onClick={() => exportStageToJson(grid, panels)} className="flex items-center gap-2">
-            <Download size={16} /> JSONエクスポート
+          <Button onClick={() => exportStageToYaml(grid, panels)} className="flex items-center gap-2">
+            <Download size={16} /> YAMLエクスポート
           </Button>
           <input
             type="file"
-            accept=".json"
-            onChange={(event) => importStageFromJson(event, setGrid, setPanels)}
+            accept=".yaml,.yml"
+            onChange={(event) => importStageFromYaml(event, setGrid, setPanels)}
             className="hidden"
-            id="jsonImport"
+            id="yamlImport"
           />
-          <label htmlFor="jsonImport" className="cursor-pointer">
-            <Button variant="outline" className="flex items-center gap-2">
-              <Upload size={16} /> JSONインポート
+          <label htmlFor="yamlImport" className="cursor-pointer">
+            <Button onClick={triggerFileInput} variant="outline" className="flex items-center gap-2">
+              <Upload size={16} /> YAMLインポート
             </Button>
           </label>
           <Button onClick={() => shareStageUrl(grid, panels)} className="mt-4 flex items-center gap-2">
