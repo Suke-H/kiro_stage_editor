@@ -33,17 +33,14 @@ const transformCellToYamlFormat = (cell: CellType) : CellYamlData => {
   if (cell === 'empty') {
     return { Type: { Type: 'N', SkinId: 0 }, StartColor: 'Empty' };
   }
-  const typeMap: Record<CellType, string> = {
-    'empty': 'N',
-    'white': 'N',
-    'black': 'N',
+  const typeMap: Partial<Record<CellType, string>> = {
     'start': 'S',
     'goal': 'G',
     'dummy-goal': 'D',
     'crow': 'C',
     'obstacle': 'O',
   };
-  return { Type: { Type: typeMap[cell], SkinId: 0 }, StartColor: 'White' };
+  return { Type: { Type: typeMap[cell] || 'N', SkinId: 0 }, StartColor: 'White' };
 };
 
 export const exportStageToYaml = (
