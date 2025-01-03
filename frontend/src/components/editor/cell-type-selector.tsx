@@ -22,7 +22,7 @@ export const CellTypeSelector: React.FC<CellTypeSelectorProps> = ({
           <Button
             key={type}
             variant={selectedCellType === type ? 'default' : 'outline'}
-            className={`w-full ${CELL_TYPES[type].color} ${type === 'white' || type === 'empty' ? 'text-black' : 'text-white'} truncate`} // 文字の省略を防止
+            className={`w-full ${CELL_TYPES[type].color} ${CELL_TYPES[type].color === "bg-white" ? 'text-black' : 'text-white'} truncate`} // 文字の省略を防止
             onClick={() => onCellTypeChange(type)}
           >
             {CELL_TYPES[type].label}
