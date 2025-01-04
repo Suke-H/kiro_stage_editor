@@ -42,14 +42,14 @@ export const Grid: React.FC<GridProps> = ({
 
       if (newRows > 0 && newCols > 0) {
         if (rowDelta > 0) {
-          return [...prevGrid, ...Array(rowDelta).fill(Array(newCols).fill('white'))];
+          return [...prevGrid, ...Array(rowDelta).fill(Array(newCols).fill('White'))];
         } else if (rowDelta < 0) {
           return prevGrid.slice(0, newRows).map((row) => row.slice(0, newCols));
         }
 
         return prevGrid.map((row) => {
           if (colDelta > 0) {
-            return [...row, ...Array(colDelta).fill('white')];
+            return [...row, ...Array(colDelta).fill('White')];
           } else if (colDelta < 0) {
             return row.slice(0, newCols);
           }
@@ -67,10 +67,10 @@ export const Grid: React.FC<GridProps> = ({
       
       // 矢印セルの向きが既にある場合、反転する
       const currentCell = newGrid[rowIndex][colIndex];
-      if (currentCell === 'arrow-up') newGrid[rowIndex][colIndex] = 'arrow-down';
-      else if (currentCell === 'arrow-down') newGrid[rowIndex][colIndex] = 'arrow-up';
-      else if (currentCell === 'arrow-left') newGrid[rowIndex][colIndex] = 'arrow-right';
-      else if (currentCell === 'arrow-right') newGrid[rowIndex][colIndex] = 'arrow-left';
+      if (currentCell === 'ArrowUp') newGrid[rowIndex][colIndex] = 'ArrowDown';
+      else if (currentCell === 'ArrowDown') newGrid[rowIndex][colIndex] = 'ArrowUp';
+      else if (currentCell === 'ArrowLeft') newGrid[rowIndex][colIndex] = 'ArrowRight';
+      else if (currentCell === 'ArrowRight') newGrid[rowIndex][colIndex] = 'ArrowLeft';
       else newGrid[rowIndex][colIndex] = selectedCellType;
   
       setGrid(newGrid);
@@ -89,16 +89,16 @@ export const Grid: React.FC<GridProps> = ({
   
       for (let i = 0; i < panelRows; i++) {
         for (let j = 0; j < panelCols; j++) {
-          if (placingPanel.cells[i][j] === 'black') {
+          if (placingPanel.cells[i][j] === 'Black') {
             const targetCell = updatedGrid[rowIndex + i][colIndex + j];
             if (targetCell.startsWith('arrow-')) {
               // 矢印セルの向きを反転
-              if (targetCell === 'arrow-up') updatedGrid[rowIndex + i][colIndex + j] = 'arrow-down';
-              else if (targetCell === 'arrow-down') updatedGrid[rowIndex + i][colIndex + j] = 'arrow-up';
-              else if (targetCell === 'arrow-left') updatedGrid[rowIndex + i][colIndex + j] = 'arrow-right';
-              else if (targetCell === 'arrow-right') updatedGrid[rowIndex + i][colIndex + j] = 'arrow-left';
+              if (targetCell === 'ArrowUp') updatedGrid[rowIndex + i][colIndex + j] = 'ArrowDown';
+              else if (targetCell === 'ArrowDown') updatedGrid[rowIndex + i][colIndex + j] = 'ArrowUp';
+              else if (targetCell === 'ArrowLeft') updatedGrid[rowIndex + i][colIndex + j] = 'ArrowRight';
+              else if (targetCell === 'ArrowRight') updatedGrid[rowIndex + i][colIndex + j] = 'ArrowLeft';
             } else {
-              updatedGrid[rowIndex + i][colIndex + j] = 'black';
+              updatedGrid[rowIndex + i][colIndex + j] = 'Black';
             }
           }
         }
@@ -116,14 +116,14 @@ export const Grid: React.FC<GridProps> = ({
   };
   
   const renderGridCell = (cellType: CellType, rowIndex: number, colIndex: number) => {
-    const isEmpty = cellType === 'empty';
+    const isEmpty = cellType === 'Empty';
   
     // 矢印セル用の辞書型
     const arrowIcons: Partial<Record<CellType, JSX.Element>> = {
-      'arrow-up': <ArrowUpwardIcon fontSize="small" />,
-      'arrow-down': <ArrowDownwardIcon fontSize="small" />,
-      'arrow-left': <ArrowBackIcon fontSize="small" />,
-      'arrow-right': <ArrowForwardIcon fontSize="small" />,
+      'ArrowUp': <ArrowUpwardIcon fontSize="small" />,
+      'ArrowDown': <ArrowDownwardIcon fontSize="small" />,
+      'ArrowLeft': <ArrowBackIcon fontSize="small" />,
+      'ArrowRight': <ArrowForwardIcon fontSize="small" />,
     };
   
     return (
@@ -157,12 +157,12 @@ export const Grid: React.FC<GridProps> = ({
     // パネルを配置するセルがすべて適切であるかチェック
     for (let i = 0; i < panelRows; i++) {
       for (let j = 0; j < panelCols; j++) {
-        if (panel.cells[i][j] === 'black') {
+        if (panel.cells[i][j] === 'Black') {
           const targetCell = grid[rowIndex + i][colIndex + j];
           if (
-            targetCell !== 'white' &&
-            targetCell !== 'black' &&
-            !targetCell.startsWith('arrow-')
+            targetCell !== 'White' &&
+            targetCell !== 'Black' &&
+            !targetCell.startsWith('Arrow')
           ) {
             return false;
           }

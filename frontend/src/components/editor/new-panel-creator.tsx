@@ -24,14 +24,14 @@ export const NewPanelCreator: React.FC<NewPanelCreatorProps> = ({
 
         if (newRows > 0 && newCols > 0) {
           if (rowDelta > 0) {
-            return [...prevGrid, ...Array(rowDelta).fill(Array(newCols).fill('white'))];
+            return [...prevGrid, ...Array(rowDelta).fill(Array(newCols).fill('White'))];
           } else if (rowDelta < 0) {
             return prevGrid.slice(0, newRows).map((row) => row.slice(0, newCols));
           }
 
           return prevGrid.map((row) => {
             if (colDelta > 0) {
-              return [...row, ...Array(colDelta).fill('white')];
+              return [...row, ...Array(colDelta).fill('White')];
             } else if (colDelta < 0) {
               return row.slice(0, newCols);
             }
@@ -44,19 +44,19 @@ export const NewPanelCreator: React.FC<NewPanelCreatorProps> = ({
 
     const handleNewPanelCellClick = (rowIndex: number, colIndex: number) => {
       const newPanelGridCopy = newPanelGrid.map((row) => [...row]);
-      newPanelGridCopy[rowIndex][colIndex] = newPanelGridCopy[rowIndex][colIndex] === 'black' ? 'white' : 'black';
+      newPanelGridCopy[rowIndex][colIndex] = newPanelGridCopy[rowIndex][colIndex] === 'Black' ? 'White' : 'Black';
       setNewPanelGrid(newPanelGridCopy);
     };
   
     const addPanel = () => {
-      const nonEmptyCells = newPanelGrid.some((row) => row.some((cell) => cell === 'black'));
+      const nonEmptyCells = newPanelGrid.some((row) => row.some((cell) => cell === 'Black'));
       if (nonEmptyCells) {
         const newPanel: Panel = {
           id: `panel-${Date.now()}`,
           cells: newPanelGrid,
         };
         setPanels([...panels, newPanel]);
-        setNewPanelGrid(Array(3).fill(null).map(() => Array(3).fill('white')));
+        setNewPanelGrid(Array(3).fill(null).map(() => Array(3).fill('White')));
       }
     };
 
@@ -92,7 +92,7 @@ export const NewPanelCreator: React.FC<NewPanelCreatorProps> = ({
               <div
                 key={`new-${rowIndex}-${colIndex}`}
                 className={`h-10 w-10 border ${
-                  cellType === 'black' ? 'bg-gray-500' : 'bg-white'
+                  cellType === 'Black' ? 'bg-gray-500' : 'bg-white'
                 }`}
                 onClick={() => handleNewPanelCellClick(rowIndex, colIndex)}
               />

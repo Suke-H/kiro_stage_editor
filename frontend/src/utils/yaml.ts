@@ -3,7 +3,7 @@ import { parse, stringify } from 'yaml';
 
 interface CellYamlData {
   Type: {
-    Type: string; // "N", "S", "G", "D", "C", "O" など
+    Type: string;
     SkinId: number;
   };
   StartColor: string; // "Black", "White", "Empty"
@@ -14,20 +14,20 @@ interface PanelYamlData {
 }
 
 const transformCellToYamlFormat = (cell: CellType): CellYamlData => {
-  if (cell === 'black' || cell === 'white') {
-    return { Type: { Type: 'N', SkinId: 0 }, StartColor: cell.charAt(0).toUpperCase() + cell.slice(1) };
+  if (cell === 'Black' || cell === 'White') {
+    return { Type: { Type: 'Normal', SkinId: 0 }, StartColor: cell.charAt(0).toUpperCase() + cell.slice(1) };
   }
-  if (cell === 'empty') {
-    return { Type: { Type: 'N', SkinId: 0 }, StartColor: 'Empty' };
+  if (cell === 'Empty') {
+    return { Type: { Type: 'Normal', SkinId: 0 }, StartColor: 'Empty' };
   }
-  const typeMap: Partial<Record<CellType, string>> = {
-    'start': 'S',
-    'goal': 'G',
-    'dummy-goal': 'D',
-    'crow': 'C',
-    'obstacle': 'O',
-  };
-  return { Type: { Type: typeMap[cell] || 'N', SkinId: 0 }, StartColor: 'White' };
+  // const typeMap: Partial<Record<CellType, string>> = {
+  //   'start': 'S',
+  //   'goal': 'G',
+  //   'dummy-goal': 'D',
+  //   'crow': 'C',
+  //   'obstacle': 'O',
+  // };
+  return { Type: { Type: cell || 'Normal', SkinId: 0 }, StartColor: 'White' };
 };
 
 export const exportStageToYaml = (
@@ -38,7 +38,7 @@ export const exportStageToYaml = (
 
   const panelCoordinates = panels.map(panel => ({
     Coordinates: panel.cells.flatMap((row, y) =>
-      row.map((cell, x) => cell === 'black' ? { X: x, Y: y } : null).filter(coord => coord !== null)
+      row.map((cell, x) => cell === 'Black' ? { X: x, Y: y } : null).filter(coord => coord !== null)
     ).flat(),
   }));
 
@@ -75,27 +75,20 @@ export const importStageFromYaml = (
         // グリッド変換
         const grid: CellType[][] = Cells.map((row: CellYamlData[]) =>
           row.map((cell: CellYamlData) => {
-            if (cell.Type.Type === 'N') {
-              return cell.StartColor.toLowerCase() as CellType;
+            if (cell.Type.Type === 'Normal') {
+              return cell.StartColor as CellType;
             }
-            const typeMap: Record<string, CellType> = {
-              S: 'start',
-              G: 'goal',
-              D: 'dummy-goal',
-              C: 'crow',
-              O: 'obstacle',
-            };
-            return typeMap[cell.Type.Type];
+            return cell.Type.Type;
           })
         );
 
         // パネル変換とトリム
         const panels: Panel[] = Panels.map((panel: PanelYamlData, index: number) => {
           const panelGrid: CellType[][] = Array.from({ length: Height }, () =>
-            Array.from({ length: Width }, () => 'empty')
+            Array.from({ length: Width }, () => 'Empty')
           );
           panel.Coordinates.forEach(({ X, Y }) => {
-            panelGrid[Y][X] = 'black';
+            panelGrid[Y][X] = 'Black';
           });
           return {
             id: `panel-${index}`,
@@ -120,9 +113,9 @@ export const importStageFromYaml = (
 const trimPanels = (panels: Panel[]): Panel[] => panels.map(trimPanelCells);
 
 const trimPanelCells = (panel: Panel): Panel => {
-  // "black"セルの座標を取得
+  // "Black"セルの座標を取得
   const coordinates = panel.cells.flatMap((row, rowIndex) =>
-    row.map((cell, colIndex) => (cell === 'black' ? { X: colIndex, Y: rowIndex } : null))
+    row.map((cell, colIndex) => (cell === 'Black' ? { X: colIndex, Y: rowIndex } : null))
       .filter(coord => coord !== null)
   );
 

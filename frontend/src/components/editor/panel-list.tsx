@@ -36,7 +36,7 @@ export const PanelList: React.FC<PanelListProps> = ({
     let firstBlackCell = null;
     for (let i = 0; i < panel.cells.length; i++) {
       for (let j = 0; j < panel.cells[0].length; j++) {
-        if (panel.cells[i][j] === 'black') {
+        if (panel.cells[i][j] === 'Black') {
           firstBlackCell = { row: i, col: j };
           break;
         }
@@ -102,7 +102,7 @@ export const PanelList: React.FC<PanelListProps> = ({
                   rowIndex === 0 &&
                   colIndex === 0
                     ? 'bg-red-500'
-                    : cellType === 'black'
+                    : cellType === 'Black'
                     ? 'bg-gray-500'
                     : 'bg-white'
                 }`}
