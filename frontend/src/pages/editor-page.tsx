@@ -9,31 +9,31 @@ import { decodeStageFromUrl } from '../utils/url';
 const EditorPage: React.FC = () => {
 
   const [grid, setGrid] = useState<CellType[][]>([
-    ['white', 'white', 'white'],
-    ['white', 'white', 'white'],
-    ['white', 'white', 'white'],
+    ['White', 'White', 'White'],
+    ['White', 'White', 'White'],
+    ['White', 'White', 'White'],
   ]);
 
-  const [selectedCellType, setSelectedCellType] = useState<CellType>('black');
+  const [selectedCellType, setSelectedCellType] = useState<CellType>('Black');
   const [panels, setPanels] = useState<Panel[]>([
     {
       id: 'panel1',
       cells: [
-        ['black', 'black'],
-        ['black', 'black'],
+        ['Black', 'Black'],
+        ['Black', 'Black'],
       ],
     },
     {
       id: 'panel2',
       cells: [
-        ['black', 'white'],
-        ['white', 'black'],
+        ['Black', 'White'],
+        ['White', 'Black'],
       ],
     },
   ]);
 
   const [newPanelGrid, setNewPanelGrid] = useState<CellType[][]>(() =>
-    Array(3).fill(null).map(() => Array(3).fill('white')),
+    Array(3).fill(null).map(() => Array(3).fill('White')),
   );
 
   const [panelPlacementMode, setPanelPlacementMode] = useState<PanelPlacementModeType>({

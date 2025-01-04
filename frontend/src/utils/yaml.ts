@@ -1,46 +1,33 @@
 import { CellType, Panel } from '@/components/types';
 import { parse, stringify } from 'yaml';
 
-
 interface CellYamlData {
-    Type: {
-      Type: string; // "N", "S", "G", "D", "C", "O" など
-      SkinId: number;
-    };
-    StartColor: string; // "Black", "White", "Empty"
-  }
-  
-  interface PanelYamlData {
-    Coordinates: { x: number; y: number }[];
-  }
-  
-  interface StageRawData {
-    Id: number; // ステージID (1で固定)
-    Height: number; // グリッドの高さ
-    Width: number; // グリッドの幅
-    Cells: CellYamlData[][]; // グリッドのセルデータ
-    Panels: PanelYamlData[]; // パネルデータ
-  }
-  
-  interface YamlStageData {
-    StageRawData: StageRawData;
-  }
-
-const transformCellToYamlFormat = (cell: CellType) : CellYamlData => {
-  if (cell === 'black' || cell === 'white') {
-    return { Type: { Type: 'N', SkinId: 0 }, StartColor: cell.charAt(0).toUpperCase() + cell.slice(1) };
-  }
-  if (cell === 'empty') {
-    return { Type: { Type: 'N', SkinId: 0 }, StartColor: 'Empty' };
-  }
-  const typeMap: Partial<Record<CellType, string>> = {
-    'start': 'S',
-    'goal': 'G',
-    'dummy-goal': 'D',
-    'crow': 'C',
-    'obstacle': 'O',
+  Type: {
+    Type: string;
+    SkinId: number;
   };
-  return { Type: { Type: typeMap[cell] || 'N', SkinId: 0 }, StartColor: 'White' };
+  StartColor: string; // "Black", "White", "Empty"
+}
+
+interface PanelYamlData {
+  Coordinates: { X: number; Y: number }[];
+}
+
+const transformCellToYamlFormat = (cell: CellType): CellYamlData => {
+  if (cell === 'Black' || cell === 'White') {
+    return { Type: { Type: 'Normal', SkinId: 0 }, StartColor: cell.charAt(0).toUpperCase() + cell.slice(1) };
+  }
+  if (cell === 'Empty') {
+    return { Type: { Type: 'Normal', SkinId: 0 }, StartColor: 'Empty' };
+  }
+  // const typeMap: Partial<Record<CellType, string>> = {
+  //   'start': 'S',
+  //   'goal': 'G',
+  //   'dummy-goal': 'D',
+  //   'crow': 'C',
+  //   'obstacle': 'O',
+  // };
+  return { Type: { Type: cell || 'Normal', SkinId: 0 }, StartColor: 'White' };
 };
 
 export const exportStageToYaml = (
@@ -51,21 +38,19 @@ export const exportStageToYaml = (
 
   const panelCoordinates = panels.map(panel => ({
     Coordinates: panel.cells.flatMap((row, y) =>
-      row.map((cell, x) => cell === 'black' ? { x, y } : null).filter(coord => coord !== null)
+      row.map((cell, x) => cell === 'Black' ? { X: x, Y: y } : null).filter(coord => coord !== null)
     ).flat(),
   }));
 
-  const stageData = {
-    StageRawData: {
-      Id: 1,
-      Height: grid.length,
-      Width: grid[0].length,
-      Cells: cells,
-      Panels: panelCoordinates,
-    },
+  const yamlStageData = {
+    Id: 1,
+    Height: grid.length,
+    Width: grid[0].length,
+    Cells: cells,
+    Panels: panelCoordinates,
   };
 
-  const yamlString = stringify(stageData);
+  const yamlString = stringify(yamlStageData);
   const blob = new Blob([yamlString], { type: 'text/yaml' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -84,33 +69,26 @@ export const importStageFromYaml = (
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const yamlData: YamlStageData = parse(e.target?.result as string);
-        const { Height, Width, Cells, Panels } = yamlData.StageRawData;
+        const yamlData = parse(e.target?.result as string);
+        const { Height, Width, Cells, Panels } = yamlData;
 
         // グリッド変換
-        const grid: CellType[][] = Cells.map((row) =>
-          row.map((cell) => {
-            if (cell.Type.Type === 'N') {
-              return cell.StartColor.toLowerCase() as CellType;
+        const grid: CellType[][] = Cells.map((row: CellYamlData[]) =>
+          row.map((cell: CellYamlData) => {
+            if (cell.Type.Type === 'Normal') {
+              return cell.StartColor as CellType;
             }
-            const typeMap: Record<string, CellType> = {
-              S: 'start',
-              G: 'goal',
-              D: 'dummy-goal',
-              C: 'crow',
-              O: 'obstacle',
-            };
-            return typeMap[cell.Type.Type];
+            return cell.Type.Type;
           })
         );
 
         // パネル変換とトリム
-        const panels: Panel[] = Panels.map((panel, index) => {
+        const panels: Panel[] = Panels.map((panel: PanelYamlData, index: number) => {
           const panelGrid: CellType[][] = Array.from({ length: Height }, () =>
-            Array.from({ length: Width }, () => 'empty')
+            Array.from({ length: Width }, () => 'Empty')
           );
-          panel.Coordinates.forEach(({ x, y }) => {
-            panelGrid[y][x] = 'black';
+          panel.Coordinates.forEach(({ X, Y }) => {
+            panelGrid[Y][X] = 'Black';
           });
           return {
             id: `panel-${index}`,
@@ -135,9 +113,9 @@ export const importStageFromYaml = (
 const trimPanels = (panels: Panel[]): Panel[] => panels.map(trimPanelCells);
 
 const trimPanelCells = (panel: Panel): Panel => {
-  // "black"セルの座標を取得
+  // "Black"セルの座標を取得
   const coordinates = panel.cells.flatMap((row, rowIndex) =>
-    row.map((cell, colIndex) => (cell === 'black' ? { x: colIndex, y: rowIndex } : null))
+    row.map((cell, colIndex) => (cell === 'Black' ? { X: colIndex, Y: rowIndex } : null))
       .filter(coord => coord !== null)
   );
 
@@ -147,10 +125,10 @@ const trimPanelCells = (panel: Panel): Panel => {
   }
 
   // x, yの最小値と最大値を計算
-  const minX = Math.min(...coordinates.map(coord => coord!.x));
-  const maxX = Math.max(...coordinates.map(coord => coord!.x));
-  const minY = Math.min(...coordinates.map(coord => coord!.y));
-  const maxY = Math.max(...coordinates.map(coord => coord!.y));
+  const minX = Math.min(...coordinates.map(coord => coord!.X));
+  const maxX = Math.max(...coordinates.map(coord => coord!.X));
+  const minY = Math.min(...coordinates.map(coord => coord!.Y));
+  const maxY = Math.max(...coordinates.map(coord => coord!.Y));
 
   // トリムされたセルを作成
   const trimmedCells = panel.cells.slice(minY, maxY + 1)
@@ -161,4 +139,3 @@ const trimPanelCells = (panel: Panel): Panel => {
     cells: trimmedCells,
   };
 };
-
