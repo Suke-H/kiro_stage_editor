@@ -64,14 +64,7 @@ export const Grid: React.FC<GridProps> = ({
     // 通常のセル選択モード
     if (!panelPlacementMode.panel) {
       const newGrid = [...grid];
-      
-      // 矢印セルの向きが既にある場合、反転する
-      const currentCell = newGrid[rowIndex][colIndex];
-      if (currentCell === 'ArrowUp') newGrid[rowIndex][colIndex] = 'ArrowDown';
-      else if (currentCell === 'ArrowDown') newGrid[rowIndex][colIndex] = 'ArrowUp';
-      else if (currentCell === 'ArrowLeft') newGrid[rowIndex][colIndex] = 'ArrowRight';
-      else if (currentCell === 'ArrowRight') newGrid[rowIndex][colIndex] = 'ArrowLeft';
-      else newGrid[rowIndex][colIndex] = selectedCellType;
+      newGrid[rowIndex][colIndex] = selectedCellType;
   
       setGrid(newGrid);
       setGridHistory((prev) => [...prev, newGrid]);
