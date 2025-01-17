@@ -20,13 +20,6 @@ const transformCellToYamlFormat = (cell: CellType): CellYamlData => {
   if (cell === 'Empty') {
     return { Type: { Type: 'Normal', SkinId: 0 }, StartColor: 'Empty' };
   }
-  // const typeMap: Partial<Record<CellType, string>> = {
-  //   'start': 'S',
-  //   'goal': 'G',
-  //   'dummy-goal': 'D',
-  //   'crow': 'C',
-  //   'obstacle': 'O',
-  // };
   return { Type: { Type: cell || 'Normal', SkinId: 0 }, StartColor: 'White' };
 };
 
