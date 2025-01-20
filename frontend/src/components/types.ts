@@ -1,13 +1,10 @@
-export type CellType =  'Empty' | 'White' | 'Black' | 'Start' | 'Goal' | 'DummyGoal' | 'Crow' | 'Obstacle' | 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
+import { CELL_TYPES } from "../constants/cell-types";
+
+export type CellType = keyof typeof CELL_TYPES;
 
 export interface Panel {
   id: string;
   cells: CellType[][];
-}
-export interface CellTypeConfig {
-  label: string;
-  color: string;
-  code: string;
 }
 
 export interface PanelPlacementModeType {
