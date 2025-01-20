@@ -6,10 +6,6 @@ import { CELL_TYPES } from '../../constants/cell-types';
 // import { exportStageToJson, importStageFromJson } from '../../utils/json';
 import { exportStageToYaml, importStageFromYaml } from '../../utils/yaml';
 import { shareStageUrl } from '../../utils/url';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 interface GridProps {
   grid: CellType[][];
@@ -117,27 +113,22 @@ export const Grid: React.FC<GridProps> = ({
   const renderGridCell = (cellType: CellType, rowIndex: number, colIndex: number) => {
     const isEmpty = cellType === 'Empty';
   
-    // 矢印セル用の辞書型
-    const arrowIcons: Partial<Record<CellType, JSX.Element>> = {
-      'ArrowUp': <ArrowUpwardIcon fontSize="small" />,
-      'ArrowDown': <ArrowDownwardIcon fontSize="small" />,
-      'ArrowLeft': <ArrowBackIcon fontSize="small" />,
-      'ArrowRight': <ArrowForwardIcon fontSize="small" />,
-    };
-  
     return (
       <div
         key={`${rowIndex}-${colIndex}`}
-        className={`h-10 w-10 flex items-center justify-center ${isEmpty ? '' : 'border'} ${
-          CELL_TYPES[cellType]?.color
-        }`}
+        className={`h-10 w-10 flex items-center justify-center ${isEmpty ? '' : 'border'}`}
         onClick={() => handleGridCellClick(rowIndex, colIndex)}
       >
-        {arrowIcons[cellType]}
+        {!isEmpty && (
+          <img
+            src={CELL_TYPES[cellType].imagePath}
+            alt={CELL_TYPES[cellType].label}
+            className="w-full h-full object-contain"
+          />
+        )}
       </div>
     );
   };
-  
 
   const canPlacePanelAtLocation = (
     grid: CellType[][],
@@ -181,7 +172,7 @@ export const Grid: React.FC<GridProps> = ({
   
 
   return (
-    <Card className="flex-grow">
+    <Card className="flex-grow bg-[#B3B9D1]">
       <CardHeader>
         <CardTitle>ステージエディター</CardTitle>
       </CardHeader>
