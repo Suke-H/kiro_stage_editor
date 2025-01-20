@@ -77,7 +77,7 @@ const EditorPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col p-4 gap-4">
+    <div className="flex flex-col p-4 gap-4 min-h-screen bg-[#DAE0EA]">
       <div className="flex gap-4">
         <CellTypeSelector 
           selectedCellType={selectedCellType} 

@@ -13,7 +13,7 @@ export const CellTypeSelector: React.FC<CellTypeSelectorProps> = ({
   onCellTypeChange 
 }) => {
   return (
-    <Card className="w-full max-w-32 mx-auto">
+    <Card className="w-full max-w-32 mx-auto bg-[#B3B9D1]">
       <CardHeader>
         <CardTitle>セル種類</CardTitle>
       </CardHeader>

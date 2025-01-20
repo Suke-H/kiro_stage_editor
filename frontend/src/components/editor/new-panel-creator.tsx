@@ -61,7 +61,7 @@ export const NewPanelCreator: React.FC<NewPanelCreatorProps> = ({
     };
 
   return (
-    <Card className="w-64">
+    <Card className="w-64 bg-[#B3B9D1]">
       <CardHeader>
         <CardTitle>パネル追加</CardTitle>
       </CardHeader>

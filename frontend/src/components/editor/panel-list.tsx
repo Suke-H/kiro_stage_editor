@@ -148,7 +148,7 @@ export const PanelList: React.FC<PanelListProps> = ({
           リセット
         </Button>
       </div>
-      <Card className="w-64">
+      <Card className="w-64 bg-[#B3B9D1]">
         <CardHeader>
           <CardTitle>パネル</CardTitle>
         </CardHeader>
