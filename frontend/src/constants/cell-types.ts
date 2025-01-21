@@ -14,3 +14,61 @@ export const CELL_TYPES = {
 
 // キーから動的に型を生成
 export type CellType = keyof typeof CELL_TYPES;
+// export type CellType = 'Empty' | 'White' | 'Black' | 'Start' | 'Goal' | 'DummyGoal' | 'Crow' | 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight' | 'Normal';
+
+// セルの状態を表す型
+export type CellSideInfo = {
+  code: string;
+  picture: string;
+};
+
+// セルの定義を表す型
+export type CellDefinition = {
+  label: string;
+  neutral?: CellSideInfo;
+  front?: CellSideInfo;
+  back?: CellSideInfo;
+};
+
+// セルの種類を定義
+export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
+  Empty: {
+    label: '空',
+    neutral: {
+      code: 'e',
+      picture: 'empty.png'
+    }
+  },
+  Normal: {
+    label: '通常床',
+    front: {
+      code: 'N',
+      picture: 'white.png'
+    },
+    back: {
+      code: 'n',
+      picture: 'black.png'
+    }
+  },
+  Start: {
+    label: 'スタート',
+    neutral: {
+      code: 's',
+      picture: 'start.png'
+    }
+  },
+  Goal: {
+    label: 'ゴール',
+    neutral: {
+      code: 'g',
+      picture: 'goal.png'
+    }
+  },
+  DummyGoal: {
+    label: 'ダミーゴール',
+    neutral: {
+      code: 'd',
+      picture: 'dummyGoal.png'
+    }
+  }
+} as const;

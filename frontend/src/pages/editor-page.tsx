@@ -3,15 +3,15 @@ import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
-import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '@/components/types';
-import { decodeStageFromUrl } from '../utils/url';
+import { CellType, GridCell, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '@/components/types';
+// import { decodeStageFromUrl } from '../utils/url';
 
 const EditorPage: React.FC = () => {
 
-  const [grid, setGrid] = useState<CellType[][]>([
-    ['White', 'White', 'White'],
-    ['White', 'White', 'White'],
-    ['White', 'White', 'White'],
+  const [grid, setGrid] = useState<GridCell[][]>([
+    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
+    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
+    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
   ]);
 
   const [selectedCellType, setSelectedCellType] = useState<CellType>('Black');
@@ -41,22 +41,22 @@ const EditorPage: React.FC = () => {
     highlightedCell: null,
   });
 
-  const [gridHistory, setGridHistory] = useState<CellType[][][]>([grid]);
+  const [gridHistory, setGridHistory] = useState<GridCell[][][]>([grid]);
   const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType[]>([]);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    const params = new URLSearchParams(window.location.search);
-    const cells = params.get('cells');
-    const panels = params.get('panels');
+  //   const params = new URLSearchParams(window.location.search);
+  //   const cells = params.get('cells');
+  //   const panels = params.get('panels');
     
-    if (cells && panels) {
-      const stageData = `cells=${cells}&panels=${panels}`;
-      const parsedData = decodeStageFromUrl(stageData);
-      setGrid(parsedData.cells);
-      setPanels(parsedData.panels);
-    }
-  }, []);
+  //   if (cells && panels) {
+  //     const stageData = `cells=${cells}&panels=${panels}`;
+  //     const parsedData = decodeStageFromUrl(stageData);
+  //     setGrid(parsedData.cells);
+  //     setPanels(parsedData.panels);
+  //   }
+  // }, []);
 
   // FastAPIの疎通確認
   useEffect(() => {
