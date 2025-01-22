@@ -85,7 +85,7 @@ export const Grid: React.FC<GridProps> = ({
   
       for (let i = 0; i < panelRows; i++) {
         for (let j = 0; j < panelCols; j++) {
-          if (placingPanel.cells[i][j] !== 'Empty') {
+          if (placingPanel.cells[i][j] === 'Black') {
             const targetCell = updatedGrid[rowIndex + i][colIndex + j];
             
             // Emptyには置かない
@@ -170,11 +170,11 @@ export const Grid: React.FC<GridProps> = ({
             return false;
           }
   
-          // neutralなセルには置けない（開始、ゴール、ダミーゴールなど）
-          const cellDef = CELL_DEFINITIONS[targetCell.type];
-          if ('neutral' in cellDef) {
-            return false;
-          }
+          // // neutralなセルには置けない（開始、ゴール、ダミーゴールなど）
+          // const cellDef = CELL_DEFINITIONS[targetCell.type];
+          // if ('neutral' in cellDef) {
+          //   return false;
+          // }
         }
       }
     }
