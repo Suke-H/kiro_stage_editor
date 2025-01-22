@@ -1,10 +1,11 @@
-import { CELL_DEFINITIONS } from "../constants/cell-types";
+import { CELL_TYPES, CELL_DEFINITIONS } from "../constants/cell-types";
 
-;export type CellType = keyof typeof CELL_DEFINITIONS;
+export type CellType = keyof typeof CELL_TYPES
+export type CellDefinitions = keyof typeof CELL_DEFINITIONS;
 
 // グリッド上のセルを表す型
 export type GridCell = {
-  type: CellType;
+  type: CellDefinitions;
   side: 'neutral' | 'front' | 'back';
 };
 

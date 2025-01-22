@@ -4,6 +4,7 @@ import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
 import { CellType, GridCell, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '@/components/types';
+import { CellDefinitions } from 'constants/cell-types';
 // import { decodeStageFromUrl } from '../utils/url';
 
 const EditorPage: React.FC = () => {
@@ -14,7 +15,7 @@ const EditorPage: React.FC = () => {
     [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
   ]);
 
-  const [selectedCellType, setSelectedCellType] = useState<CellType>('Black');
+  const [selectedCellType, setSelectedCellType] = useState<CellDefinitions>('Black');
   const [panels, setPanels] = useState<Panel[]>([
     {
       id: 'panel1',

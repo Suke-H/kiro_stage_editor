@@ -25,6 +25,7 @@ export type CellSideInfo = {
 // セルの定義を表す型
 export type CellDefinition = {
   label: string;
+  color: string;
   neutral?: CellSideInfo;
   front?: CellSideInfo;
   back?: CellSideInfo;
@@ -34,6 +35,7 @@ export type CellDefinition = {
 export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
   Empty: {
     label: '空',
+    color: 'bg-white',
     neutral: {
       code: 'e',
       picture: 'empty.png'
@@ -41,6 +43,7 @@ export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
   },
   Normal: {
     label: '通常床',
+    color: 'bg-[#DAE0EA]',
     front: {
       code: 'N',
       picture: 'white.png'
@@ -52,6 +55,7 @@ export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
   },
   Start: {
     label: 'スタート',
+    color: 'bg-green-500',
     neutral: {
       code: 's',
       picture: 'start.png'
@@ -59,6 +63,7 @@ export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
   },
   Goal: {
     label: 'ゴール',
+    color: 'bg-blue-500',
     neutral: {
       code: 'g',
       picture: 'goal.png'
@@ -66,9 +71,12 @@ export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
   },
   DummyGoal: {
     label: 'ダミーゴール',
+    color: 'bg-red-500',
     neutral: {
       code: 'd',
       picture: 'dummyGoal.png'
     }
   }
 } as const;
+
+export type CellDefinitions = keyof typeof CELL_DEFINITIONS;
