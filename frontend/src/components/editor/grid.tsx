@@ -37,18 +37,31 @@ export const Grid: React.FC<GridProps> = ({
     setGrid((prevGrid) => {
       const newRows = prevGrid.length + rowDelta;
       const newCols = prevGrid[0].length + colDelta;
-
+  
       if (newRows > 0 && newCols > 0) {
+        // 新しい空のセルを作成するヘルパー関数
+        const createEmptyCell = (): GridCell => ({
+          type: 'Normal',
+          side: 'front'
+        });
+  
         if (rowDelta > 0) {
-          return [...prevGrid, ...Array(rowDelta).fill(Array(newCols).fill('White'))];
+          // 行を追加
+          const newRow = Array(newCols).fill(null).map(() => createEmptyCell());
+          return [...prevGrid, ...Array(rowDelta).fill(null).map(() => newRow.map(cell => ({...cell})))];
         } else if (rowDelta < 0) {
-          return prevGrid.slice(0, newRows).map((row) => row.slice(0, newCols));
+          // 行を削除
+          return prevGrid.slice(0, newRows).map(row => row.slice(0, newCols));
         }
-
-        return prevGrid.map((row) => {
+  
+        // 列の追加/削除
+        return prevGrid.map(row => {
           if (colDelta > 0) {
-            return [...row, ...Array(colDelta).fill('White')];
+            // 列を追加
+            const newCells = Array(colDelta).fill(null).map(() => createEmptyCell());
+            return [...row, ...newCells];
           } else if (colDelta < 0) {
+            // 列を削除
             return row.slice(0, newCols);
           }
           return row;
