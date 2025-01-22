@@ -74,7 +74,7 @@ export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
     color: 'bg-red-500',
     neutral: {
       code: 'd',
-      picture: 'dummyGoal.png'
+      picture: 'dummy-goal.png'
     }
   }
 } as const;

@@ -105,6 +105,8 @@ export const Grid: React.FC<GridProps> = ({
       setGridHistory((prev) => [...prev, updatedGrid]);
       setPanelPlacementHistory((prev) => [...prev, panelPlacementMode]);
       setGrid(updatedGrid);
+
+      console.log('updatedGrid', updatedGrid);
     }
   
     setPanelPlacementMode({
@@ -117,21 +119,14 @@ export const Grid: React.FC<GridProps> = ({
     const cellDef = CELL_DEFINITIONS[cell.type];
     
     // セルの状態に応じた情報を取得
-    let sideInfo: CellSideInfo | undefined;
-
-    if (cellDef.neutral) {
-      sideInfo = cellDef.neutral;
-    } else if (cellDef.front) {
-      sideInfo = cellDef.front;
-    } else if (cellDef.back) {
-      sideInfo = cellDef.back;
-    }
+    const sideInfo: CellSideInfo | undefined = cellDef[cell.side];
 
     if (!sideInfo) {
       console.error(`No valid sideInfo found for cell type: ${cell.type}`);
       return null; // またはデフォルトの要素を返す
     }
-    
+
+    console.log('レンダリング');
     return (
       <div
         key={`${rowIndex}-${colIndex}`}
