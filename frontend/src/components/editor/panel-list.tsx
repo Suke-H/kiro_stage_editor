@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Move } from 'lucide-react';
-import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '../types';
+import {  Panel, PanelPlacementModeType, PanelPlacementHistoryType, GridCell } from '../types';
 
 interface PanelListProps {
   panels: Panel[];
@@ -10,9 +10,9 @@ interface PanelListProps {
   setPanelPlacementMode: React.Dispatch<React.SetStateAction<PanelPlacementModeType>>;
   panelPlacementHistory: PanelPlacementHistoryType[];
   setPanelPlacementHistory: React.Dispatch<React.SetStateAction<PanelPlacementHistoryType[]>>;
-  setGrid: React.Dispatch<React.SetStateAction<CellType[][]>>;
-  gridHistory: CellType[][][];
-  setGridHistory: React.Dispatch<React.SetStateAction<CellType[][][]>>;
+  setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
+  gridHistory: GridCell[][][];
+  setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
 }
 
 export const PanelList: React.FC<PanelListProps> = ({
