@@ -1,10 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
-// import { PlusCircle, MinusCircle, Download, Upload, Link } from 'lucide-react';
-import { PlusCircle, MinusCircle, Link  } from 'lucide-react';
+import { PlusCircle, MinusCircle, Download, Upload, Link } from 'lucide-react';
 import { GridCell, Panel, PanelPlacementModeType, PanelPlacementHistoryType , CellDefinitions} from '../types';
 import { CELL_DEFINITIONS, CellSideInfo } from '../../constants/cell-types';
-// import { exportStageToYaml, importStageFromYaml } from '../../utils/yaml';
+import { exportStageToYaml, importStageFromYaml } from '../../utils/yaml';
 import { shareStageUrl } from '../../utils/url';
 
 interface GridProps {
@@ -24,9 +23,7 @@ export const Grid: React.FC<GridProps> = ({
   setGrid,
   setGridHistory,
   selectedCellType,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   panels,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setPanels,
   panelPlacementMode,
   setPanelPlacementMode,
@@ -207,13 +204,12 @@ export const Grid: React.FC<GridProps> = ({
     return true;
   };
   
-  // const triggerFileInput = () => {
-  //   const input = document.getElementById('yamlImport') as HTMLInputElement;
-  //   if (input) {
-  //     input.click();
-  //   }
-  // };
-  
+  const triggerFileInput = () => {
+    const input = document.getElementById('yamlImport') as HTMLInputElement;
+    if (input) {
+      input.click();
+    }
+  };
 
   return (
     <Card className="flex-grow bg-[#B3B9D1]">
@@ -251,7 +247,7 @@ export const Grid: React.FC<GridProps> = ({
         </div>
 
         <div className="flex gap-2 mt-4">
-          {/* <Button onClick={() => exportStageToYaml(grid, panels)} className="flex items-center gap-2">
+          <Button onClick={() => exportStageToYaml(grid, panels)} className="flex items-center gap-2">
             <Download size={16} /> YAMLエクスポート
           </Button>
           <input
@@ -265,7 +261,7 @@ export const Grid: React.FC<GridProps> = ({
             <Button onClick={triggerFileInput} variant="outline" className="flex items-center gap-2">
               <Upload size={16} /> YAMLインポート
             </Button>
-          </label> */}
+          </label>
           <Button onClick={() => shareStageUrl(grid, panels)} className="mt-4 flex items-center gap-2">
             <Link size={16} /> URLを生成
           </Button>

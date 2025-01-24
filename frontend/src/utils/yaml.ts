@@ -1,30 +1,32 @@
-import { CellType, Panel } from '@/components/types';
 import { parse, stringify } from 'yaml';
+import { CellDefinitions, CellType, Panel, GridCell } from '@/components/types';
+// import { CELL_DEFINITIONS, CELL_TYPES } from '../constants/cell-types';
+import { capitalize, uncapitalize } from './string-operations';
 
 interface CellYamlData {
   Type: {
     Type: string;
     SkinId: number;
   };
-  StartColor: string; // "Black", "White", "Empty"
+  CellSide: string;
 }
 
 interface PanelYamlData {
   Coordinates: { X: number; Y: number }[];
 }
 
-const transformCellToYamlFormat = (cell: CellType): CellYamlData => {
-  if (cell === 'Black' || cell === 'White') {
-    return { Type: { Type: 'Normal', SkinId: 0 }, StartColor: cell.charAt(0).toUpperCase() + cell.slice(1) };
-  }
-  if (cell === 'Empty') {
-    return { Type: { Type: 'Normal', SkinId: 0 }, StartColor: 'Empty' };
-  }
-  return { Type: { Type: cell || 'Normal', SkinId: 0 }, StartColor: 'White' };
+const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
+  return { 
+    Type: { 
+      Type: cell.type, 
+      SkinId: 0 
+    }, 
+    CellSide: capitalize(cell.side)
+  };
 };
 
 export const exportStageToYaml = (
-  grid: CellType[][],
+  grid: GridCell[][],
   panels: Panel[]
 ) => {
   const cells = grid.map(row => row.map(cell => transformCellToYamlFormat(cell)));
@@ -54,7 +56,7 @@ export const exportStageToYaml = (
 
 export const importStageFromYaml = (
   event: React.ChangeEvent<HTMLInputElement>,
-  setGrid: (grid: CellType[][]) => void,
+  setGrid: (grid: GridCell[][]) => void,
   setPanels: (panels: Panel[]) => void
 ) => {
   const file = event.target.files?.[0];
@@ -66,13 +68,11 @@ export const importStageFromYaml = (
         const { Height, Width, Cells, Panels } = yamlData;
 
         // グリッド変換
-        const grid: CellType[][] = Cells.map((row: CellYamlData[]) =>
-          row.map((cell: CellYamlData) => {
-            if (cell.Type.Type === 'Normal') {
-              return cell.StartColor as CellType;
-            }
-            return cell.Type.Type;
-          })
+        const grid: GridCell[][] = Cells.map((row: CellYamlData[]) =>
+          row.map((cell: CellYamlData) => ({
+            type: cell.Type.Type as CellDefinitions,
+            side: uncapitalize(cell.CellSide) as GridCell['side']
+          }))
         );
 
         // パネル変換とトリム
