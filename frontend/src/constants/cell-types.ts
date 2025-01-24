@@ -33,6 +33,10 @@ export type CellDefinition = {
 
 // セルの種類を定義
 export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
+  Flip: {
+    label: '反転',
+    color: 'bg-black',
+  },
   Empty: {
     label: '空',
     color: 'bg-white',

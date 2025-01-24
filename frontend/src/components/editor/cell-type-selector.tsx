@@ -10,7 +10,7 @@ interface CellTypeSelectorProps {
 
 export const CellTypeSelector: React.FC<CellTypeSelectorProps> = ({ 
   selectedCellType, 
-  onCellTypeChange 
+  onCellTypeChange,
 }) => {
   return (
     <Card className="w-full max-w-32 mx-auto bg-[#B3B9D1]">
@@ -18,6 +18,7 @@ export const CellTypeSelector: React.FC<CellTypeSelectorProps> = ({
         <CardTitle>セル種類</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
+
         {(Object.keys(CELL_DEFINITIONS) as CellDefinitions[]).map((type) => (
           <Button
             key={type}

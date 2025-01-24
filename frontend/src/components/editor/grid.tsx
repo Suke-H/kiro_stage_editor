@@ -72,19 +72,34 @@ export const Grid: React.FC<GridProps> = ({
   };
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
-    // 通常のセル選択モード
+    // セル選択モード
     if (!panelPlacementMode.panel) {
       const newGrid = [...grid];
       
-      // デフォルトでfrontかneutralを選択
       const cellDef = CELL_DEFINITIONS[selectedCellType];
-      const side = 'neutral' in cellDef ? 'neutral' : 'front';
-      newGrid[rowIndex][colIndex] = { type: selectedCellType, side };
-  
+
+      // セル選択がFlipの場合：sideを反転
+      if (selectedCellType === 'Flip') {
+        const targetCell = newGrid[rowIndex][colIndex];
+        if (targetCell.type === 'Empty') return;
+
+        if (targetCell.side === 'front') {
+          newGrid[rowIndex][colIndex] = { ...targetCell, side: 'back' };
+        } else if (targetCell.side === 'back') {
+          newGrid[rowIndex][colIndex] = { ...targetCell, side: 'front' };
+        }
+      }
+
+      else {
+        // 基本はfront（表）で設置する。neutralのみの場合はneutral
+        const side = 'neutral' in cellDef ? 'neutral' : 'front';
+        newGrid[rowIndex][colIndex] = { type: selectedCellType, side };
+      }
+
       setGrid(newGrid);
       setGridHistory((prev) => [...prev, newGrid]);
-      
       return;
+      
     }
   
     // パネル配置モード
@@ -118,8 +133,6 @@ export const Grid: React.FC<GridProps> = ({
       setGridHistory((prev) => [...prev, updatedGrid]);
       setPanelPlacementHistory((prev) => [...prev, panelPlacementMode]);
       setGrid(updatedGrid);
-
-      console.log('updatedGrid', updatedGrid);
     }
   
     setPanelPlacementMode({
@@ -139,7 +152,6 @@ export const Grid: React.FC<GridProps> = ({
       return null; // またはデフォルトの要素を返す
     }
 
-    console.log('レンダリング');
     return (
       <div
         key={`${rowIndex}-${colIndex}`}
