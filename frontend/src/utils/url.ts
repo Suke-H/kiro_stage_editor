@@ -1,17 +1,20 @@
-import { CellType, Panel } from '@/components/types';
-import { CELL_TYPES } from '../constants/cell-types';
+import { CellDefinitions, CellType, Panel, GridCell } from '@/components/types';
+import { CELL_DEFINITIONS, CELL_TYPES } from '../constants/cell-types';
 
-const encodeStageToUrl = (grid: CellType[][], panels: Panel[]) => {
+const encodeStageToUrl = (grid: GridCell[][], panels: Panel[]) => {
   // Cells のエンコード
   const cellsHeight = grid.length;
   const cellsWidth = grid[0].length;
   const cellsGrid = grid
     .flat()
-    .map((cell) => CELL_TYPES[cell].code)
+    .map((cell) => {
+      const cellDef = CELL_DEFINITIONS[cell.type]?.[cell.side];
+      return cellDef ? cellDef.code : '';
+    })
     .join('');
   const cellsEncoded = `h${cellsHeight}w${cellsWidth}g${cellsGrid}`;
 
-  // Panels のエンコード
+  // Panels のエンコード (unchanged)
   const panelsEncoded = panels
     .map((panel) => {
       const height = panel.cells.length;
@@ -27,7 +30,7 @@ const encodeStageToUrl = (grid: CellType[][], panels: Panel[]) => {
   return `cells=${cellsEncoded}&panels=${panelsEncoded}`;
 };
 
-export const shareStageUrl = (grid: CellType[][], panels: Panel[]) => {
+export const shareStageUrl = (grid: GridCell[][], panels: Panel[]) => {
   const stageData = encodeStageToUrl(grid, panels);
   const url = `${window.location.origin}/stage?${stageData}`;
   navigator.clipboard.writeText(url);
@@ -47,8 +50,42 @@ export const decodeStageFromUrl = (stageData: string) => {
   const cellsWidth = parseInt(cellsWidthMatch?.[1] || '0', 10);
   const cellsGridString = cellsGridMatch?.[1] || '';
 
+  // グリッドデータをデコード
+  const decodeCellGrid = (gridString: string): GridCell[] => {
+    const cells: GridCell[] = [];
+    let i = 0;
+    while (i < gridString.length) {
+      const currentChar = gridString[i];
+      
+      const cellType = Object.keys(CELL_DEFINITIONS).find(type => 
+        Object.values(CELL_DEFINITIONS[type]).some(
+          sideInfo => typeof sideInfo === 'object' && 'code' in sideInfo && sideInfo.code === currentChar
+        )
+      );
+  
+      if (cellType) {
+        let side: GridCell['side'] = 'neutral';
+        
+        // Determine the side based on the code
+        Object.entries(CELL_DEFINITIONS[cellType]).forEach(([key, value]) => {
+          if (key !== 'label' && key !== 'color' && typeof value === 'object' && value && 'code' in value && value.code === currentChar) {
+            side = key as GridCell['side'];
+          }
+        });
+  
+        cells.push({ type: cellType as CellDefinitions, side });
+      } else {
+        // Fallback to Empty if no matching cell type
+        cells.push({ type: 'Empty', side: 'neutral' });
+      }
+      
+      i += 1;
+    }
+    return cells;
+  };
+
   // グリッドデータをデコード（矢印の処理を改善）
-  const decodeCellGrid = (gridString: string): CellType[] => {
+  const decodePanelGrid = (gridString: string): CellType[] => {
     const cells: CellType[] = [];
     let i = 0;
     while (i < gridString.length) {
@@ -109,7 +146,7 @@ export const decodeStageFromUrl = (stageData: string) => {
     const width = parseInt(widthMatch?.[1] || '0', 10);
     const gridData = gridMatch?.[1] || '';
 
-    const decodedPanelCells = decodeCellGrid(gridData);
+    const decodedPanelCells = decodePanelGrid(gridData);
     const panelCells = Array.from({ length: height }, (_, i) =>
       decodedPanelCells.slice(i * width, (i + 1) * width)
     );

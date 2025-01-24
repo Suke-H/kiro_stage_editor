@@ -49,11 +49,11 @@ export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
     label: '通常床',
     color: 'bg-[#DAE0EA]',
     front: {
-      code: 'N',
+      code: 'w',
       picture: 'white.png'
     },
     back: {
-      code: 'n',
+      code: 'b',
       picture: 'black.png'
     }
   },
@@ -80,7 +80,19 @@ export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
       code: 'd',
       picture: 'dummy-goal.png'
     }
-  }
+  },
+  Crow: {
+    label: 'カラス',
+    color: 'bg-yellow-500',
+    front: {
+      code: 'c',
+      picture: 'crow.png'
+    },
+    back: {
+      code: 'C',
+      picture: 'black.png'
+    }
+  },
 } as const;
 
 export type CellDefinitions = keyof typeof CELL_DEFINITIONS;
