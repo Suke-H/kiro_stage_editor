@@ -1,17 +1,16 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
 import { PlusCircle, MinusCircle, Download, Upload, Link } from 'lucide-react';
-import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '../types';
-import { CELL_TYPES } from '../../constants/cell-types';
-// import { exportStageToJson, importStageFromJson } from '../../utils/json';
+import { GridCell, Panel, PanelPlacementModeType, PanelPlacementHistoryType , CellDefinitions} from '../types';
+import { CELL_DEFINITIONS, CellSideInfo } from '../../constants/cell-types';
 import { exportStageToYaml, importStageFromYaml } from '../../utils/yaml';
 import { shareStageUrl } from '../../utils/url';
 
 interface GridProps {
-  grid: CellType[][];
-  setGrid: React.Dispatch<React.SetStateAction<CellType[][]>>;
-  setGridHistory: React.Dispatch<React.SetStateAction<CellType[][][]>>;
-  selectedCellType: CellType;
+  grid: GridCell[][];
+  setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
+  setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
+  selectedCellType: CellDefinitions;
   panels: Panel[];
   setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
   panelPlacementMode: PanelPlacementModeType;
@@ -35,18 +34,31 @@ export const Grid: React.FC<GridProps> = ({
     setGrid((prevGrid) => {
       const newRows = prevGrid.length + rowDelta;
       const newCols = prevGrid[0].length + colDelta;
-
+  
       if (newRows > 0 && newCols > 0) {
+        // 新しい空のセルを作成するヘルパー関数
+        const createEmptyCell = (): GridCell => ({
+          type: 'Normal',
+          side: 'front'
+        });
+  
         if (rowDelta > 0) {
-          return [...prevGrid, ...Array(rowDelta).fill(Array(newCols).fill('White'))];
+          // 行を追加
+          const newRow = Array(newCols).fill(null).map(() => createEmptyCell());
+          return [...prevGrid, ...Array(rowDelta).fill(null).map(() => newRow.map(cell => ({...cell})))];
         } else if (rowDelta < 0) {
-          return prevGrid.slice(0, newRows).map((row) => row.slice(0, newCols));
+          // 行を削除
+          return prevGrid.slice(0, newRows).map(row => row.slice(0, newCols));
         }
-
-        return prevGrid.map((row) => {
+  
+        // 列の追加/削除
+        return prevGrid.map(row => {
           if (colDelta > 0) {
-            return [...row, ...Array(colDelta).fill('White')];
+            // 列を追加
+            const newCells = Array(colDelta).fill(null).map(() => createEmptyCell());
+            return [...row, ...newCells];
           } else if (colDelta < 0) {
+            // 列を削除
             return row.slice(0, newCols);
           }
           return row;
@@ -57,14 +69,34 @@ export const Grid: React.FC<GridProps> = ({
   };
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
-    // 通常のセル選択モード
+    // セル選択モード
     if (!panelPlacementMode.panel) {
       const newGrid = [...grid];
-      newGrid[rowIndex][colIndex] = selectedCellType;
-  
+      
+      const cellDef = CELL_DEFINITIONS[selectedCellType];
+
+      // セル選択がFlipの場合：sideを反転
+      if (selectedCellType === 'Flip') {
+        const targetCell = newGrid[rowIndex][colIndex];
+        if (targetCell.type === 'Empty') return;
+
+        if (targetCell.side === 'front') {
+          newGrid[rowIndex][colIndex] = { ...targetCell, side: 'back' };
+        } else if (targetCell.side === 'back') {
+          newGrid[rowIndex][colIndex] = { ...targetCell, side: 'front' };
+        }
+      }
+
+      else {
+        // 基本はfront（表）で設置する。neutralのみの場合はneutral
+        const side = 'neutral' in cellDef ? 'neutral' : 'front';
+        newGrid[rowIndex][colIndex] = { type: selectedCellType, side };
+      }
+
       setGrid(newGrid);
       setGridHistory((prev) => [...prev, newGrid]);
       return;
+      
     }
   
     // パネル配置モード
@@ -80,21 +112,17 @@ export const Grid: React.FC<GridProps> = ({
         for (let j = 0; j < panelCols; j++) {
           if (placingPanel.cells[i][j] === 'Black') {
             const targetCell = updatedGrid[rowIndex + i][colIndex + j];
-
-            // 矢印セルの向きを反転
-            if (targetCell.startsWith('Arrow')) {
-              if (targetCell === 'ArrowUp') updatedGrid[rowIndex + i][colIndex + j] = 'ArrowDown';
-              else if (targetCell === 'ArrowDown') updatedGrid[rowIndex + i][colIndex + j] = 'ArrowUp';
-              else if (targetCell === 'ArrowLeft') updatedGrid[rowIndex + i][colIndex + j] = 'ArrowRight';
-              else if (targetCell === 'ArrowRight') updatedGrid[rowIndex + i][colIndex + j] = 'ArrowLeft';
-            } 
-
-            // 白黒反転
-            if (targetCell === 'White') {
-              updatedGrid[rowIndex + i][colIndex + j] = 'Black';
-            } else if (targetCell === 'Black') {
-              updatedGrid[rowIndex + i][colIndex + j] = 'White';
+            
+            // Emptyには置かない
+            if (targetCell.type === 'Empty') continue;
+  
+            // セルの状態を切り替える
+            if (targetCell.side === 'front') {
+              updatedGrid[rowIndex + i][colIndex + j] = { ...targetCell, side: 'back' };
+            } else if (targetCell.side === 'back') {
+              updatedGrid[rowIndex + i][colIndex + j] = { ...targetCell, side: 'front' };
             }
+            // neutralの場合は変更しない
           }
         }
       }
@@ -110,19 +138,27 @@ export const Grid: React.FC<GridProps> = ({
     });
   };
   
-  const renderGridCell = (cellType: CellType, rowIndex: number, colIndex: number) => {
-    const isEmpty = cellType === 'Empty';
-  
+  const renderGridCell = (cell: GridCell, rowIndex: number, colIndex: number) => {
+    const cellDef = CELL_DEFINITIONS[cell.type];
+    
+    // セルの状態に応じた情報を取得
+    const sideInfo: CellSideInfo | undefined = cellDef[cell.side];
+
+    if (!sideInfo) {
+      console.error(`No valid sideInfo found for cell type: ${cell.type}`);
+      return null; // またはデフォルトの要素を返す
+    }
+
     return (
       <div
         key={`${rowIndex}-${colIndex}`}
-        className={`h-10 w-10 flex items-center justify-center ${isEmpty ? '' : 'border'}`}
+        className={`h-10 w-10 flex items-center justify-center ${cell.type === 'Empty' ? '' : 'border'}`}
         onClick={() => handleGridCellClick(rowIndex, colIndex)}
       >
-        {!isEmpty && (
+        {cell.type !== 'Empty' && (
           <img
-            src={CELL_TYPES[cellType].imagePath}
-            alt={CELL_TYPES[cellType].label}
+            src={`/cells/${sideInfo.picture}`}
+            alt={`${cellDef.label} (${cell.side})`}
             className="w-full h-full object-contain"
           />
         )}
@@ -131,7 +167,7 @@ export const Grid: React.FC<GridProps> = ({
   };
 
   const canPlacePanelAtLocation = (
-    grid: CellType[][],
+    grid: GridCell[][],
     rowIndex: number,
     colIndex: number,
     panel: Panel
@@ -147,15 +183,20 @@ export const Grid: React.FC<GridProps> = ({
     // パネルを配置するセルがすべて適切であるかチェック
     for (let i = 0; i < panelRows; i++) {
       for (let j = 0; j < panelCols; j++) {
-        if (panel.cells[i][j] === 'Black') {
+        const panelCell = panel.cells[i][j];
+        if (panelCell !== 'Empty') {
           const targetCell = grid[rowIndex + i][colIndex + j];
-          if (
-            targetCell !== 'White' &&
-            targetCell !== 'Black' &&
-            !targetCell.startsWith('Arrow')
-          ) {
+          
+          // Emptyには置けない
+          if (targetCell.type === 'Empty') {
             return false;
           }
+  
+          // // neutralなセルには置けない（開始、ゴール、ダミーゴールなど）
+          // const cellDef = CELL_DEFINITIONS[targetCell.type];
+          // if ('neutral' in cellDef) {
+          //   return false;
+          // }
         }
       }
     }
@@ -169,7 +210,6 @@ export const Grid: React.FC<GridProps> = ({
       input.click();
     }
   };
-  
 
   return (
     <Card className="flex-grow bg-[#B3B9D1]">

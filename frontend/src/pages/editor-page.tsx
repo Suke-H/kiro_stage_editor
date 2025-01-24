@@ -3,18 +3,19 @@ import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
-import { CellType, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '@/components/types';
+import { CellType, GridCell, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '@/components/types';
+import { CellDefinitions } from 'constants/cell-types';
 import { decodeStageFromUrl } from '../utils/url';
 
 const EditorPage: React.FC = () => {
 
-  const [grid, setGrid] = useState<CellType[][]>([
-    ['White', 'White', 'White'],
-    ['White', 'White', 'White'],
-    ['White', 'White', 'White'],
+  const [grid, setGrid] = useState<GridCell[][]>([
+    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
+    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
+    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
   ]);
 
-  const [selectedCellType, setSelectedCellType] = useState<CellType>('Black');
+  const [selectedCellType, setSelectedCellType] = useState<CellDefinitions>('Black');
   const [panels, setPanels] = useState<Panel[]>([
     {
       id: 'panel1',
@@ -41,7 +42,7 @@ const EditorPage: React.FC = () => {
     highlightedCell: null,
   });
 
-  const [gridHistory, setGridHistory] = useState<CellType[][][]>([grid]);
+  const [gridHistory, setGridHistory] = useState<GridCell[][][]>([grid]);
   const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType[]>([]);
 
   useEffect(() => {
