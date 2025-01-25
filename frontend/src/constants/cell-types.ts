@@ -93,6 +93,42 @@ export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
       picture: 'black.png'
     }
   },
+  Warp: {
+    label: 'ワープ',
+    color: 'bg-purple-500',
+    front: {
+      code: 't',
+      picture: 'warp-white.png'
+    },
+    back: {
+      code: 'T',
+      picture: 'warp-black.png'
+    }
+  },
+  ArrowUpDown: {
+    label: '矢印↑↓',
+    color: 'bg-white',
+    front: {
+      code: 'au',
+      picture: 'arrow-up.png'
+    },
+    back: {
+      code: 'ad',
+      picture: 'arrow-down.png'
+    }
+  },
+  ArrowRightLeft: {
+    label: '矢印→←',
+    color: 'bg-white',
+    front: {
+      code: 'ar',
+      picture: 'arrow-right.png'
+    },
+    back: {
+      code: 'al',
+      picture: 'arrow-left.png'
+    }
+  },
 } as const;
 
 export type CellDefinitions = keyof typeof CELL_DEFINITIONS;
