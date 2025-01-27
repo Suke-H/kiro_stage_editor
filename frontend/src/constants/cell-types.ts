@@ -129,6 +129,14 @@ export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
       picture: 'arrow-left.png'
     }
   },
+  Rest: {
+    label: '休憩',
+    color: 'bg-yellow-500',
+    neutral: {
+      code: 'r',
+      picture: 'rest.png'
+    }
+  },
 } as const;
 
 export type CellDefinitions = keyof typeof CELL_DEFINITIONS;
