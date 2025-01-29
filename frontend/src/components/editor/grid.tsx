@@ -184,7 +184,8 @@ export const Grid: React.FC<GridProps> = ({
     for (let i = 0; i < panelRows; i++) {
       for (let j = 0; j < panelCols; j++) {
         const panelCell = panel.cells[i][j];
-        if (panelCell !== 'Empty') {
+        // パネルセルが黒の場合のみ設置判定
+        if (panelCell === 'Black') {
           const targetCell = grid[rowIndex + i][colIndex + j];
           
           // Emptyには置けない
