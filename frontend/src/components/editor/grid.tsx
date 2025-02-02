@@ -1,6 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
-import { PlusCircle, MinusCircle, Download, Upload, Link } from 'lucide-react';
+// import { PlusCircle, MinusCircle, Download, Upload, Link } from 'lucide-react';
+import { Download, Upload, Link } from 'lucide-react';
+// import { IconButton } from '@mui/material';
+import { Add, Remove } from '@mui/icons-material';
 import { GridCell, Panel, PanelPlacementModeType, PanelPlacementHistoryType , CellDefinitions} from '../types';
 import { CELL_DEFINITIONS, CellSideInfo } from '../../constants/cell-types';
 import { exportStageToYaml, importStageFromYaml } from '../../utils/yaml';
@@ -30,43 +33,46 @@ export const Grid: React.FC<GridProps> = ({
   setPanelPlacementHistory,
 }) => {
 
-  const adjustGridSize = (rowDelta: number, colDelta: number) => {
+  const adjustGridSize = (rowDelta: number, colDelta: number, addToStart = false) => {
     setGrid((prevGrid) => {
       const newRows = prevGrid.length + rowDelta;
       const newCols = prevGrid[0].length + colDelta;
   
       if (newRows > 0 && newCols > 0) {
-        // 新しい空のセルを作成するヘルパー関数
         const createEmptyCell = (): GridCell => ({
           type: 'Normal',
-          side: 'front'
+          side: 'front',
         });
   
+        let updatedGrid = [...prevGrid];
+  
+        // 行の追加・削除
         if (rowDelta > 0) {
-          // 行を追加
           const newRow = Array(newCols).fill(null).map(() => createEmptyCell());
-          return [...prevGrid, ...Array(rowDelta).fill(null).map(() => newRow.map(cell => ({...cell})))];
+          updatedGrid = addToStart 
+            ? [...Array(rowDelta).fill(null).map(() => newRow.map(cell => ({ ...cell }))), ...updatedGrid]
+            : [...updatedGrid, ...Array(rowDelta).fill(null).map(() => newRow.map(cell => ({ ...cell })))];
         } else if (rowDelta < 0) {
-          // 行を削除
-          return prevGrid.slice(0, newRows).map(row => row.slice(0, newCols));
+          updatedGrid = addToStart ? updatedGrid.slice(-newRows) : updatedGrid.slice(0, newRows);
         }
   
-        // 列の追加/削除
-        return prevGrid.map(row => {
+        // 列の追加・削除
+        updatedGrid = updatedGrid.map(row => {
           if (colDelta > 0) {
-            // 列を追加
             const newCells = Array(colDelta).fill(null).map(() => createEmptyCell());
-            return [...row, ...newCells];
+            return addToStart ? [...newCells, ...row] : [...row, ...newCells];
           } else if (colDelta < 0) {
-            // 列を削除
-            return row.slice(0, newCols);
+            return addToStart ? row.slice(-newCols) : row.slice(0, newCols);
           }
           return row;
         });
+  
+        return updatedGrid;
       }
       return prevGrid;
     });
   };
+  
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
     // セル選択モード
@@ -232,20 +238,62 @@ export const Grid: React.FC<GridProps> = ({
           )}
         </div>
 
-        <div className="flex gap-2 mt-4">
-          <Button onClick={() => adjustGridSize(1, 0)} className="flex items-center gap-2">
-            <PlusCircle size={16} /> 行追加
-          </Button>
-          <Button onClick={() => adjustGridSize(-1, 0)} className="flex items-center gap-2">
-            <MinusCircle size={16} /> 行削除
-          </Button>
-          <Button onClick={() => adjustGridSize(0, 1)} className="flex items-center gap-2">
-            <PlusCircle size={16} /> 列追加
-          </Button>
-          <Button onClick={() => adjustGridSize(0, -1)} className="flex items-center gap-2">
-            <MinusCircle size={16} /> 列削除
-          </Button>
-        </div>
+        <div className="flex flex-col gap-4 mt-4">
+  {/* 行操作 */}
+  <div className="flex flex-col gap-2">
+    <span className="font-semibold text-lg">行</span>
+    <div className="flex gap-4">
+      {/* 行 先頭 */}
+      <div className="flex items-center gap-2">
+        <span>先頭</span>
+        <Button onClick={() => adjustGridSize(1, 0, true)} className="flex items-center justify-center w-10 h-10">
+          <Add />
+        </Button>
+        <Button onClick={() => adjustGridSize(-1, 0, true)} className="flex items-center justify-center w-10 h-10">
+          <Remove />
+        </Button>
+      </div>
+      {/* 行 末尾 */}
+      <div className="flex items-center gap-2">
+        <span>末尾</span>
+        <Button onClick={() => adjustGridSize(1, 0)} className="flex items-center justify-center w-10 h-10">
+          <Add />
+        </Button>
+        <Button onClick={() => adjustGridSize(-1, 0)} className="flex items-center justify-center w-10 h-10">
+          <Remove />
+        </Button>
+      </div>
+    </div>
+  </div>
+
+  {/* 列操作 */}
+  <div className="flex flex-col gap-2">
+    <span className="font-semibold text-lg">列</span>
+    <div className="flex gap-4">
+      {/* 列 先頭 */}
+      <div className="flex items-center gap-2">
+        <span>先頭</span>
+        <Button onClick={() => adjustGridSize(0, 1, true)} className="flex items-center justify-center w-10 h-10">
+          <Add />
+        </Button>
+        <Button onClick={() => adjustGridSize(0, -1, true)} className="flex items-center justify-center w-10 h-10">
+          <Remove />
+        </Button>
+      </div>
+      {/* 列 末尾 */}
+      <div className="flex items-center gap-2">
+        <span>末尾</span>
+        <Button onClick={() => adjustGridSize(0, 1)} className="flex items-center justify-center w-10 h-10">
+          <Add />
+        </Button>
+        <Button onClick={() => adjustGridSize(0, -1)} className="flex items-center justify-center w-10 h-10">
+          <Remove />
+        </Button>
+      </div>
+    </div>
+  </div>
+</div>
+  
 
         <div className="flex gap-2 mt-4">
           <Button onClick={() => exportStageToYaml(grid, panels)} className="flex items-center gap-2">
