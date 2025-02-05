@@ -6,6 +6,7 @@ import {
   // PanelPlacementModeType,
   PanelPlacementHistoryType,
   GridCell,
+  // PanelPlacementModeType,
 } from "../types";
 import { panelSlice } from "../../store/slices/panel-slice";
 import { RootState } from "../../store";
@@ -18,9 +19,9 @@ interface PanelListProps {
   // setPanelPlacementMode: React.Dispatch<
   //   React.SetStateAction<PanelPlacementModeType>
   // >;
-  panelPlacementHistory: PanelPlacementHistoryType[];
+  panelPlacementHistory: PanelPlacementHistoryType;
   setPanelPlacementHistory: React.Dispatch<
-    React.SetStateAction<PanelPlacementHistoryType[]>
+    React.SetStateAction<PanelPlacementHistoryType>
   >;
   setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
   gridHistory: GridCell[][][];
@@ -32,7 +33,7 @@ export const PanelList: React.FC<PanelListProps> = ({
   setPanels,
   // panelPlacementMode,
   // setPanelPlacementMode,
-  panelPlacementHistory,
+  // panelPlacementHistory,
   setPanelPlacementHistory,
   setGrid,
   gridHistory,
@@ -44,6 +45,7 @@ export const PanelList: React.FC<PanelListProps> = ({
 
   const dispatch = useDispatch();
   const panelPlacementMode = useSelector((state: RootState) => state.panel.panelPlacementMode);
+  const panelPlacementHistory = useSelector((state: RootState) => state.panel.panelPlacementHistory);
 
   // パネル配置モードの開始
   const startPanelPlacement = (panel: Panel) => {
@@ -88,7 +90,8 @@ export const PanelList: React.FC<PanelListProps> = ({
             : { panel: null, highlightedCell: null }
         )
       );
-      setPanelPlacementHistory(newPanelPlacementHistory);
+      // setPanelPlacementHistory(newPanelPlacementHistory);
+      dispatch(panelSlice.actions.undoPlacement());
     }
   };
 

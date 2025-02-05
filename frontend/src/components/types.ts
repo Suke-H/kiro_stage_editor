@@ -20,7 +20,7 @@ export type PanelPlacementModeType = {
   highlightedCell: { row: number; col: number } | null;
 };
 
-export type PanelPlacementHistoryType = PanelPlacementModeType;
+export type PanelPlacementHistoryType = PanelPlacementModeType[];
 
 // Storeの型定義
 export interface CellTypeState {
@@ -29,4 +29,5 @@ export interface CellTypeState {
 
 export interface PanelState {
   panelPlacementMode: PanelPlacementModeType;
+  panelPlacementHistory: PanelPlacementHistoryType;
 }

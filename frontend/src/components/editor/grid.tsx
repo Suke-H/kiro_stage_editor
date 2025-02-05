@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { panelSlice } from "../../store/slices/panel-slice";
 
@@ -20,7 +20,7 @@ interface GridProps {
   // panelPlacementMode: PanelPlacementModeType;
   // setPanelPlacementMode: React.Dispatch<React.SetStateAction<PanelPlacementModeType>>;
   setPanelPlacementHistory: React.Dispatch<
-    React.SetStateAction<PanelPlacementHistoryType[]>
+    React.SetStateAction<PanelPlacementHistoryType>
   >;
 }
 
@@ -32,8 +32,11 @@ export const Grid: React.FC<GridProps> = ({
   setPanels,
   // panelPlacementMode,
   // setPanelPlacementMode,
-  setPanelPlacementHistory,
+  // setPanelPlacementHistory,
 }) => {
+
+  const dispatch = useDispatch();
+
   const selectedCellType = useSelector(
     (state: RootState) => state.cellType.selectedCellType
   );
@@ -164,7 +167,8 @@ export const Grid: React.FC<GridProps> = ({
       }
 
       setGridHistory((prev) => [...prev, updatedGrid]);
-      setPanelPlacementHistory((prev) => [...prev, panelPlacementMode]);
+      // setPanelPlacementHistory((prev) => [...prev, panelPlacementMode]);
+      dispatch(panelSlice.actions.addToPlacementHistory(panelPlacementMode));
       setGrid(updatedGrid);
     }
 

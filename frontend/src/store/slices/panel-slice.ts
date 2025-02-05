@@ -6,19 +6,33 @@ const initialState: PanelState = {
     panel: null,
     highlightedCell: null,
   },
+  panelPlacementHistory: [],
 };
 
 export const panelSlice = createSlice({
   name: "panel",
   initialState,
   reducers: {
-    selectPanelForPlacement: (
-      state,
-      action: PayloadAction<PanelPlacementModeType>
-    ) => {
+    // パネル選択
+    selectPanelForPlacement: (state, action: PayloadAction<PanelPlacementModeType>) => {
       state.panelPlacementMode.panel = action.payload.panel;
       state.panelPlacementMode.highlightedCell = action.payload.highlightedCell;
     },
+
+    // 設置
+    addToPlacementHistory: (state, action: PayloadAction<PanelPlacementModeType>) => {
+      state.panelPlacementHistory.push(action.payload);
+    },
+
+    resetPlacementHistory: (state) => {
+      state.panelPlacementHistory = [];
+    },
+
+    undoPlacement: (state) => {
+      if (state.panelPlacementHistory.length > 0) {
+        state.panelPlacementHistory.pop();
+      }
+    }
   },
 });
 

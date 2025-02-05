@@ -44,7 +44,7 @@ const EditorPage: React.FC = () => {
   // });
 
   const [gridHistory, setGridHistory] = useState<GridCell[][][]>([grid]);
-  const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType[]>([]);
+  const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType>([]);
 
   useEffect(() => {
 
