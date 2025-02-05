@@ -1,10 +1,11 @@
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, } from '@/components/ui/card';
-// import { PlusCircle, MinusCircle, Download, Upload, Link } from 'lucide-react';
 import { Download, Upload, Link } from 'lucide-react';
-// import { IconButton } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
-import { GridCell, Panel, PanelPlacementModeType, PanelPlacementHistoryType , CellDefinitions} from '../types';
+import { GridCell, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '../types';
 import { CELL_DEFINITIONS, CellSideInfo } from '../../constants/cell-types';
 import { exportStageToYaml, importStageFromYaml } from '../../utils/yaml';
 import { shareStageUrl } from '../../utils/url';
@@ -13,7 +14,6 @@ interface GridProps {
   grid: GridCell[][];
   setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
   setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
-  selectedCellType: CellDefinitions;
   panels: Panel[];
   setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
   panelPlacementMode: PanelPlacementModeType;
@@ -25,13 +25,14 @@ export const Grid: React.FC<GridProps> = ({
   grid,
   setGrid,
   setGridHistory,
-  selectedCellType,
   panels,
   setPanels,
   panelPlacementMode,
   setPanelPlacementMode,
   setPanelPlacementHistory,
 }) => {
+
+  const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
 
   const adjustGridSize = (rowDelta: number, colDelta: number, addToStart = false) => {
     setGrid((prevGrid) => {

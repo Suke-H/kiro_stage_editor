@@ -21,3 +21,8 @@ export type PanelPlacementModeType = {
 };
 
 export type PanelPlacementHistoryType = PanelPlacementModeType;
+
+// Storeの型定義
+export interface CellTypeState {
+  selectedCellType: CellDefinitions;
+}
