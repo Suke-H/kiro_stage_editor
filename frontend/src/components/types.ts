@@ -26,3 +26,7 @@ export type PanelPlacementHistoryType = PanelPlacementModeType;
 export interface CellTypeState {
   selectedCellType: CellDefinitions;
 }
+
+export interface PanelState {
+  panelPlacementMode: PanelPlacementModeType;
+}

@@ -1,15 +1,27 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Move } from 'lucide-react';
-import {  Panel, PanelPlacementModeType, PanelPlacementHistoryType, GridCell } from '../types';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Trash2, Move } from "lucide-react";
+import {
+  Panel,
+  // PanelPlacementModeType,
+  PanelPlacementHistoryType,
+  GridCell,
+} from "../types";
+import { panelSlice } from "../../store/slices/panel-slice";
+import { RootState } from "../../store";
+import { useDispatch, useSelector } from "react-redux";
 
 interface PanelListProps {
   panels: Panel[];
   setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
-  panelPlacementMode: PanelPlacementModeType;
-  setPanelPlacementMode: React.Dispatch<React.SetStateAction<PanelPlacementModeType>>;
+  // panelPlacementMode: PanelPlacementModeType;
+  // setPanelPlacementMode: React.Dispatch<
+  //   React.SetStateAction<PanelPlacementModeType>
+  // >;
   panelPlacementHistory: PanelPlacementHistoryType[];
-  setPanelPlacementHistory: React.Dispatch<React.SetStateAction<PanelPlacementHistoryType[]>>;
+  setPanelPlacementHistory: React.Dispatch<
+    React.SetStateAction<PanelPlacementHistoryType[]>
+  >;
   setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
   gridHistory: GridCell[][][];
   setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
@@ -18,39 +30,43 @@ interface PanelListProps {
 export const PanelList: React.FC<PanelListProps> = ({
   panels,
   setPanels,
-  panelPlacementMode,
-  setPanelPlacementMode,
+  // panelPlacementMode,
+  // setPanelPlacementMode,
   panelPlacementHistory,
   setPanelPlacementHistory,
   setGrid,
   gridHistory,
   setGridHistory,
 }) => {
-
   const removePanel = (panelId: string) => {
-      setPanels(panels.filter(panel => panel.id !== panelId));
-    };
-    
+    setPanels(panels.filter((panel) => panel.id !== panelId));
+  };
+
+  const dispatch = useDispatch();
+  const panelPlacementMode = useSelector((state: RootState) => state.panel.panelPlacementMode);
+
   // パネル配置モードの開始
   const startPanelPlacement = (panel: Panel) => {
     let firstBlackCell = null;
     for (let i = 0; i < panel.cells.length; i++) {
       for (let j = 0; j < panel.cells[0].length; j++) {
-        if (panel.cells[i][j] === 'Black') {
+        if (panel.cells[i][j] === "Black") {
           firstBlackCell = { row: i, col: j };
           break;
         }
       }
       if (firstBlackCell) break;
     }
-  
-    setPanelPlacementMode({
-      panel: panel,
-      highlightedCell: firstBlackCell || { row: 0, col: 0 }
-    });
+
+    dispatch(
+      panelSlice.actions.selectPanelForPlacement({
+        panel: panel,
+        highlightedCell: firstBlackCell || { row: 0, col: 0 },
+      })
+    );
   };
 
-    // 「1つ戻す」メソッド
+  // 「1つ戻す」メソッド
   const undoLastPlacement = () => {
     if (gridHistory.length > 1) {
       const newGridHistory = [...gridHistory];
@@ -60,10 +76,17 @@ export const PanelList: React.FC<PanelListProps> = ({
 
       const newPanelPlacementHistory = [...panelPlacementHistory];
       newPanelPlacementHistory.pop();
-      setPanelPlacementMode(
-        newPanelPlacementHistory.length > 0 
-          ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
-          : { panel: null, highlightedCell: null }
+      // setPanelPlacementMode(
+      //   newPanelPlacementHistory.length > 0
+      //     ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
+      //     : { panel: null, highlightedCell: null }
+      // );
+      dispatch(
+        panelSlice.actions.selectPanelForPlacement(
+          newPanelPlacementHistory.length > 0
+            ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
+            : { panel: null, highlightedCell: null }
+        )
       );
       setPanelPlacementHistory(newPanelPlacementHistory);
     }
@@ -74,7 +97,12 @@ export const PanelList: React.FC<PanelListProps> = ({
     if (gridHistory.length > 1) {
       setGrid(gridHistory[0]);
       setGridHistory([gridHistory[0]]);
-      setPanelPlacementMode({ panel: null, highlightedCell: null });
+      // setPanelPlacementMode({ panel: null, highlightedCell: null });
+      dispatch(
+        panelSlice.actions.selectPanelForPlacement(
+          { panel: null, highlightedCell: null }
+        )
+      );
       setPanelPlacementHistory([]);
     }
   };
@@ -82,15 +110,12 @@ export const PanelList: React.FC<PanelListProps> = ({
   // パネルビューのレンダリングを修正
   const renderPanels = () => {
     return panels.map((panel) => (
-      <div
-        key={panel.id}
-        className="flex items-center gap-2 mb-2 relative"
-      >
+      <div key={panel.id} className="flex items-center gap-2 mb-2 relative">
         <div
           className="grid gap-1"
           style={{
             gridTemplateColumns: `repeat(${panel.cells[0].length}, 40px)`,
-            maxWidth: '160px',
+            maxWidth: "160px",
           }}
         >
           {panel.cells.map((row, rowIndex) =>
@@ -101,25 +126,25 @@ export const PanelList: React.FC<PanelListProps> = ({
                   panelPlacementMode.panel === panel &&
                   rowIndex === 0 &&
                   colIndex === 0
-                    ? 'bg-red-500'
-                    : cellType === 'Black'
-                    ? 'bg-gray-500'
-                    : 'bg-white'
+                    ? "bg-red-500"
+                    : cellType === "Black"
+                    ? "bg-gray-500"
+                    : "bg-white"
                 }`}
               />
             ))
           )}
         </div>
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => removePanel(panel.id)}
         >
           <Trash2 size={16} />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => startPanelPlacement(panel)}
         >
           <Move size={16} />
@@ -132,15 +157,15 @@ export const PanelList: React.FC<PanelListProps> = ({
     <div className="flex gap-4">
       {/* パネル設置取り消しボタン */}
       <div className="flex gap-2 mt-2">
-        <Button 
-          onClick={undoLastPlacement} 
+        <Button
+          onClick={undoLastPlacement}
           disabled={gridHistory.length <= 1}
           className="flex-grow"
         >
           1つ戻す
         </Button>
-        <Button 
-          onClick={resetPanelPlacement} 
+        <Button
+          onClick={resetPanelPlacement}
           disabled={gridHistory.length <= 1}
           variant="destructive"
           className="flex-grow"
@@ -152,9 +177,7 @@ export const PanelList: React.FC<PanelListProps> = ({
         <CardHeader>
           <CardTitle>パネル</CardTitle>
         </CardHeader>
-        <CardContent>
-          {renderPanels()}
-        </CardContent>
+        <CardContent>{renderPanels()}</CardContent>
       </Card>
     </div>
   );

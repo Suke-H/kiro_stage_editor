@@ -6,7 +6,7 @@ import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
-import { CellType, GridCell, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '@/components/types';
+import { CellType, GridCell, Panel, PanelPlacementHistoryType } from '@/components/types';
 import { decodeStageFromUrl } from '../utils/url';
 
 const EditorPage: React.FC = () => {
@@ -38,10 +38,10 @@ const EditorPage: React.FC = () => {
     Array(3).fill(null).map(() => Array(3).fill('White')),
   );
 
-  const [panelPlacementMode, setPanelPlacementMode] = useState<PanelPlacementModeType>({
-    panel: null,
-    highlightedCell: null,
-  });
+  // const [panelPlacementMode, setPanelPlacementMode] = useState<PanelPlacementModeType>({
+  //   panel: null,
+  //   highlightedCell: null,
+  // });
 
   const [gridHistory, setGridHistory] = useState<GridCell[][][]>([grid]);
   const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType[]>([]);
@@ -90,8 +90,8 @@ const EditorPage: React.FC = () => {
             setGridHistory={setGridHistory} 
             panels={panels} 
             setPanels={setPanels} 
-            panelPlacementMode={panelPlacementMode} 
-            setPanelPlacementMode={setPanelPlacementMode} 
+            // panelPlacementMode={panelPlacementMode} 
+            // setPanelPlacementMode={setPanelPlacementMode} 
             setPanelPlacementHistory={setPanelPlacementHistory}
           />
         </div>
@@ -100,8 +100,8 @@ const EditorPage: React.FC = () => {
           <PanelList 
             panels={panels}
             setPanels={setPanels}
-            panelPlacementMode={panelPlacementMode}
-            setPanelPlacementMode={setPanelPlacementMode}
+            // panelPlacementMode={panelPlacementMode}
+            // setPanelPlacementMode={setPanelPlacementMode}
             panelPlacementHistory={panelPlacementHistory}
             setPanelPlacementHistory={setPanelPlacementHistory}
             setGrid={setGrid}

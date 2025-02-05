@@ -13,10 +13,6 @@ export const CellTypeSelector: React.FC = () => {
     (state: RootState) => state.cellType.selectedCellType
   );
 
-  const handleCellTypeChange = (type: CellDefinitions) => {
-    dispatch(changeCellType(type));
-  };
-
   return (
     <Card className="w-full max-w-32 mx-auto bg-[#B3B9D1]">
       <CardHeader>
@@ -32,7 +28,7 @@ export const CellTypeSelector: React.FC = () => {
                 ? "text-black"
                 : "text-white"
             } truncate`}
-            onClick={() => handleCellTypeChange(type)}
+            onClick={() => dispatch(changeCellType(type))}
           >
             {CELL_DEFINITIONS[type].label}
           </Button>
