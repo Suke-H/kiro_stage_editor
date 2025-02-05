@@ -4,7 +4,7 @@ import { Trash2, Move } from "lucide-react";
 import {
   Panel,
   // PanelPlacementModeType,
-  PanelPlacementHistoryType,
+  // PanelPlacementHistoryType,
   GridCell,
   // PanelPlacementModeType,
 } from "../types";
@@ -19,10 +19,10 @@ interface PanelListProps {
   // setPanelPlacementMode: React.Dispatch<
   //   React.SetStateAction<PanelPlacementModeType>
   // >;
-  panelPlacementHistory: PanelPlacementHistoryType;
-  setPanelPlacementHistory: React.Dispatch<
-    React.SetStateAction<PanelPlacementHistoryType>
-  >;
+  // panelPlacementHistory: PanelPlacementHistoryType;
+  // setPanelPlacementHistory: React.Dispatch<
+  //   React.SetStateAction<PanelPlacementHistoryType>
+  // >;
   setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
   gridHistory: GridCell[][][];
   setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
@@ -34,7 +34,7 @@ export const PanelList: React.FC<PanelListProps> = ({
   // panelPlacementMode,
   // setPanelPlacementMode,
   // panelPlacementHistory,
-  setPanelPlacementHistory,
+  // setPanelPlacementHistory,
   setGrid,
   gridHistory,
   setGridHistory,
@@ -106,7 +106,8 @@ export const PanelList: React.FC<PanelListProps> = ({
           { panel: null, highlightedCell: null }
         )
       );
-      setPanelPlacementHistory([]);
+      // setPanelPlacementHistory([]);
+      dispatch(panelSlice.actions.resetPlacementHistory());
     }
   };
 

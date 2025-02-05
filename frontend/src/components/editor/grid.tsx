@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Upload, Link } from "lucide-react";
 import { Add, Remove } from "@mui/icons-material";
-import { GridCell, Panel, PanelPlacementHistoryType } from "../types";
+import { GridCell, Panel, } from "../types";
 import { CELL_DEFINITIONS, CellSideInfo } from "../../constants/cell-types";
 import { exportStageToYaml, importStageFromYaml } from "../../utils/yaml";
 import { shareStageUrl } from "../../utils/url";
@@ -19,9 +19,9 @@ interface GridProps {
   setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
   // panelPlacementMode: PanelPlacementModeType;
   // setPanelPlacementMode: React.Dispatch<React.SetStateAction<PanelPlacementModeType>>;
-  setPanelPlacementHistory: React.Dispatch<
-    React.SetStateAction<PanelPlacementHistoryType>
-  >;
+  // setPanelPlacementHistory: React.Dispatch<
+  //   React.SetStateAction<PanelPlacementHistoryType>
+  // >;
 }
 
 export const Grid: React.FC<GridProps> = ({

@@ -6,7 +6,7 @@ import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
-import { CellType, GridCell, Panel, PanelPlacementHistoryType } from '@/components/types';
+import { CellType, GridCell, Panel } from '@/components/types';
 import { decodeStageFromUrl } from '../utils/url';
 
 const EditorPage: React.FC = () => {
@@ -44,7 +44,7 @@ const EditorPage: React.FC = () => {
   // });
 
   const [gridHistory, setGridHistory] = useState<GridCell[][][]>([grid]);
-  const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType>([]);
+  // const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType>([]);
 
   useEffect(() => {
 
@@ -92,7 +92,7 @@ const EditorPage: React.FC = () => {
             setPanels={setPanels} 
             // panelPlacementMode={panelPlacementMode} 
             // setPanelPlacementMode={setPanelPlacementMode} 
-            setPanelPlacementHistory={setPanelPlacementHistory}
+            // setPanelPlacementHistory={setPanelPlacementHistory}
           />
         </div>
     
@@ -102,8 +102,8 @@ const EditorPage: React.FC = () => {
             setPanels={setPanels}
             // panelPlacementMode={panelPlacementMode}
             // setPanelPlacementMode={setPanelPlacementMode}
-            panelPlacementHistory={panelPlacementHistory}
-            setPanelPlacementHistory={setPanelPlacementHistory}
+            // panelPlacementHistory={panelPlacementHistory}
+            // setPanelPlacementHistory={setPanelPlacementHistory}
             setGrid={setGrid}
             gridHistory={gridHistory}
             setGridHistory={setGridHistory}
