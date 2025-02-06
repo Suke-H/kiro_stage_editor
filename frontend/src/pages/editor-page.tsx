@@ -12,40 +12,6 @@ import { decodeStageFromUrl } from '../utils/url';
 const EditorPage: React.FC = () => {
 
   const dispatch = useDispatch();
-  // const [grid, setGrid] = useState<GridCell[][]>([
-  //   [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-  //   [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-  //   [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-  // ]);
-
-  // const [panels, setPanels] = useState<Panel[]>([
-  //   {
-  //     id: 'panel1',
-  //     cells: [
-  //       ['Black', 'Black'],
-  //       ['Black', 'Black'],
-  //     ],
-  //   },
-  //   {
-  //     id: 'panel2',
-  //     cells: [
-  //       ['Black', 'White'],
-  //       ['White', 'Black'],
-  //     ],
-  //   },
-  // ]);
-
-  // const [newPanelGrid, setNewPanelGrid] = useState<CellType[][]>(() =>
-  //   Array(3).fill(null).map(() => Array(3).fill('White')),
-  // );
-
-  // const [panelPlacementMode, setPanelPlacementMode] = useState<PanelPlacementModeType>({
-  //   panel: null,
-  //   highlightedCell: null,
-  // });
-
-  // const [gridHistory, setGridHistory] = useState<GridCell[][][]>([grid]);
-  // const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType>([]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -55,9 +21,7 @@ const EditorPage: React.FC = () => {
     if (cells && panels) {
       const stageData = `cells=${cells}&panels=${panels}`;
       const parsedData = decodeStageFromUrl(stageData);
-      // setGrid(parsedData.cells);
       dispatch(gridSlice.actions.loadGrid(parsedData.cells));
-      // setPanels(parsedData.panels);
       dispatch(panelSlice.actions.loadPanels(parsedData.panels));
     }
   }, []);
@@ -83,38 +47,13 @@ const EditorPage: React.FC = () => {
   return (
     <div className="flex flex-col p-4 gap-4 min-h-screen bg-[#DAE0EA]">
       <div className="flex gap-4">
-        <CellTypeSelector 
-        />
-        <Grid 
-          // grid={grid} 
-          // setGrid={setGrid} 
-          // setGridHistory={setGridHistory} 
-          // panels={panels} 
-          // setPanels={setPanels} 
-          // panelPlacementMode={panelPlacementMode} 
-          // setPanelPlacementMode={setPanelPlacementMode} 
-          // setPanelPlacementHistory={setPanelPlacementHistory}
-        />
+        <CellTypeSelector />
+        <Grid />
       </div>
   
       <div className="flex gap-4">
-        <PanelList 
-          // panels={panels}
-          // setPanels={setPanels}
-          // panelPlacementMode={panelPlacementMode}
-          // setPanelPlacementMode={setPanelPlacementMode}
-          // panelPlacementHistory={panelPlacementHistory}
-          // setPanelPlacementHistory={setPanelPlacementHistory}
-          // setGrid={setGrid}
-          // gridHistory={gridHistory}
-          // setGridHistory={setGridHistory}
-        />
-        <NewPanelCreator 
-          // newPanelGrid={newPanelGrid}
-          // setNewPanelGrid={setNewPanelGrid}
-          // panels={panels}
-          // setPanels={setPanels}
-        />
+        <PanelList />
+        <NewPanelCreator />
       </div>
     </div>
   );

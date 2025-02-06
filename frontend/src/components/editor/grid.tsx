@@ -13,96 +13,13 @@ import { exportStageToYaml, importStageFromYaml } from "../../utils/yaml";
 import { shareStageUrl } from "../../utils/url";
 import { cellTypeSlice } from "../../store/slices/cell-type-slice";
 
-// interface GridProps {
-  // grid: GridCell[][];
-  // setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
-  // setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
-  // panels: Panel[];
-  // setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
-  // panelPlacementMode: PanelPlacementModeType;
-  // setPanelPlacementMode: React.Dispatch<React.SetStateAction<PanelPlacementModeType>>;
-  // setPanelPlacementHistory: React.Dispatch<
-  //   React.SetStateAction<PanelPlacementHistoryType>
-  // >;
-// }
-
-export const Grid: React.FC = (
-  // grid,
-  // setGrid,
-  // setGridHistory,
-  // panels,
-  // setPanels,
-  // panelPlacementMode,
-  // setPanelPlacementMode,
-  // setPanelPlacementHistory,
-) => {
+export const Grid: React.FC = () => {
 
   const dispatch = useDispatch();
   const grid = useSelector((state: RootState) => state.grid.grid);
-  // const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
   const panels = useSelector((state: RootState) => state.panel.panels);
   const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
   const panelPlacementMode = useSelector((state: RootState) => state.panel.panelPlacementMode);
-
-  // const adjustGridSize = (
-  //   rowDelta: number,
-  //   colDelta: number,
-  //   addToStart = false
-  // ) => {
-  //   setGrid((prevGrid) => {
-  //     const newRows = prevGrid.length + rowDelta;
-  //     const newCols = prevGrid[0].length + colDelta;
-
-  //     if (newRows > 0 && newCols > 0) {
-  //       const createEmptyCell = (): GridCell => ({
-  //         type: "Normal",
-  //         side: "front",
-  //       });
-
-  //       let updatedGrid = [...prevGrid];
-
-  //       // 行の追加・削除
-  //       if (rowDelta > 0) {
-  //         const newRow = Array(newCols)
-  //           .fill(null)
-  //           .map(() => createEmptyCell());
-  //         updatedGrid = addToStart
-  //           ? [
-  //               ...Array(rowDelta)
-  //                 .fill(null)
-  //                 .map(() => newRow.map((cell) => ({ ...cell }))),
-  //               ...updatedGrid,
-  //             ]
-  //           : [
-  //               ...updatedGrid,
-  //               ...Array(rowDelta)
-  //                 .fill(null)
-  //                 .map(() => newRow.map((cell) => ({ ...cell }))),
-  //             ];
-  //       } else if (rowDelta < 0) {
-  //         updatedGrid = addToStart
-  //           ? updatedGrid.slice(-newRows)
-  //           : updatedGrid.slice(0, newRows);
-  //       }
-
-  //       // 列の追加・削除
-  //       updatedGrid = updatedGrid.map((row) => {
-  //         if (colDelta > 0) {
-  //           const newCells = Array(colDelta)
-  //             .fill(null)
-  //             .map(() => createEmptyCell());
-  //           return addToStart ? [...newCells, ...row] : [...row, ...newCells];
-  //         } else if (colDelta < 0) {
-  //           return addToStart ? row.slice(-newCols) : row.slice(0, newCols);
-  //         }
-  //         return row;
-  //       });
-
-  //       return updatedGrid;
-  //     }
-  //     return prevGrid;
-  //   });
-  // };
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
     // セル選択モード
@@ -127,9 +44,6 @@ export const Grid: React.FC = (
         );
       }
 
-      // setGrid(newGrid);
-      // setGridHistory((prev) => [...prev, grid]);
-      // dispatch(gridSlice.actions.saveHistory());
       return;
     }
 
@@ -137,7 +51,6 @@ export const Grid: React.FC = (
     const placingPanel = panelPlacementMode.panel;
 
     if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
-      // const updatedGrid = grid.map((row) => [...row]);
 
       const panelRows = placingPanel.cells.length;
       const panelCols = placingPanel.cells[0].length;
@@ -145,37 +58,15 @@ export const Grid: React.FC = (
       for (let i = 0; i < panelRows; i++) {
         for (let j = 0; j < panelCols; j++) {
           if (placingPanel.cells[i][j] === "Black") {
-            // const targetCell = updatedGrid[rowIndex + i][colIndex + j];
-
-            // // Emptyには置かない
-            // if (targetCell.type === "Empty") continue;
-
-            // // セルの状態を切り替える
-            // if (targetCell.side === "front") {
-            //   updatedGrid[rowIndex + i][colIndex + j] = {
-            //     ...targetCell,
-            //     side: "back",
-            //   };
-            // } else if (targetCell.side === "back") {
-            //   updatedGrid[rowIndex + i][colIndex + j] = {
-            //     ...targetCell,
-            //     side: "front",
-            //   };
-            // }
-            // // neutralの場合は変更しない
 
             dispatch(gridSlice.actions.flipCell({ row: rowIndex + i, col: colIndex + j }));
           }
         }
       }
 
-      // setGridHistory((prev) => [...prev, updatedGrid]);
+      // 履歴に保存
       dispatch(gridSlice.actions.saveHistory());
-
-      // setPanelPlacementHistory((prev) => [...prev, panelPlacementMode]);
       dispatch(panelSlice.actions.addToPlacementHistory(panelPlacementMode));
-      // setGrid(updatedGrid);
-      // dispatch(gridSlice.actions.initGrid());
     }
 
     // 設置したらパネル配置モードを終了

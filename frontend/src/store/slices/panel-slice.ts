@@ -1,22 +1,27 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { PanelState, PanelPlacementModeType, Panel } from "../../components/types";
+import {
+  PanelState,
+  PanelPlacementModeType,
+  Panel,
+} from "../../components/types";
 
 const initialState: PanelState = {
-  newPanelGrid: 
-    Array(3).fill(null).map(() => Array(3).fill('White')),
+  newPanelGrid: Array(3)
+    .fill(null)
+    .map(() => Array(3).fill("White")),
   panels: [
     {
-      id: 'panel1',
+      id: "panel1",
       cells: [
-        ['Black', 'Black'],
-        ['Black', 'Black'],
+        ["Black", "Black"],
+        ["Black", "Black"],
       ],
     },
     {
-      id: 'panel2',
+      id: "panel2",
       cells: [
-        ['Black', 'White'],
-        ['White', 'Black'],
+        ["Black", "White"],
+        ["White", "Black"],
       ],
     },
   ],
@@ -41,38 +46,56 @@ export const panelSlice = createSlice({
       state.panels.push(action.payload);
     },
     removePanel: (state, action: PayloadAction<string>) => {
-      state.panels = state.panels.filter((panel) => panel.id !== action.payload);
+      state.panels = state.panels.filter(
+        (panel) => panel.id !== action.payload
+      );
     },
 
     // パネルグリッド
     initPanelGrid: (state) => {
-      state.newPanelGrid = Array(3).fill(null).map(() => Array(3).fill('White'));
+      state.newPanelGrid = Array(3)
+        .fill(null)
+        .map(() => Array(3).fill("White"));
     },
-    addToPanelGridRow: (state) => {
-      state.newPanelGrid.push(Array(state.newPanelGrid[0].length).fill('White'));
+    addToRow: (state) => {
+      state.newPanelGrid.push(
+        Array(state.newPanelGrid[0].length).fill("White")
+      );
     },
-    addToPanelGridCol: (state) => {
-      state.newPanelGrid = state.newPanelGrid.map((row) => [...row, 'White']);
+    addToCol: (state) => {
+      state.newPanelGrid = state.newPanelGrid.map((row) => [...row, "White"]);
     },
-    removeFromPanelGridRow: (state) => {
+    removeFromRow: (state) => {
       state.newPanelGrid.pop();
     },
-    removeFromPanelGridCol: (state) => {
-      state.newPanelGrid = state.newPanelGrid.map((row) => row.slice(0, row.length - 1));
+    removeFromCol: (state) => {
+      state.newPanelGrid = state.newPanelGrid.map((row) =>
+        row.slice(0, row.length - 1)
+      );
     },
-    clickToPanelGridCell: (state, action: PayloadAction<{ row: number; col: number }>) => {
+    clickToPanelGridCell: (
+      state,
+      action: PayloadAction<{ row: number; col: number }>
+    ) => {
       const { row, col } = action.payload;
-      state.newPanelGrid[row][col] = state.newPanelGrid[row][col] === 'Black' ? 'White' : 'Black';
+      state.newPanelGrid[row][col] =
+        state.newPanelGrid[row][col] === "Black" ? "White" : "Black";
     },
 
     // パネル選択
-    selectPanelForPlacement: (state, action: PayloadAction<PanelPlacementModeType>) => {
+    selectPanelForPlacement: (
+      state,
+      action: PayloadAction<PanelPlacementModeType>
+    ) => {
       state.panelPlacementMode.panel = action.payload.panel;
       state.panelPlacementMode.highlightedCell = action.payload.highlightedCell;
     },
 
     // 設置
-    addToPlacementHistory: (state, action: PayloadAction<PanelPlacementModeType>) => {
+    addToPlacementHistory: (
+      state,
+      action: PayloadAction<PanelPlacementModeType>
+    ) => {
       state.panelPlacementHistory.push(action.payload);
     },
     resetPlacementHistory: (state) => {
@@ -82,9 +105,9 @@ export const panelSlice = createSlice({
       if (state.panelPlacementHistory.length > 0) {
         state.panelPlacementHistory.pop();
       }
-    }
+    },
 
-    // 
+    //
   },
 });
 

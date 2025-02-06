@@ -13,36 +13,7 @@ import { gridSlice } from "../../store/slices/grid-slice";
 import { RootState } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
 
-// interface PanelListProps {
-  // panels: Panel[];
-  // setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
-  // panelPlacementMode: PanelPlacementModeType;
-  // setPanelPlacementMode: React.Dispatch<
-  //   React.SetStateAction<PanelPlacementModeType>
-  // >;
-  // panelPlacementHistory: PanelPlacementHistoryType;
-  // setPanelPlacementHistory: React.Dispatch<
-  //   React.SetStateAction<PanelPlacementHistoryType>
-  // >;
-  // setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
-  // gridHistory: GridCell[][][];
-  // setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
-// }
-
-export const PanelList: React.FC = (
-  // panels,
-  // setPanels,
-  // panelPlacementMode,
-  // setPanelPlacementMode,
-  // panelPlacementHistory,
-  // setPanelPlacementHistory,
-  // setGrid,
-  // gridHistory,
-  // setGridHistory,
-) => {
-  // const removePanel = (panelId: string) => {
-  //   setPanels(panels.filter((panel) => panel.id !== panelId));
-  // };
+export const PanelList: React.FC = () => {
 
   const dispatch = useDispatch();
   const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
@@ -63,6 +34,7 @@ export const PanelList: React.FC = (
       if (firstBlackCell) break;
     }
 
+    // パネル配置モードの開始
     dispatch(
       panelSlice.actions.selectPanelForPlacement({
         panel: panel,
@@ -103,18 +75,16 @@ export const PanelList: React.FC = (
   // 「リセット」メソッド
   const resetPanelPlacement = () => {
     if (gridHistory.length > 1) {
-      // setGrid(gridHistory[0]);
-      // setGridHistory([gridHistory[0]]);
+      // グリッドとパネル配置履歴をリセット
       dispatch(gridSlice.actions.reset());
+      dispatch(panelSlice.actions.resetPlacementHistory());
 
-      // setPanelPlacementMode({ panel: null, highlightedCell: null });
+      // パネル配置モードの終了
       dispatch(
         panelSlice.actions.selectPanelForPlacement(
           { panel: null, highlightedCell: null }
         )
       );
-      // setPanelPlacementHistory([]);
-      dispatch(panelSlice.actions.resetPlacementHistory());
     }
   };
 
@@ -150,7 +120,6 @@ export const PanelList: React.FC = (
           variant="ghost"
           size="icon"
           onClick={
-            // () => removePanel(panel.id)
             () => dispatch(panelSlice.actions.removePanel(panel.id))
           }
         >
