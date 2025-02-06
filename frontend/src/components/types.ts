@@ -28,6 +28,7 @@ export interface CellTypeState {
 }
 
 export interface PanelState {
+  newPanelGrid: CellType[][];
   panels: Panel[];
   panelPlacementMode: PanelPlacementModeType;
   panelPlacementHistory: PanelPlacementHistoryType;

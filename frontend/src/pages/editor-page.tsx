@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Provider } from 'react-redux';
-
-import { store } from '../store';
 import { useDispatch } from 'react-redux';
 import { panelSlice } from '../store/slices/panel-slice';
 
@@ -9,7 +6,7 @@ import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
-import { CellType, GridCell } from '@/components/types';
+import { GridCell } from '@/components/types';
 import { decodeStageFromUrl } from '../utils/url';
 
 const EditorPage: React.FC = () => {
@@ -39,9 +36,9 @@ const EditorPage: React.FC = () => {
   //   },
   // ]);
 
-  const [newPanelGrid, setNewPanelGrid] = useState<CellType[][]>(() =>
-    Array(3).fill(null).map(() => Array(3).fill('White')),
-  );
+  // const [newPanelGrid, setNewPanelGrid] = useState<CellType[][]>(() =>
+  //   Array(3).fill(null).map(() => Array(3).fill('White')),
+  // );
 
   // const [panelPlacementMode, setPanelPlacementMode] = useState<PanelPlacementModeType>({
   //   panel: null,
@@ -84,44 +81,42 @@ const EditorPage: React.FC = () => {
   }, []);
 
   return (
-    <Provider store={store}>
-      <div className="flex flex-col p-4 gap-4 min-h-screen bg-[#DAE0EA]">
-        <div className="flex gap-4">
-          <CellTypeSelector 
-          />
-          <Grid 
-            grid={grid} 
-            setGrid={setGrid} 
-            setGridHistory={setGridHistory} 
-            // panels={panels} 
-            // setPanels={setPanels} 
-            // panelPlacementMode={panelPlacementMode} 
-            // setPanelPlacementMode={setPanelPlacementMode} 
-            // setPanelPlacementHistory={setPanelPlacementHistory}
-          />
-        </div>
-    
-        <div className="flex gap-4">
-          <PanelList 
-            // panels={panels}
-            // setPanels={setPanels}
-            // panelPlacementMode={panelPlacementMode}
-            // setPanelPlacementMode={setPanelPlacementMode}
-            // panelPlacementHistory={panelPlacementHistory}
-            // setPanelPlacementHistory={setPanelPlacementHistory}
-            setGrid={setGrid}
-            gridHistory={gridHistory}
-            setGridHistory={setGridHistory}
-          />
-          <NewPanelCreator 
-            newPanelGrid={newPanelGrid}
-            setNewPanelGrid={setNewPanelGrid}
-            // panels={panels}
-            // setPanels={setPanels}
-          />
-        </div>
+    <div className="flex flex-col p-4 gap-4 min-h-screen bg-[#DAE0EA]">
+      <div className="flex gap-4">
+        <CellTypeSelector 
+        />
+        <Grid 
+          grid={grid} 
+          setGrid={setGrid} 
+          setGridHistory={setGridHistory} 
+          // panels={panels} 
+          // setPanels={setPanels} 
+          // panelPlacementMode={panelPlacementMode} 
+          // setPanelPlacementMode={setPanelPlacementMode} 
+          // setPanelPlacementHistory={setPanelPlacementHistory}
+        />
       </div>
-    </Provider>
+  
+      <div className="flex gap-4">
+        <PanelList 
+          // panels={panels}
+          // setPanels={setPanels}
+          // panelPlacementMode={panelPlacementMode}
+          // setPanelPlacementMode={setPanelPlacementMode}
+          // panelPlacementHistory={panelPlacementHistory}
+          // setPanelPlacementHistory={setPanelPlacementHistory}
+          setGrid={setGrid}
+          gridHistory={gridHistory}
+          setGridHistory={setGridHistory}
+        />
+        <NewPanelCreator 
+          // newPanelGrid={newPanelGrid}
+          // setNewPanelGrid={setNewPanelGrid}
+          // panels={panels}
+          // setPanels={setPanels}
+        />
+      </div>
+    </div>
   );
   };
   
