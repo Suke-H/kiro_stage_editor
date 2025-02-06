@@ -1,52 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { gridSlice } from '../store/slices/grid-slice';
+import { panelListSlice } from '../store/slices/panel-list-slice';
+
 import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
-import { CellType, GridCell, Panel, PanelPlacementModeType, PanelPlacementHistoryType } from '@/components/types';
-import { CellDefinitions } from 'constants/cell-types';
 import { decodeStageFromUrl } from '../utils/url';
 
 const EditorPage: React.FC = () => {
 
-  const [grid, setGrid] = useState<GridCell[][]>([
-    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-  ]);
-
-  const [selectedCellType, setSelectedCellType] = useState<CellDefinitions>('Black');
-  const [panels, setPanels] = useState<Panel[]>([
-    {
-      id: 'panel1',
-      cells: [
-        ['Black', 'Black'],
-        ['Black', 'Black'],
-      ],
-    },
-    {
-      id: 'panel2',
-      cells: [
-        ['Black', 'White'],
-        ['White', 'Black'],
-      ],
-    },
-  ]);
-
-  const [newPanelGrid, setNewPanelGrid] = useState<CellType[][]>(() =>
-    Array(3).fill(null).map(() => Array(3).fill('White')),
-  );
-
-  const [panelPlacementMode, setPanelPlacementMode] = useState<PanelPlacementModeType>({
-    panel: null,
-    highlightedCell: null,
-  });
-
-  const [gridHistory, setGridHistory] = useState<GridCell[][][]>([grid]);
-  const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType[]>([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-
     const params = new URLSearchParams(window.location.search);
     const cells = params.get('cells');
     const panels = params.get('panels');
@@ -54,8 +21,8 @@ const EditorPage: React.FC = () => {
     if (cells && panels) {
       const stageData = `cells=${cells}&panels=${panels}`;
       const parsedData = decodeStageFromUrl(stageData);
-      setGrid(parsedData.cells);
-      setPanels(parsedData.panels);
+      dispatch(gridSlice.actions.loadGrid(parsedData.cells));
+      dispatch(panelListSlice.actions.loadPanels(parsedData.panels));
     }
   }, []);
 
@@ -80,41 +47,13 @@ const EditorPage: React.FC = () => {
   return (
     <div className="flex flex-col p-4 gap-4 min-h-screen bg-[#DAE0EA]">
       <div className="flex gap-4">
-        <CellTypeSelector 
-          selectedCellType={selectedCellType} 
-          onCellTypeChange={setSelectedCellType} 
-        />
-        <Grid 
-          grid={grid} 
-          setGrid={setGrid} 
-          setGridHistory={setGridHistory} 
-          selectedCellType={selectedCellType} 
-          panels={panels} 
-          setPanels={setPanels} 
-          panelPlacementMode={panelPlacementMode} 
-          setPanelPlacementMode={setPanelPlacementMode} 
-          setPanelPlacementHistory={setPanelPlacementHistory}
-        />
+        <CellTypeSelector />
+        <Grid />
       </div>
   
       <div className="flex gap-4">
-        <PanelList 
-          panels={panels}
-          setPanels={setPanels}
-          panelPlacementMode={panelPlacementMode}
-          setPanelPlacementMode={setPanelPlacementMode}
-          panelPlacementHistory={panelPlacementHistory}
-          setPanelPlacementHistory={setPanelPlacementHistory}
-          setGrid={setGrid}
-          gridHistory={gridHistory}
-          setGridHistory={setGridHistory}
-        />
-        <NewPanelCreator 
-          newPanelGrid={newPanelGrid}
-          setNewPanelGrid={setNewPanelGrid}
-          panels={panels}
-          setPanels={setPanels}
-        />
+        <PanelList />
+        <NewPanelCreator />
       </div>
     </div>
   );

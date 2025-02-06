@@ -20,4 +20,36 @@ export type PanelPlacementModeType = {
   highlightedCell: { row: number; col: number } | null;
 };
 
-export type PanelPlacementHistoryType = PanelPlacementModeType;
+export type PanelPlacementHistoryType = PanelPlacementModeType[];
+
+// Storeの型定義
+export interface CellTypeState {
+  selectedCellType: CellDefinitions;
+}
+
+export interface PanelState {
+  newPanelGrid: CellType[][];
+  panels: Panel[];
+  panelPlacementMode: PanelPlacementModeType;
+  panelPlacementHistory: PanelPlacementHistoryType;
+}
+
+export interface PanelListState {
+  panels: Panel[];
+}
+
+export interface CreatePanelState {
+  newPanelGrid: CellType[][];
+}
+
+export interface PanelPlacementState {
+  panelPlacementMode: PanelPlacementModeType;
+  panelPlacementHistory: PanelPlacementHistoryType;
+}
+
+
+
+export interface GridState {
+  grid: GridCell[][];
+  gridHistory: GridCell[][][];
+}

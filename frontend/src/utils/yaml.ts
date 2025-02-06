@@ -3,6 +3,11 @@ import { CellDefinitions, CellType, Panel, GridCell } from '@/components/types';
 // import { CELL_DEFINITIONS, CELL_TYPES } from '../constants/cell-types';
 import { capitalize, uncapitalize } from './string-operations';
 
+import { gridSlice } from '../store/slices/grid-slice';
+import { panelListSlice } from '../store/slices/panel-list-slice';
+import { UnknownAction } from '@reduxjs/toolkit';
+import { Dispatch as DisPatch } from 'redux';
+
 interface CellYamlData {
   Type: {
     Type: string;
@@ -56,8 +61,9 @@ export const exportStageToYaml = (
 
 export const importStageFromYaml = (
   event: React.ChangeEvent<HTMLInputElement>,
-  setGrid: (grid: GridCell[][]) => void,
-  setPanels: (panels: Panel[]) => void
+  // setGrid: (grid: GridCell[][]) => void,
+  // setPanels: (panels: Panel[]) => void
+  dispatch: DisPatch<UnknownAction>
 ) => {
   const file = event.target.files?.[0];
   if (file) {
@@ -92,8 +98,11 @@ export const importStageFromYaml = (
         // パネルのトリム処理
         const trimmedPanels = trimPanels(panels);
 
-        setGrid(grid);
-        setPanels(trimmedPanels);
+        // setGrid(grid);
+        dispatch(gridSlice.actions.loadGrid(grid));
+        // setPanels(trimmedPanels);
+        dispatch(panelListSlice.actions.loadPanels(trimmedPanels));
+        
       } catch (error) {
         console.error('Error importing YAML:', error);
       }
