@@ -88,5 +88,5 @@ export const panelSlice = createSlice({
   },
 });
 
-export const { selectPanelForPlacement } = panelSlice.actions;
+// export const { selectPanelForPlacement } = panelSlice.actions;
 export default panelSlice.reducer;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { panelSlice } from '../store/slices/panel-slice';
+import { gridSlice } from '../store/slices/grid-slice';
 
 import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
@@ -56,7 +57,8 @@ const EditorPage: React.FC = () => {
     if (cells && panels) {
       const stageData = `cells=${cells}&panels=${panels}`;
       const parsedData = decodeStageFromUrl(stageData);
-      setGrid(parsedData.cells);
+      // setGrid(parsedData.cells);
+      dispatch(gridSlice.actions.loadGrid(parsedData.cells));
       // setPanels(parsedData.panels);
       dispatch(panelSlice.actions.loadPanels(parsedData.panels));
     }

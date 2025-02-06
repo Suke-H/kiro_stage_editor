@@ -33,3 +33,8 @@ export interface PanelState {
   panelPlacementMode: PanelPlacementModeType;
   panelPlacementHistory: PanelPlacementHistoryType;
 }
+
+export interface GridState {
+  grid: GridCell[][];
+  gridHistory: GridCell[][][];
+}

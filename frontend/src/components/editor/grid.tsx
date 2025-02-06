@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { panelSlice } from "../../store/slices/panel-slice";
+import { gridSlice } from "../../store/slices/grid-slice";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,8 +26,8 @@ interface GridProps {
 }
 
 export const Grid: React.FC<GridProps> = ({
-  grid,
-  setGrid,
+  // grid,
+  // setGrid,
   setGridHistory,
   // panels,
   // setPanels,
@@ -36,70 +37,70 @@ export const Grid: React.FC<GridProps> = ({
 }) => {
 
   const dispatch = useDispatch();
-
+  const grid = useSelector((state: RootState) => state.grid.grid);
   const panels = useSelector((state: RootState) => state.panel.panels);
   const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
   const panelPlacementMode = useSelector((state: RootState) => state.panel.panelPlacementMode);
 
-  const adjustGridSize = (
-    rowDelta: number,
-    colDelta: number,
-    addToStart = false
-  ) => {
-    setGrid((prevGrid) => {
-      const newRows = prevGrid.length + rowDelta;
-      const newCols = prevGrid[0].length + colDelta;
+  // const adjustGridSize = (
+  //   rowDelta: number,
+  //   colDelta: number,
+  //   addToStart = false
+  // ) => {
+  //   setGrid((prevGrid) => {
+  //     const newRows = prevGrid.length + rowDelta;
+  //     const newCols = prevGrid[0].length + colDelta;
 
-      if (newRows > 0 && newCols > 0) {
-        const createEmptyCell = (): GridCell => ({
-          type: "Normal",
-          side: "front",
-        });
+  //     if (newRows > 0 && newCols > 0) {
+  //       const createEmptyCell = (): GridCell => ({
+  //         type: "Normal",
+  //         side: "front",
+  //       });
 
-        let updatedGrid = [...prevGrid];
+  //       let updatedGrid = [...prevGrid];
 
-        // 行の追加・削除
-        if (rowDelta > 0) {
-          const newRow = Array(newCols)
-            .fill(null)
-            .map(() => createEmptyCell());
-          updatedGrid = addToStart
-            ? [
-                ...Array(rowDelta)
-                  .fill(null)
-                  .map(() => newRow.map((cell) => ({ ...cell }))),
-                ...updatedGrid,
-              ]
-            : [
-                ...updatedGrid,
-                ...Array(rowDelta)
-                  .fill(null)
-                  .map(() => newRow.map((cell) => ({ ...cell }))),
-              ];
-        } else if (rowDelta < 0) {
-          updatedGrid = addToStart
-            ? updatedGrid.slice(-newRows)
-            : updatedGrid.slice(0, newRows);
-        }
+  //       // 行の追加・削除
+  //       if (rowDelta > 0) {
+  //         const newRow = Array(newCols)
+  //           .fill(null)
+  //           .map(() => createEmptyCell());
+  //         updatedGrid = addToStart
+  //           ? [
+  //               ...Array(rowDelta)
+  //                 .fill(null)
+  //                 .map(() => newRow.map((cell) => ({ ...cell }))),
+  //               ...updatedGrid,
+  //             ]
+  //           : [
+  //               ...updatedGrid,
+  //               ...Array(rowDelta)
+  //                 .fill(null)
+  //                 .map(() => newRow.map((cell) => ({ ...cell }))),
+  //             ];
+  //       } else if (rowDelta < 0) {
+  //         updatedGrid = addToStart
+  //           ? updatedGrid.slice(-newRows)
+  //           : updatedGrid.slice(0, newRows);
+  //       }
 
-        // 列の追加・削除
-        updatedGrid = updatedGrid.map((row) => {
-          if (colDelta > 0) {
-            const newCells = Array(colDelta)
-              .fill(null)
-              .map(() => createEmptyCell());
-            return addToStart ? [...newCells, ...row] : [...row, ...newCells];
-          } else if (colDelta < 0) {
-            return addToStart ? row.slice(-newCols) : row.slice(0, newCols);
-          }
-          return row;
-        });
+  //       // 列の追加・削除
+  //       updatedGrid = updatedGrid.map((row) => {
+  //         if (colDelta > 0) {
+  //           const newCells = Array(colDelta)
+  //             .fill(null)
+  //             .map(() => createEmptyCell());
+  //           return addToStart ? [...newCells, ...row] : [...row, ...newCells];
+  //         } else if (colDelta < 0) {
+  //           return addToStart ? row.slice(-newCols) : row.slice(0, newCols);
+  //         }
+  //         return row;
+  //       });
 
-        return updatedGrid;
-      }
-      return prevGrid;
-    });
-  };
+  //       return updatedGrid;
+  //     }
+  //     return prevGrid;
+  //   });
+  // };
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
     // セル選択モード
@@ -124,7 +125,8 @@ export const Grid: React.FC<GridProps> = ({
         newGrid[rowIndex][colIndex] = { type: selectedCellType, side };
       }
 
-      setGrid(newGrid);
+      // setGrid(newGrid);
+      dispatch(gridSlice.actions.placeCell({ row: rowIndex, col: colIndex, cell: newGrid[rowIndex][colIndex] }));
       setGridHistory((prev) => [...prev, newGrid]);
       return;
     }
@@ -166,7 +168,8 @@ export const Grid: React.FC<GridProps> = ({
       setGridHistory((prev) => [...prev, updatedGrid]);
       // setPanelPlacementHistory((prev) => [...prev, panelPlacementMode]);
       dispatch(panelSlice.actions.addToPlacementHistory(panelPlacementMode));
-      setGrid(updatedGrid);
+      // setGrid(updatedGrid);
+      dispatch(gridSlice.actions.initGrid());
     }
 
     panelSlice.actions.selectPanelForPlacement({
@@ -287,13 +290,13 @@ export const Grid: React.FC<GridProps> = ({
               <div className="flex items-center gap-2">
                 <span>先頭</span>
                 <Button
-                  onClick={() => adjustGridSize(1, 0, true)}
+                  onClick={() => dispatch(gridSlice.actions.addToRow({ isFirst: true }))}
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Add />
                 </Button>
                 <Button
-                  onClick={() => adjustGridSize(-1, 0, true)}
+                  onClick={() => dispatch(gridSlice.actions.removeFromRow({ isFirst: true }))}
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Remove />
@@ -303,13 +306,13 @@ export const Grid: React.FC<GridProps> = ({
               <div className="flex items-center gap-2">
                 <span>末尾</span>
                 <Button
-                  onClick={() => adjustGridSize(1, 0)}
+                  onClick={() => dispatch(gridSlice.actions.addToRow({ isFirst: false }))}
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Add />
                 </Button>
                 <Button
-                  onClick={() => adjustGridSize(-1, 0)}
+                  onClick={() => dispatch(gridSlice.actions.removeFromRow({ isFirst: false }))}
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Remove />
@@ -326,13 +329,13 @@ export const Grid: React.FC<GridProps> = ({
               <div className="flex items-center gap-2">
                 <span>先頭</span>
                 <Button
-                  onClick={() => adjustGridSize(0, 1, true)}
+                  onClick={() => dispatch(gridSlice.actions.addToCol({ isFirst: true }))}
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Add />
                 </Button>
                 <Button
-                  onClick={() => adjustGridSize(0, -1, true)}
+                  onClick={() => dispatch(gridSlice.actions.removeFromCol({ isFirst: true }))}
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Remove />
@@ -342,13 +345,13 @@ export const Grid: React.FC<GridProps> = ({
               <div className="flex items-center gap-2">
                 <span>末尾</span>
                 <Button
-                  onClick={() => adjustGridSize(0, 1)}
+                  onClick={() => dispatch(gridSlice.actions.addToCol({ isFirst: false }))}
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Add />
                 </Button>
                 <Button
-                  onClick={() => adjustGridSize(0, -1)}
+                  onClick={() => dispatch(gridSlice.actions.removeFromCol({ isFirst: false }))}
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Remove />
@@ -368,7 +371,7 @@ export const Grid: React.FC<GridProps> = ({
           <input
             type="file"
             accept=".yaml,.yml"
-            onChange={(event) => importStageFromYaml(event, setGrid, dispatch)}
+            onChange={(event) => importStageFromYaml(event, dispatch)}
             className="hidden"
             id="yamlImport"
           />

@@ -4,6 +4,7 @@ import { CellDefinitions, CellType, Panel, GridCell } from '@/components/types';
 import { capitalize, uncapitalize } from './string-operations';
 
 import { panelSlice } from '../store/slices/panel-slice';
+import { gridSlice } from '../store/slices/grid-slice';
 import { UnknownAction } from '@reduxjs/toolkit';
 import { Dispatch as DisPatch } from 'redux';
 
@@ -60,7 +61,7 @@ export const exportStageToYaml = (
 
 export const importStageFromYaml = (
   event: React.ChangeEvent<HTMLInputElement>,
-  setGrid: (grid: GridCell[][]) => void,
+  // setGrid: (grid: GridCell[][]) => void,
   // setPanels: (panels: Panel[]) => void
   dispatch: DisPatch<UnknownAction>
 ) => {
@@ -97,7 +98,8 @@ export const importStageFromYaml = (
         // パネルのトリム処理
         const trimmedPanels = trimPanels(panels);
 
-        setGrid(grid);
+        // setGrid(grid);
+        dispatch(gridSlice.actions.loadGrid(grid));
         // setPanels(trimmedPanels);
         dispatch(panelSlice.actions.loadPanels(trimmedPanels));
         
