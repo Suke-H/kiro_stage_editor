@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { panelSlice } from '../store/slices/panel-slice';
 import { gridSlice } from '../store/slices/grid-slice';
@@ -7,18 +7,16 @@ import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
-import { GridCell } from '@/components/types';
 import { decodeStageFromUrl } from '../utils/url';
 
 const EditorPage: React.FC = () => {
 
   const dispatch = useDispatch();
-
-  const [grid, setGrid] = useState<GridCell[][]>([
-    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-    [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-  ]);
+  // const [grid, setGrid] = useState<GridCell[][]>([
+  //   [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
+  //   [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
+  //   [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
+  // ]);
 
   // const [panels, setPanels] = useState<Panel[]>([
   //   {
@@ -46,7 +44,7 @@ const EditorPage: React.FC = () => {
   //   highlightedCell: null,
   // });
 
-  const [gridHistory, setGridHistory] = useState<GridCell[][][]>([grid]);
+  // const [gridHistory, setGridHistory] = useState<GridCell[][][]>([grid]);
   // const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType>([]);
 
   useEffect(() => {
@@ -88,9 +86,9 @@ const EditorPage: React.FC = () => {
         <CellTypeSelector 
         />
         <Grid 
-          grid={grid} 
-          setGrid={setGrid} 
-          setGridHistory={setGridHistory} 
+          // grid={grid} 
+          // setGrid={setGrid} 
+          // setGridHistory={setGridHistory} 
           // panels={panels} 
           // setPanels={setPanels} 
           // panelPlacementMode={panelPlacementMode} 
@@ -107,9 +105,9 @@ const EditorPage: React.FC = () => {
           // setPanelPlacementMode={setPanelPlacementMode}
           // panelPlacementHistory={panelPlacementHistory}
           // setPanelPlacementHistory={setPanelPlacementHistory}
-          setGrid={setGrid}
-          gridHistory={gridHistory}
-          setGridHistory={setGridHistory}
+          // setGrid={setGrid}
+          // gridHistory={gridHistory}
+          // setGridHistory={setGridHistory}
         />
         <NewPanelCreator 
           // newPanelGrid={newPanelGrid}

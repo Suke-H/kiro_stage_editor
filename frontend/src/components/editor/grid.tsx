@@ -11,11 +11,12 @@ import { GridCell, Panel, } from "../types";
 import { CELL_DEFINITIONS, CellSideInfo } from "../../constants/cell-types";
 import { exportStageToYaml, importStageFromYaml } from "../../utils/yaml";
 import { shareStageUrl } from "../../utils/url";
+import { cellTypeSlice } from "../../store/slices/cell-type-slice";
 
-interface GridProps {
+// interface GridProps {
   // grid: GridCell[][];
   // setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
-  setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
+  // setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
   // panels: Panel[];
   // setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
   // panelPlacementMode: PanelPlacementModeType;
@@ -23,21 +24,22 @@ interface GridProps {
   // setPanelPlacementHistory: React.Dispatch<
   //   React.SetStateAction<PanelPlacementHistoryType>
   // >;
-}
+// }
 
-export const Grid: React.FC<GridProps> = ({
+export const Grid: React.FC = (
   // grid,
   // setGrid,
-  setGridHistory,
+  // setGridHistory,
   // panels,
   // setPanels,
   // panelPlacementMode,
   // setPanelPlacementMode,
   // setPanelPlacementHistory,
-}) => {
+) => {
 
   const dispatch = useDispatch();
   const grid = useSelector((state: RootState) => state.grid.grid);
+  // const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
   const panels = useSelector((state: RootState) => state.panel.panels);
   const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
   const panelPlacementMode = useSelector((state: RootState) => state.panel.panelPlacementMode);
@@ -126,7 +128,8 @@ export const Grid: React.FC<GridProps> = ({
       }
 
       // setGrid(newGrid);
-      setGridHistory((prev) => [...prev, grid]);
+      // setGridHistory((prev) => [...prev, grid]);
+      // dispatch(gridSlice.actions.saveHistory());
       return;
     }
 
@@ -134,7 +137,7 @@ export const Grid: React.FC<GridProps> = ({
     const placingPanel = panelPlacementMode.panel;
 
     if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
-      const updatedGrid = grid.map((row) => [...row]);
+      // const updatedGrid = grid.map((row) => [...row]);
 
       const panelRows = placingPanel.cells.length;
       const panelCols = placingPanel.cells[0].length;
@@ -166,17 +169,23 @@ export const Grid: React.FC<GridProps> = ({
         }
       }
 
-      setGridHistory((prev) => [...prev, updatedGrid]);
+      // setGridHistory((prev) => [...prev, updatedGrid]);
+      dispatch(gridSlice.actions.saveHistory());
+
       // setPanelPlacementHistory((prev) => [...prev, panelPlacementMode]);
       dispatch(panelSlice.actions.addToPlacementHistory(panelPlacementMode));
       // setGrid(updatedGrid);
       // dispatch(gridSlice.actions.initGrid());
     }
 
-    panelSlice.actions.selectPanelForPlacement({
-      panel: null,
-      highlightedCell: null,
-    });
+    // 設置したらパネル配置モードを終了
+    dispatch(
+      panelSlice.actions.selectPanelForPlacement({
+        panel: null,
+        highlightedCell: null,
+      })
+    );
+    dispatch(cellTypeSlice.actions.changeCellType("Normal"));
   };
 
   const renderGridCell = (

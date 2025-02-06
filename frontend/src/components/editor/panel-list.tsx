@@ -5,14 +5,15 @@ import {
   Panel,
   // PanelPlacementModeType,
   // PanelPlacementHistoryType,
-  GridCell,
+  // GridCell,
   // PanelPlacementModeType,
 } from "../types";
 import { panelSlice } from "../../store/slices/panel-slice";
+import { gridSlice } from "../../store/slices/grid-slice";
 import { RootState } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
 
-interface PanelListProps {
+// interface PanelListProps {
   // panels: Panel[];
   // setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
   // panelPlacementMode: PanelPlacementModeType;
@@ -23,27 +24,28 @@ interface PanelListProps {
   // setPanelPlacementHistory: React.Dispatch<
   //   React.SetStateAction<PanelPlacementHistoryType>
   // >;
-  setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
-  gridHistory: GridCell[][][];
-  setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
-}
+  // setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
+  // gridHistory: GridCell[][][];
+  // setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
+// }
 
-export const PanelList: React.FC<PanelListProps> = ({
+export const PanelList: React.FC = (
   // panels,
   // setPanels,
   // panelPlacementMode,
   // setPanelPlacementMode,
   // panelPlacementHistory,
   // setPanelPlacementHistory,
-  setGrid,
-  gridHistory,
-  setGridHistory,
-}) => {
+  // setGrid,
+  // gridHistory,
+  // setGridHistory,
+) => {
   // const removePanel = (panelId: string) => {
   //   setPanels(panels.filter((panel) => panel.id !== panelId));
   // };
 
   const dispatch = useDispatch();
+  const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
   const panels = useSelector((state: RootState) => state.panel.panels);
   const panelPlacementMode = useSelector((state: RootState) => state.panel.panelPlacementMode);
   const panelPlacementHistory = useSelector((state: RootState) => state.panel.panelPlacementHistory);
@@ -74,8 +76,10 @@ export const PanelList: React.FC<PanelListProps> = ({
     if (gridHistory.length > 1) {
       const newGridHistory = [...gridHistory];
       newGridHistory.pop(); // 最後の状態を削除
-      setGrid(newGridHistory[newGridHistory.length - 1]);
-      setGridHistory(newGridHistory);
+      // setGrid(newGridHistory[newGridHistory.length - 1]);
+      // setGridHistory(newGridHistory);
+
+      dispatch(gridSlice.actions.undo());
 
       const newPanelPlacementHistory = [...panelPlacementHistory];
       newPanelPlacementHistory.pop();
@@ -99,8 +103,10 @@ export const PanelList: React.FC<PanelListProps> = ({
   // 「リセット」メソッド
   const resetPanelPlacement = () => {
     if (gridHistory.length > 1) {
-      setGrid(gridHistory[0]);
-      setGridHistory([gridHistory[0]]);
+      // setGrid(gridHistory[0]);
+      // setGridHistory([gridHistory[0]]);
+      dispatch(gridSlice.actions.reset());
+
       // setPanelPlacementMode({ panel: null, highlightedCell: null });
       dispatch(
         panelSlice.actions.selectPanelForPlacement(

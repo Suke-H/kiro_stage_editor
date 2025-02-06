@@ -7,7 +7,13 @@ const initialState: GridState = {
         [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
         [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
     ],
-    gridHistory: [],
+    gridHistory: [
+        [
+            [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
+            [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
+            [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
+        ],
+    ],
 }
 
 export const gridSlice = createSlice({
@@ -70,7 +76,23 @@ export const gridSlice = createSlice({
         if (state.grid[row][col].side === 'neutral') return;
         // それ以外(front/back)の場合、反転
         state.grid[row][col].side = state.grid[row][col].side === 'front' ? 'back' : 'front';
-    }
+    },
+
+    // 履歴
+    saveHistory: (state) => {
+        state.gridHistory.push(state.grid.map((row) => row.map((cell) => ({ ...cell }))));
+    },
+
+    undo: (state) => {
+        if (state.gridHistory.length > 1) {
+            state.gridHistory.pop();
+            state.grid = state.gridHistory[state.gridHistory.length - 1];
+        }
+    },
+
+    reset: (state) => {
+        state.gridHistory = [state.grid.map((row) => row.map((cell) => ({ ...cell })))];
+    },
   },
 });
 
