@@ -15,8 +15,8 @@ interface GridProps {
   grid: GridCell[][];
   setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
   setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
-  panels: Panel[];
-  setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
+  // panels: Panel[];
+  // setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
   // panelPlacementMode: PanelPlacementModeType;
   // setPanelPlacementMode: React.Dispatch<React.SetStateAction<PanelPlacementModeType>>;
   // setPanelPlacementHistory: React.Dispatch<
@@ -28,8 +28,8 @@ export const Grid: React.FC<GridProps> = ({
   grid,
   setGrid,
   setGridHistory,
-  panels,
-  setPanels,
+  // panels,
+  // setPanels,
   // panelPlacementMode,
   // setPanelPlacementMode,
   // setPanelPlacementHistory,
@@ -37,12 +37,9 @@ export const Grid: React.FC<GridProps> = ({
 
   const dispatch = useDispatch();
 
-  const selectedCellType = useSelector(
-    (state: RootState) => state.cellType.selectedCellType
-  );
-  const panelPlacementMode = useSelector(
-    (state: RootState) => state.panel.panelPlacementMode
-  );
+  const panels = useSelector((state: RootState) => state.panel.panels);
+  const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
+  const panelPlacementMode = useSelector((state: RootState) => state.panel.panelPlacementMode);
 
   const adjustGridSize = (
     rowDelta: number,
@@ -371,7 +368,7 @@ export const Grid: React.FC<GridProps> = ({
           <input
             type="file"
             accept=".yaml,.yml"
-            onChange={(event) => importStageFromYaml(event, setGrid, setPanels)}
+            onChange={(event) => importStageFromYaml(event, setGrid, dispatch)}
             className="hidden"
             id="yamlImport"
           />

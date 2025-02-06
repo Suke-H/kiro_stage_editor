@@ -13,8 +13,8 @@ import { RootState } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
 
 interface PanelListProps {
-  panels: Panel[];
-  setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
+  // panels: Panel[];
+  // setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
   // panelPlacementMode: PanelPlacementModeType;
   // setPanelPlacementMode: React.Dispatch<
   //   React.SetStateAction<PanelPlacementModeType>
@@ -29,8 +29,8 @@ interface PanelListProps {
 }
 
 export const PanelList: React.FC<PanelListProps> = ({
-  panels,
-  setPanels,
+  // panels,
+  // setPanels,
   // panelPlacementMode,
   // setPanelPlacementMode,
   // panelPlacementHistory,
@@ -39,11 +39,12 @@ export const PanelList: React.FC<PanelListProps> = ({
   gridHistory,
   setGridHistory,
 }) => {
-  const removePanel = (panelId: string) => {
-    setPanels(panels.filter((panel) => panel.id !== panelId));
-  };
+  // const removePanel = (panelId: string) => {
+  //   setPanels(panels.filter((panel) => panel.id !== panelId));
+  // };
 
   const dispatch = useDispatch();
+  const panels = useSelector((state: RootState) => state.panel.panels);
   const panelPlacementMode = useSelector((state: RootState) => state.panel.panelPlacementMode);
   const panelPlacementHistory = useSelector((state: RootState) => state.panel.panelPlacementHistory);
 
@@ -142,7 +143,10 @@ export const PanelList: React.FC<PanelListProps> = ({
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => removePanel(panel.id)}
+          onClick={
+            // () => removePanel(panel.id)
+            () => dispatch(panelSlice.actions.removePanel(panel.id))
+          }
         >
           <Trash2 size={16} />
         </Button>

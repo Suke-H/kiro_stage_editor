@@ -3,19 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, MinusCircle, Plus } from 'lucide-react';
 import { CellType, Panel } from '../types';
 
+import { panelSlice } from "../../store/slices/panel-slice";
+import { useDispatch } from "react-redux";
+
 interface NewPanelCreatorProps {
   newPanelGrid: CellType[][];
   setNewPanelGrid: React.Dispatch<React.SetStateAction<CellType[][]>>;
-  panels: Panel[];
-  setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
+  // panels: Panel[];
+  // setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
 }
 
 export const NewPanelCreator: React.FC<NewPanelCreatorProps> = ({
   newPanelGrid,
   setNewPanelGrid,
-  panels,
-  setPanels,
+  // panels,
+  // setPanels,
 }) => {
+    const dispatch = useDispatch();
 
     const adjustNewPanelGridSize = (rowDelta: number, colDelta: number) => {
       setNewPanelGrid((prevGrid) => {
@@ -55,7 +59,8 @@ export const NewPanelCreator: React.FC<NewPanelCreatorProps> = ({
           id: `panel-${Date.now()}`,
           cells: newPanelGrid,
         };
-        setPanels([...panels, newPanel]);
+        // setPanels([...panels, newPanel]);
+        dispatch(panelSlice.actions.createPanel(newPanel));
         setNewPanelGrid(Array(3).fill(null).map(() => Array(3).fill('White')));
       }
     };

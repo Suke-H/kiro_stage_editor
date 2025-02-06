@@ -2,14 +2,19 @@ import { useState, useEffect } from 'react';
 import { Provider } from 'react-redux';
 
 import { store } from '../store';
+import { useDispatch } from 'react-redux';
+import { panelSlice } from '../store/slices/panel-slice';
+
 import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 import { NewPanelCreator } from '@/components/editor/new-panel-creator';
-import { CellType, GridCell, Panel } from '@/components/types';
+import { CellType, GridCell } from '@/components/types';
 import { decodeStageFromUrl } from '../utils/url';
 
 const EditorPage: React.FC = () => {
+
+  const dispatch = useDispatch();
 
   const [grid, setGrid] = useState<GridCell[][]>([
     [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
@@ -17,22 +22,22 @@ const EditorPage: React.FC = () => {
     [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
   ]);
 
-  const [panels, setPanels] = useState<Panel[]>([
-    {
-      id: 'panel1',
-      cells: [
-        ['Black', 'Black'],
-        ['Black', 'Black'],
-      ],
-    },
-    {
-      id: 'panel2',
-      cells: [
-        ['Black', 'White'],
-        ['White', 'Black'],
-      ],
-    },
-  ]);
+  // const [panels, setPanels] = useState<Panel[]>([
+  //   {
+  //     id: 'panel1',
+  //     cells: [
+  //       ['Black', 'Black'],
+  //       ['Black', 'Black'],
+  //     ],
+  //   },
+  //   {
+  //     id: 'panel2',
+  //     cells: [
+  //       ['Black', 'White'],
+  //       ['White', 'Black'],
+  //     ],
+  //   },
+  // ]);
 
   const [newPanelGrid, setNewPanelGrid] = useState<CellType[][]>(() =>
     Array(3).fill(null).map(() => Array(3).fill('White')),
@@ -47,7 +52,6 @@ const EditorPage: React.FC = () => {
   // const [panelPlacementHistory, setPanelPlacementHistory] = useState<PanelPlacementHistoryType>([]);
 
   useEffect(() => {
-
     const params = new URLSearchParams(window.location.search);
     const cells = params.get('cells');
     const panels = params.get('panels');
@@ -56,7 +60,8 @@ const EditorPage: React.FC = () => {
       const stageData = `cells=${cells}&panels=${panels}`;
       const parsedData = decodeStageFromUrl(stageData);
       setGrid(parsedData.cells);
-      setPanels(parsedData.panels);
+      // setPanels(parsedData.panels);
+      dispatch(panelSlice.actions.loadPanels(parsedData.panels));
     }
   }, []);
 
@@ -88,8 +93,8 @@ const EditorPage: React.FC = () => {
             grid={grid} 
             setGrid={setGrid} 
             setGridHistory={setGridHistory} 
-            panels={panels} 
-            setPanels={setPanels} 
+            // panels={panels} 
+            // setPanels={setPanels} 
             // panelPlacementMode={panelPlacementMode} 
             // setPanelPlacementMode={setPanelPlacementMode} 
             // setPanelPlacementHistory={setPanelPlacementHistory}
@@ -98,8 +103,8 @@ const EditorPage: React.FC = () => {
     
         <div className="flex gap-4">
           <PanelList 
-            panels={panels}
-            setPanels={setPanels}
+            // panels={panels}
+            // setPanels={setPanels}
             // panelPlacementMode={panelPlacementMode}
             // setPanelPlacementMode={setPanelPlacementMode}
             // panelPlacementHistory={panelPlacementHistory}
@@ -111,8 +116,8 @@ const EditorPage: React.FC = () => {
           <NewPanelCreator 
             newPanelGrid={newPanelGrid}
             setNewPanelGrid={setNewPanelGrid}
-            panels={panels}
-            setPanels={setPanels}
+            // panels={panels}
+            // setPanels={setPanels}
           />
         </div>
       </div>
