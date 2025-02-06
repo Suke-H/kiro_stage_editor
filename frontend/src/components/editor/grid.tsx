@@ -13,8 +13,8 @@ import { exportStageToYaml, importStageFromYaml } from "../../utils/yaml";
 import { shareStageUrl } from "../../utils/url";
 
 interface GridProps {
-  grid: GridCell[][];
-  setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
+  // grid: GridCell[][];
+  // setGrid: React.Dispatch<React.SetStateAction<GridCell[][]>>;
   setGridHistory: React.Dispatch<React.SetStateAction<GridCell[][][]>>;
   // panels: Panel[];
   // setPanels: React.Dispatch<React.SetStateAction<Panel[]>>;
@@ -105,29 +105,28 @@ export const Grid: React.FC<GridProps> = ({
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
     // セル選択モード
     if (!panelPlacementMode.panel) {
-      const newGrid = [...grid];
-
       const cellDef = CELL_DEFINITIONS[selectedCellType];
 
       // セル選択がFlipの場合：sideを反転
       if (selectedCellType === "Flip") {
-        const targetCell = newGrid[rowIndex][colIndex];
-        if (targetCell.type === "Empty") return;
-
-        if (targetCell.side === "front") {
-          newGrid[rowIndex][colIndex] = { ...targetCell, side: "back" };
-        } else if (targetCell.side === "back") {
-          newGrid[rowIndex][colIndex] = { ...targetCell, side: "front" };
+        if (grid[rowIndex][colIndex].type !== "Empty")  {
+          dispatch(gridSlice.actions.flipCell({ row: rowIndex, col: colIndex }));
         }
+
       } else {
         // 基本はfront（表）で設置する。neutralのみの場合はneutral
         const side = "neutral" in cellDef ? "neutral" : "front";
-        newGrid[rowIndex][colIndex] = { type: selectedCellType, side };
+        dispatch(
+          gridSlice.actions.placeCell({ 
+            row: rowIndex, 
+            col: colIndex, 
+            cell: { type: selectedCellType, side }
+          })
+        );
       }
 
       // setGrid(newGrid);
-      dispatch(gridSlice.actions.placeCell({ row: rowIndex, col: colIndex, cell: newGrid[rowIndex][colIndex] }));
-      setGridHistory((prev) => [...prev, newGrid]);
+      setGridHistory((prev) => [...prev, grid]);
       return;
     }
 

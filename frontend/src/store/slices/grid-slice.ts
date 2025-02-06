@@ -66,6 +66,9 @@ export const gridSlice = createSlice({
     },
     flipCell: (state, action: PayloadAction<{ row: number; col: number }>) => {
         const { row, col } = action.payload;
+        // ニュートラルの場合、反転しない
+        if (state.grid[row][col].side === 'neutral') return;
+        // それ以外(front/back)の場合、反転
         state.grid[row][col].side = state.grid[row][col].side === 'front' ? 'back' : 'front';
     }
   },
