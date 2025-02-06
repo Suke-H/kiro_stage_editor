@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { panelSlice } from '../store/slices/panel-slice';
 import { gridSlice } from '../store/slices/grid-slice';
+import { panelListSlice } from '../store/slices/panel-list-slice';
 
 import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';
@@ -22,7 +22,7 @@ const EditorPage: React.FC = () => {
       const stageData = `cells=${cells}&panels=${panels}`;
       const parsedData = decodeStageFromUrl(stageData);
       dispatch(gridSlice.actions.loadGrid(parsedData.cells));
-      dispatch(panelSlice.actions.loadPanels(parsedData.panels));
+      dispatch(panelListSlice.actions.loadPanels(parsedData.panels));
     }
   }, []);
 

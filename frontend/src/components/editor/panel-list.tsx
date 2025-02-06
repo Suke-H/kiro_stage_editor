@@ -1,25 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Move } from "lucide-react";
-import {
-  Panel,
-  // PanelPlacementModeType,
-  // PanelPlacementHistoryType,
-  // GridCell,
-  // PanelPlacementModeType,
-} from "../types";
-import { panelSlice } from "../../store/slices/panel-slice";
+import { Panel } from "../types";
+import { panelListSlice } from "../../store/slices/panel-list-slice";
+import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
 import { gridSlice } from "../../store/slices/grid-slice";
 import { RootState } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
 
 export const PanelList: React.FC = () => {
-
   const dispatch = useDispatch();
   const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
-  const panels = useSelector((state: RootState) => state.panel.panels);
-  const panelPlacementMode = useSelector((state: RootState) => state.panel.panelPlacementMode);
-  const panelPlacementHistory = useSelector((state: RootState) => state.panel.panelPlacementHistory);
+  const panels = useSelector((state: RootState) => state.panelList.panels);
+  const panelPlacementMode = useSelector(
+    (state: RootState) => state.panelPlacement.panelPlacementMode
+  );
+  const panelPlacementHistory = useSelector(
+    (state: RootState) => state.panelPlacement.panelPlacementHistory
+  );
 
   // パネル配置モードの開始
   const startPanelPlacement = (panel: Panel) => {
@@ -36,7 +34,7 @@ export const PanelList: React.FC = () => {
 
     // パネル配置モードの開始
     dispatch(
-      panelSlice.actions.selectPanelForPlacement({
+      panelPlacementSlice.actions.selectPanelForPlacement({
         panel: panel,
         highlightedCell: firstBlackCell || { row: 0, col: 0 },
       })
@@ -61,14 +59,13 @@ export const PanelList: React.FC = () => {
       //     : { panel: null, highlightedCell: null }
       // );
       dispatch(
-        panelSlice.actions.selectPanelForPlacement(
+        panelPlacementSlice.actions.selectPanelForPlacement(
           newPanelPlacementHistory.length > 0
             ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
             : { panel: null, highlightedCell: null }
         )
       );
-      // setPanelPlacementHistory(newPanelPlacementHistory);
-      dispatch(panelSlice.actions.undoPlacement());
+      dispatch(panelPlacementSlice.actions.undoPlacement());
     }
   };
 
@@ -77,13 +74,14 @@ export const PanelList: React.FC = () => {
     if (gridHistory.length > 1) {
       // グリッドとパネル配置履歴をリセット
       dispatch(gridSlice.actions.reset());
-      dispatch(panelSlice.actions.resetPlacementHistory());
+      dispatch(panelPlacementSlice.actions.resetPlacementHistory());
 
       // パネル配置モードの終了
       dispatch(
-        panelSlice.actions.selectPanelForPlacement(
-          { panel: null, highlightedCell: null }
-        )
+        panelPlacementSlice.actions.selectPanelForPlacement({
+          panel: null,
+          highlightedCell: null,
+        })
       );
     }
   };
@@ -119,9 +117,7 @@ export const PanelList: React.FC = () => {
         <Button
           variant="ghost"
           size="icon"
-          onClick={
-            () => dispatch(panelSlice.actions.removePanel(panel.id))
-          }
+          onClick={() => dispatch(panelListSlice.actions.removePanel(panel.id))}
         >
           <Trash2 size={16} />
         </Button>

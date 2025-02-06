@@ -3,8 +3,8 @@ import { CellDefinitions, CellType, Panel, GridCell } from '@/components/types';
 // import { CELL_DEFINITIONS, CELL_TYPES } from '../constants/cell-types';
 import { capitalize, uncapitalize } from './string-operations';
 
-import { panelSlice } from '../store/slices/panel-slice';
 import { gridSlice } from '../store/slices/grid-slice';
+import { panelListSlice } from '../store/slices/panel-list-slice';
 import { UnknownAction } from '@reduxjs/toolkit';
 import { Dispatch as DisPatch } from 'redux';
 
@@ -101,7 +101,7 @@ export const importStageFromYaml = (
         // setGrid(grid);
         dispatch(gridSlice.actions.loadGrid(grid));
         // setPanels(trimmedPanels);
-        dispatch(panelSlice.actions.loadPanels(trimmedPanels));
+        dispatch(panelListSlice.actions.loadPanels(trimmedPanels));
         
       } catch (error) {
         console.error('Error importing YAML:', error);

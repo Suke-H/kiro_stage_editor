@@ -1,25 +1,28 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { panelSlice } from "../../store/slices/panel-slice";
 import { gridSlice } from "../../store/slices/grid-slice";
+import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Upload, Link } from "lucide-react";
 import { Add, Remove } from "@mui/icons-material";
-import { GridCell, Panel, } from "../types";
+import { GridCell, Panel } from "../types";
 import { CELL_DEFINITIONS, CellSideInfo } from "../../constants/cell-types";
 import { exportStageToYaml, importStageFromYaml } from "../../utils/yaml";
 import { shareStageUrl } from "../../utils/url";
 import { cellTypeSlice } from "../../store/slices/cell-type-slice";
 
 export const Grid: React.FC = () => {
-
   const dispatch = useDispatch();
   const grid = useSelector((state: RootState) => state.grid.grid);
-  const panels = useSelector((state: RootState) => state.panel.panels);
-  const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
-  const panelPlacementMode = useSelector((state: RootState) => state.panel.panelPlacementMode);
+  const panels = useSelector((state: RootState) => state.panelList.panels);
+  const selectedCellType = useSelector(
+    (state: RootState) => state.cellType.selectedCellType
+  );
+  const panelPlacementMode = useSelector(
+    (state: RootState) => state.panelPlacement.panelPlacementMode
+  );
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
     // セル選択モード
@@ -28,18 +31,19 @@ export const Grid: React.FC = () => {
 
       // セル選択がFlipの場合：sideを反転
       if (selectedCellType === "Flip") {
-        if (grid[rowIndex][colIndex].type !== "Empty")  {
-          dispatch(gridSlice.actions.flipCell({ row: rowIndex, col: colIndex }));
+        if (grid[rowIndex][colIndex].type !== "Empty") {
+          dispatch(
+            gridSlice.actions.flipCell({ row: rowIndex, col: colIndex })
+          );
         }
-
       } else {
         // 基本はfront（表）で設置する。neutralのみの場合はneutral
         const side = "neutral" in cellDef ? "neutral" : "front";
         dispatch(
-          gridSlice.actions.placeCell({ 
-            row: rowIndex, 
-            col: colIndex, 
-            cell: { type: selectedCellType, side }
+          gridSlice.actions.placeCell({
+            row: rowIndex,
+            col: colIndex,
+            cell: { type: selectedCellType, side },
           })
         );
       }
@@ -51,27 +55,32 @@ export const Grid: React.FC = () => {
     const placingPanel = panelPlacementMode.panel;
 
     if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
-
       const panelRows = placingPanel.cells.length;
       const panelCols = placingPanel.cells[0].length;
 
       for (let i = 0; i < panelRows; i++) {
         for (let j = 0; j < panelCols; j++) {
           if (placingPanel.cells[i][j] === "Black") {
-
-            dispatch(gridSlice.actions.flipCell({ row: rowIndex + i, col: colIndex + j }));
+            dispatch(
+              gridSlice.actions.flipCell({
+                row: rowIndex + i,
+                col: colIndex + j,
+              })
+            );
           }
         }
       }
 
       // 履歴に保存
       dispatch(gridSlice.actions.saveHistory());
-      dispatch(panelSlice.actions.addToPlacementHistory(panelPlacementMode));
+      dispatch(
+        panelPlacementSlice.actions.addToPlacementHistory(panelPlacementMode)
+      );
     }
 
     // 設置したらパネル配置モードを終了
     dispatch(
-      panelSlice.actions.selectPanelForPlacement({
+      panelPlacementSlice.actions.selectPanelForPlacement({
         panel: null,
         highlightedCell: null,
       })
@@ -191,13 +200,17 @@ export const Grid: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span>先頭</span>
                 <Button
-                  onClick={() => dispatch(gridSlice.actions.addToRow({ isFirst: true }))}
+                  onClick={() =>
+                    dispatch(gridSlice.actions.addToRow({ isFirst: true }))
+                  }
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Add />
                 </Button>
                 <Button
-                  onClick={() => dispatch(gridSlice.actions.removeFromRow({ isFirst: true }))}
+                  onClick={() =>
+                    dispatch(gridSlice.actions.removeFromRow({ isFirst: true }))
+                  }
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Remove />
@@ -207,13 +220,19 @@ export const Grid: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span>末尾</span>
                 <Button
-                  onClick={() => dispatch(gridSlice.actions.addToRow({ isFirst: false }))}
+                  onClick={() =>
+                    dispatch(gridSlice.actions.addToRow({ isFirst: false }))
+                  }
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Add />
                 </Button>
                 <Button
-                  onClick={() => dispatch(gridSlice.actions.removeFromRow({ isFirst: false }))}
+                  onClick={() =>
+                    dispatch(
+                      gridSlice.actions.removeFromRow({ isFirst: false })
+                    )
+                  }
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Remove />
@@ -230,13 +249,17 @@ export const Grid: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span>先頭</span>
                 <Button
-                  onClick={() => dispatch(gridSlice.actions.addToCol({ isFirst: true }))}
+                  onClick={() =>
+                    dispatch(gridSlice.actions.addToCol({ isFirst: true }))
+                  }
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Add />
                 </Button>
                 <Button
-                  onClick={() => dispatch(gridSlice.actions.removeFromCol({ isFirst: true }))}
+                  onClick={() =>
+                    dispatch(gridSlice.actions.removeFromCol({ isFirst: true }))
+                  }
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Remove />
@@ -246,13 +269,19 @@ export const Grid: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span>末尾</span>
                 <Button
-                  onClick={() => dispatch(gridSlice.actions.addToCol({ isFirst: false }))}
+                  onClick={() =>
+                    dispatch(gridSlice.actions.addToCol({ isFirst: false }))
+                  }
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Add />
                 </Button>
                 <Button
-                  onClick={() => dispatch(gridSlice.actions.removeFromCol({ isFirst: false }))}
+                  onClick={() =>
+                    dispatch(
+                      gridSlice.actions.removeFromCol({ isFirst: false })
+                    )
+                  }
                   className="flex items-center justify-center w-10 h-10"
                 >
                   <Remove />

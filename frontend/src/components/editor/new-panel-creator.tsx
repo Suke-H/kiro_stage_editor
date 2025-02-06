@@ -3,14 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, MinusCircle, Plus } from "lucide-react";
 import { Panel } from "../types";
 
-import { panelSlice } from "../../store/slices/panel-slice";
+import { createPanelSlice } from "../../store/slices/create-panel-slice";
+import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 
 export const NewPanelCreator: React.FC = () => {
   const dispatch = useDispatch();
   const newPanelGrid = useSelector(
-    (state: RootState) => state.panel.newPanelGrid
+    (state: RootState) => state.createPanel.newPanelGrid
   );
 
   const addPanel = () => {
@@ -24,9 +25,9 @@ export const NewPanelCreator: React.FC = () => {
       };
 
       // パネル追加
-      dispatch(panelSlice.actions.createPanel(newPanel));
+      dispatch(panelListSlice.actions.createPanel(newPanel));
       // グリッドは初期化させる
-      dispatch(panelSlice.actions.initPanelGrid());
+      dispatch(createPanelSlice.actions.initPanelGrid());
     }
   };
 
@@ -38,25 +39,25 @@ export const NewPanelCreator: React.FC = () => {
       <CardContent>
         <div className="flex gap-2 mb-4">
           <Button
-            onClick={() => dispatch(panelSlice.actions.addToRow())}
+            onClick={() => dispatch(createPanelSlice.actions.addToRow())}
             className="flex items-center gap-2"
           >
             <PlusCircle size={16} /> 行追加
           </Button>
           <Button
-            onClick={() => dispatch(panelSlice.actions.removeFromRow())}
+            onClick={() => dispatch(createPanelSlice.actions.removeFromRow())}
             className="flex items-center gap-2"
           >
             <MinusCircle size={16} /> 行削除
           </Button>
           <Button
-            onClick={() => dispatch(panelSlice.actions.addToCol())}
+            onClick={() => dispatch(createPanelSlice.actions.addToCol())}
             className="flex items-center gap"
           >
             <PlusCircle size={16} /> 列追加
           </Button>
           <Button
-            onClick={() => dispatch(panelSlice.actions.removeFromCol())}
+            onClick={() => dispatch(createPanelSlice.actions.removeFromCol())}
             className="flex items-center gap-2"
           >
             <MinusCircle size={16} /> 列削除
@@ -78,7 +79,7 @@ export const NewPanelCreator: React.FC = () => {
                 }`}
                 onClick={() =>
                   dispatch(
-                    panelSlice.actions.clickToPanelGridCell({
+                    createPanelSlice.actions.clickToPanelGridCell({
                       row: rowIndex,
                       col: colIndex,
                     })

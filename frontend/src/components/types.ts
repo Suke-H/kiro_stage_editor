@@ -34,6 +34,21 @@ export interface PanelState {
   panelPlacementHistory: PanelPlacementHistoryType;
 }
 
+export interface PanelListState {
+  panels: Panel[];
+}
+
+export interface CreatePanelState {
+  newPanelGrid: CellType[][];
+}
+
+export interface PanelPlacementState {
+  panelPlacementMode: PanelPlacementModeType;
+  panelPlacementHistory: PanelPlacementHistoryType;
+}
+
+
+
 export interface GridState {
   grid: GridCell[][];
   gridHistory: GridCell[][][];
