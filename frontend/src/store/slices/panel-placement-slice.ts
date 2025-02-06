@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { PanelPlacementState, PanelPlacementModeType } from "../../components/types";
+import {
+  PanelPlacementState,
+  PanelPlacementModeType,
+} from "../../components/types";
 
 const initialState: PanelPlacementState = {
   panelPlacementMode: {
@@ -13,7 +16,6 @@ export const panelPlacementSlice = createSlice({
   name: "panel",
   initialState,
   reducers: {
-
     // パネル選択
     selectPanelForPlacement: (
       state,
@@ -24,21 +26,17 @@ export const panelPlacementSlice = createSlice({
     },
 
     // 設置
-    addToPlacementHistory: (
-      state,
-      action: PayloadAction<PanelPlacementModeType>
-    ) => {
+    saveHistory: (state, action: PayloadAction<PanelPlacementModeType>) => {
       state.panelPlacementHistory.push(action.payload);
     },
-    resetPlacementHistory: (state) => {
+    reset: (state) => {
       state.panelPlacementHistory = [];
     },
-    undoPlacement: (state) => {
+    undo: (state) => {
       if (state.panelPlacementHistory.length > 0) {
         state.panelPlacementHistory.pop();
       }
     },
-
   },
 });
 

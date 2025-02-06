@@ -79,7 +79,7 @@ export const NewPanelCreator: React.FC = () => {
                 }`}
                 onClick={() =>
                   dispatch(
-                    createPanelSlice.actions.clickToPanelGridCell({
+                    createPanelSlice.actions.clickToCell({
                       row: rowIndex,
                       col: colIndex,
                     })

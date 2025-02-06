@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {
-  CreatePanelState
-} from "../../components/types";
+import { CreatePanelState } from "../../components/types";
 
 const initialState: CreatePanelState = {
   newPanelGrid: Array(3)
@@ -39,15 +37,14 @@ export const createPanelSlice = createSlice({
     },
 
     // セル反転
-    clickToPanelGridCell: (
+    clickToCell: (
       state,
       action: PayloadAction<{ row: number; col: number }>
     ) => {
       const { row, col } = action.payload;
       state.newPanelGrid[row][col] =
         state.newPanelGrid[row][col] === "Black" ? "White" : "Black";
-    }
-    
+    },
   },
 });
 

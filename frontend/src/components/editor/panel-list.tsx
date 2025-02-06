@@ -65,7 +65,7 @@ export const PanelList: React.FC = () => {
             : { panel: null, highlightedCell: null }
         )
       );
-      dispatch(panelPlacementSlice.actions.undoPlacement());
+      dispatch(panelPlacementSlice.actions.undo());
     }
   };
 
@@ -74,7 +74,7 @@ export const PanelList: React.FC = () => {
     if (gridHistory.length > 1) {
       // グリッドとパネル配置履歴をリセット
       dispatch(gridSlice.actions.reset());
-      dispatch(panelPlacementSlice.actions.resetPlacementHistory());
+      dispatch(panelPlacementSlice.actions.reset());
 
       // パネル配置モードの終了
       dispatch(
