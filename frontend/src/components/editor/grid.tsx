@@ -142,24 +142,26 @@ export const Grid: React.FC<GridProps> = ({
       for (let i = 0; i < panelRows; i++) {
         for (let j = 0; j < panelCols; j++) {
           if (placingPanel.cells[i][j] === "Black") {
-            const targetCell = updatedGrid[rowIndex + i][colIndex + j];
+            // const targetCell = updatedGrid[rowIndex + i][colIndex + j];
 
-            // Emptyには置かない
-            if (targetCell.type === "Empty") continue;
+            // // Emptyには置かない
+            // if (targetCell.type === "Empty") continue;
 
-            // セルの状態を切り替える
-            if (targetCell.side === "front") {
-              updatedGrid[rowIndex + i][colIndex + j] = {
-                ...targetCell,
-                side: "back",
-              };
-            } else if (targetCell.side === "back") {
-              updatedGrid[rowIndex + i][colIndex + j] = {
-                ...targetCell,
-                side: "front",
-              };
-            }
-            // neutralの場合は変更しない
+            // // セルの状態を切り替える
+            // if (targetCell.side === "front") {
+            //   updatedGrid[rowIndex + i][colIndex + j] = {
+            //     ...targetCell,
+            //     side: "back",
+            //   };
+            // } else if (targetCell.side === "back") {
+            //   updatedGrid[rowIndex + i][colIndex + j] = {
+            //     ...targetCell,
+            //     side: "front",
+            //   };
+            // }
+            // // neutralの場合は変更しない
+
+            dispatch(gridSlice.actions.flipCell({ row: rowIndex + i, col: colIndex + j }));
           }
         }
       }
@@ -168,7 +170,7 @@ export const Grid: React.FC<GridProps> = ({
       // setPanelPlacementHistory((prev) => [...prev, panelPlacementMode]);
       dispatch(panelSlice.actions.addToPlacementHistory(panelPlacementMode));
       // setGrid(updatedGrid);
-      dispatch(gridSlice.actions.initGrid());
+      // dispatch(gridSlice.actions.initGrid());
     }
 
     panelSlice.actions.selectPanelForPlacement({
