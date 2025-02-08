@@ -1,35 +1,25 @@
-import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store";
+import { studioModeSlice }  from "../store/slices/studio-mode-slice";
+import { StudioMode } from "../components/types";
 
 import EditorPage from "@/components/editor-page";
 import PlayPage from "./play-page";
 import SolverPage from "./solver-page";
 
-import { gridSlice } from "../store/slices/grid-slice";
-import { panelListSlice } from "../store/slices/panel-list-slice";
-
-import { decodeStageFromUrl } from "../utils/url";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PuzzleStudio: React.FC = () => {
   const dispatch = useDispatch();
-  const [mode, setMode] = useState("editor");
+  const studioMode = useSelector((state: RootState) => state.studioMode.mode);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const cells = params.get("cells");
-    const panels = params.get("panels");
-    if (cells && panels) {
-      const stageData = `cells=${cells}&panels=${panels}`;
-      const parsedData = decodeStageFromUrl(stageData);
-      dispatch(gridSlice.actions.loadGrid(parsedData.cells));
-      dispatch(panelListSlice.actions.loadPanels(parsedData.panels));
-    }
-  }, []);
+  const handleStudioModeSwitch = (mode: string) => {
+    dispatch(studioModeSlice.actions.switchMode(mode as StudioMode));
+  }
 
   return (
     <div className="flex flex-col p-4 gap-4 min-h-screen bg-[#DAE0EA]">
-      <Tabs value={mode} onValueChange={setMode} className="w-full">
+      <Tabs value={studioMode} onValueChange={handleStudioModeSwitch} className="w-full">
 
         <TabsList className="grid w-full grid-cols-3 bg-[#DAE0EA]">
           <TabsTrigger value="editor" className="data-[state=active]:bg-[#B3B9D1]" >

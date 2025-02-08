@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import logger from 'redux-logger';
 
+import studioModeReducer from './slices/studio-mode-slice';
 import cellTypeReducer from './slices/cell-type-slice';
-// import panelReducer from './slices/panel-slice';
 import panelListReducer from './slices/panel-list-slice';
 import panelPlacementReducer from './slices/panel-placement-slice';
 import createPanelReducer from './slices/create-panel-slice';
@@ -11,6 +11,7 @@ import gridReducer from './slices/grid-slice';
 
 export const store = configureStore({
   reducer: {
+    studioMode: studioModeReducer,
     cellType: cellTypeReducer,
     panelList: panelListReducer,
     panelPlacement: panelPlacementReducer,
