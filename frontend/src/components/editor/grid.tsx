@@ -73,7 +73,6 @@ export const Grid: React.FC = () => {
 
       // 履歴に保存
       dispatch(gridSlice.actions.saveHistory());
-      dispatch(panelPlacementSlice.actions.saveHistory(panelPlacementMode));
     }
 
     // 設置したらパネル配置モードを終了

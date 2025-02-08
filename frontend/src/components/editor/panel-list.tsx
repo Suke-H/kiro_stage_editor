@@ -15,9 +15,6 @@ export const PanelList: React.FC = () => {
   const panelPlacementMode = useSelector(
     (state: RootState) => state.panelPlacement.panelPlacementMode
   );
-  const panelPlacementHistory = useSelector(
-    (state: RootState) => state.panelPlacement.panelPlacementHistory
-  );
 
   // パネル配置モードの開始
   const startPanelPlacement = (panel: Panel) => {
@@ -43,47 +40,30 @@ export const PanelList: React.FC = () => {
 
   // 「1つ戻す」メソッド
   const undoLastPlacement = () => {
-    if (gridHistory.length > 1) {
-      const newGridHistory = [...gridHistory];
-      newGridHistory.pop(); // 最後の状態を削除
-      // setGrid(newGridHistory[newGridHistory.length - 1]);
-      // setGridHistory(newGridHistory);
+    dispatch(gridSlice.actions.undo());
 
-      dispatch(gridSlice.actions.undo());
+    // setPanelPlacementMode(
+    //   newPanelPlacementHistory.length > 0
+    //     ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
+    //     : { panel: null, highlightedCell: null }
+    // );
 
-      const newPanelPlacementHistory = [...panelPlacementHistory];
-      newPanelPlacementHistory.pop();
-      // setPanelPlacementMode(
-      //   newPanelPlacementHistory.length > 0
-      //     ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
-      //     : { panel: null, highlightedCell: null }
-      // );
-      dispatch(
-        panelPlacementSlice.actions.selectPanelForPlacement(
-          newPanelPlacementHistory.length > 0
-            ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
-            : { panel: null, highlightedCell: null }
-        )
-      );
-      dispatch(panelPlacementSlice.actions.undo());
-    }
   };
 
   // 「リセット」メソッド
   const resetPanelPlacement = () => {
-    if (gridHistory.length > 1) {
-      // グリッドとパネル配置履歴をリセット
-      dispatch(gridSlice.actions.reset());
-      dispatch(panelPlacementSlice.actions.reset());
+    // if (gridHistory.length > 1) {
+    // グリッドとパネル配置履歴をリセット
+    dispatch(gridSlice.actions.reset());
 
-      // パネル配置モードの終了
-      dispatch(
-        panelPlacementSlice.actions.selectPanelForPlacement({
-          panel: null,
-          highlightedCell: null,
-        })
-      );
-    }
+    // パネル配置モードの終了
+    dispatch(
+      panelPlacementSlice.actions.selectPanelForPlacement({
+        panel: null,
+        highlightedCell: null,
+      })
+    );
+    // }
   };
 
   // パネルビューのレンダリングを修正

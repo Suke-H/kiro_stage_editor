@@ -44,7 +44,6 @@ export interface CreatePanelState {
 
 export interface PanelPlacementState {
   panelPlacementMode: PanelPlacementModeType;
-  panelPlacementHistory: PanelPlacementHistoryType;
 }
 
 
