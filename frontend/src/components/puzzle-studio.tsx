@@ -1,17 +1,54 @@
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
+
 import { RootState } from "../store";
+import { gridSlice } from '../store/slices/grid-slice';
+import { panelListSlice } from '../store/slices/panel-list-slice';
 import { studioModeSlice }  from "../store/slices/studio-mode-slice";
 import { StudioMode } from "../components/types";
 
 import EditorPage from "@/components/editor-page";
 import PlayPage from "./play-page";
 import SolverPage from "./solver-page";
+import { decodeStageFromUrl } from '../utils/url';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PuzzleStudio: React.FC = () => {
   const dispatch = useDispatch();
   const studioMode = useSelector((state: RootState) => state.studioMode.mode);
+
+  // FastAPIの疎通確認
+  useEffect(() => {
+    const checkApiConnection = async () => {
+      try {
+        const response = await fetch('/api/health'); // FastAPIのエンドポイント
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('API疎通確認成功:', data);
+      } catch (error) {
+        console.error('API疎通確認エラー:', error);
+      }
+    };
+
+    checkApiConnection();
+  }, []);
+
+  // URLからステージをロード
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cells = params.get('cells');
+    const panels = params.get('panels');
+    
+    if (cells && panels) {
+      const stageData = `cells=${cells}&panels=${panels}`;
+      const parsedData = decodeStageFromUrl(stageData);
+      dispatch(gridSlice.actions.loadGrid(parsedData.cells));
+      dispatch(panelListSlice.actions.loadPanels(parsedData.panels));
+    }
+  }, [dispatch]);
 
   const handleStudioModeSwitch = (mode: string) => {
     dispatch(studioModeSlice.actions.switchMode(mode as StudioMode));
