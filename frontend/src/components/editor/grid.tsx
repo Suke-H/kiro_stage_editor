@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GridCell, Panel, StudioMode } from "../types";
 import { CELL_DEFINITIONS, CellSideInfo } from "../../constants/cell-types";
 
-import { GridEditorParts } from "./grid/grid-edit-parts";
+import { MatrixOperationPart } from "./grid/matrix-operation-part";
+import { StageDataIOPart } from "./grid/stage-data-io-part";
+
 
 export const Grid: React.FC = () => {
   const dispatch = useDispatch();
@@ -159,8 +161,6 @@ export const Grid: React.FC = () => {
     return true;
   };
 
-
-
   return (
     <Card className="flex-grow bg-[#B3B9D1]">
       <CardHeader>
@@ -181,8 +181,13 @@ export const Grid: React.FC = () => {
           )}
         </div>
 
-        {/* studioModeがEditorだった場合、GridEditorPartsを追加 */}
-        {studioMode === StudioMode.Editor && <GridEditorParts />}
+        {/* studioModeがEditorだった場合、エディタ専用パーツを追加 */}
+        {studioMode === StudioMode.Editor && (
+          <>
+            <MatrixOperationPart />
+            <StageDataIOPart />
+          </>
+        )}
 
       </CardContent>
     </Card>
