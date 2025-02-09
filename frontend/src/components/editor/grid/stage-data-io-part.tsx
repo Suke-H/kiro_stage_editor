@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Download, Upload, Link } from "lucide-react";
 import { exportStageToYaml, importStageFromYaml } from "../../../utils/yaml";
 import { shareStageUrl } from "../../../utils/url";
-// import { cellTypeSlice } from "../../store/slices/cell-type-slice";
 
 export const StageDataIOPart: React.FC = () => {
   const dispatch = useDispatch();

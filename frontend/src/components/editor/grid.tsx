@@ -181,7 +181,7 @@ export const Grid: React.FC = () => {
           )}
         </div>
 
-        {/* studioModeがEditorだった場合、エディタ専用パーツを追加 */}
+        {/* Editorモードの場合、エディタ専用パーツを追加 */}
         {studioMode === StudioMode.Editor && (
           <>
             <MatrixOperationPart />
