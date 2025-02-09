@@ -3,21 +3,16 @@ import { RootState } from "../../store";
 import { gridSlice } from "../../store/slices/grid-slice";
 import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Upload, Link } from "lucide-react";
-import { Add, Remove } from "@mui/icons-material";
 import { GridCell, Panel, StudioMode } from "../types";
 import { CELL_DEFINITIONS, CellSideInfo } from "../../constants/cell-types";
-import { exportStageToYaml, importStageFromYaml } from "../../utils/yaml";
-import { shareStageUrl } from "../../utils/url";
-// import { cellTypeSlice } from "../../store/slices/cell-type-slice";
+
+import { GridEditorParts } from "./grid/grid-edit-parts";
 
 export const Grid: React.FC = () => {
   const dispatch = useDispatch();
   const studioMode = useSelector((state: RootState) => state.studioMode.studioMode);
   const grid = useSelector((state: RootState) => state.grid.grid);
-  const panels = useSelector((state: RootState) => state.panelList.panels);
   const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
   const panelPlacementMode = useSelector((state: RootState) => state.panelPlacement.panelPlacementMode);
 
@@ -164,17 +159,12 @@ export const Grid: React.FC = () => {
     return true;
   };
 
-  const triggerFileInput = () => {
-    const input = document.getElementById("yamlImport") as HTMLInputElement;
-    if (input) {
-      input.click();
-    }
-  };
+
 
   return (
     <Card className="flex-grow bg-[#B3B9D1]">
       <CardHeader>
-        <CardTitle>ステージエディター</CardTitle>
+        <CardTitle>ステージグリッド</CardTitle>
       </CardHeader>
       <CardContent>
         <div
@@ -191,136 +181,9 @@ export const Grid: React.FC = () => {
           )}
         </div>
 
-        <div className="flex flex-col gap-4 mt-4">
-          {/* 行操作 */}
-          <div className="flex flex-col gap-2">
-            <span className="font-semibold text-lg">行</span>
-            <div className="flex gap-4">
-              {/* 行 先頭 */}
-              <div className="flex items-center gap-2">
-                <span>先頭</span>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.addToRow({ isFirst: true }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Add />
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.removeFromRow({ isFirst: true }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Remove />
-                </Button>
-              </div>
-              {/* 行 末尾 */}
-              <div className="flex items-center gap-2">
-                <span>末尾</span>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.addToRow({ isFirst: false }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Add />
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch(
-                      gridSlice.actions.removeFromRow({ isFirst: false })
-                    )
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Remove />
-                </Button>
-              </div>
-            </div>
-          </div>
+        {/* studioModeがEditorだった場合、GridEditorPartsを追加 */}
+        {studioMode === StudioMode.Editor && <GridEditorParts />}
 
-          {/* 列操作 */}
-          <div className="flex flex-col gap-2">
-            <span className="font-semibold text-lg">列</span>
-            <div className="flex gap-4">
-              {/* 列 先頭 */}
-              <div className="flex items-center gap-2">
-                <span>先頭</span>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.addToCol({ isFirst: true }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Add />
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.removeFromCol({ isFirst: true }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Remove />
-                </Button>
-              </div>
-              {/* 列 末尾 */}
-              <div className="flex items-center gap-2">
-                <span>末尾</span>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.addToCol({ isFirst: false }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Add />
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch(
-                      gridSlice.actions.removeFromCol({ isFirst: false })
-                    )
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Remove />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-2 mt-4">
-          <Button
-            onClick={() => exportStageToYaml(grid, panels)}
-            className="flex items-center gap-2"
-          >
-            <Download size={16} /> YAMLエクスポート
-          </Button>
-          <input
-            type="file"
-            accept=".yaml,.yml"
-            onChange={(event) => importStageFromYaml(event, dispatch)}
-            className="hidden"
-            id="yamlImport"
-          />
-          <label htmlFor="yamlImport" className="cursor-pointer">
-            <Button
-              onClick={triggerFileInput}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <Upload size={16} /> YAMLインポート
-            </Button>
-          </label>
-          <Button
-            onClick={() => shareStageUrl(grid, panels)}
-            className="mt-4 flex items-center gap-2"
-          >
-            <Link size={16} /> URLを生成
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );
