@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { StudioMode, StudioModeState } from '../../components/types';
 
 const initialState: StudioModeState = {
-  mode: StudioMode.Editor,
+  studioMode: StudioMode.Editor,
 };
 
 export const studioModeSlice = createSlice({
@@ -11,7 +11,7 @@ export const studioModeSlice = createSlice({
   initialState,
   reducers: {
     switchMode(state, action: PayloadAction<StudioMode>) {
-      state.mode = action.payload;
+      state.studioMode = action.payload;
     },
   },
 });

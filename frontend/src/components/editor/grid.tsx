@@ -7,26 +7,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Upload, Link } from "lucide-react";
 import { Add, Remove } from "@mui/icons-material";
-import { GridCell, Panel } from "../types";
+import { GridCell, Panel, StudioMode } from "../types";
 import { CELL_DEFINITIONS, CellSideInfo } from "../../constants/cell-types";
 import { exportStageToYaml, importStageFromYaml } from "../../utils/yaml";
 import { shareStageUrl } from "../../utils/url";
-import { cellTypeSlice } from "../../store/slices/cell-type-slice";
+// import { cellTypeSlice } from "../../store/slices/cell-type-slice";
 
 export const Grid: React.FC = () => {
   const dispatch = useDispatch();
+  const studioMode = useSelector((state: RootState) => state.studioMode.studioMode);
   const grid = useSelector((state: RootState) => state.grid.grid);
   const panels = useSelector((state: RootState) => state.panelList.panels);
-  const selectedCellType = useSelector(
-    (state: RootState) => state.cellType.selectedCellType
-  );
-  const panelPlacementMode = useSelector(
-    (state: RootState) => state.panelPlacement.panelPlacementMode
-  );
+  const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
+  const panelPlacementMode = useSelector((state: RootState) => state.panelPlacement.panelPlacementMode);
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
-    // セル選択モード
-    if (!panelPlacementMode.panel) {
+    // Editorモード
+    if (studioMode === StudioMode.Editor) {
       const cellDef = CELL_DEFINITIONS[selectedCellType];
 
       // セル選択がFlipの場合：sideを反転
@@ -36,6 +33,7 @@ export const Grid: React.FC = () => {
             gridSlice.actions.flipCell({ row: rowIndex, col: colIndex })
           );
         }
+      // 通常のセル選択（Flipでない）
       } else {
         // 基本はfront（表）で設置する。neutralのみの場合はneutral
         const side = "neutral" in cellDef ? "neutral" : "front";
@@ -47,42 +45,47 @@ export const Grid: React.FC = () => {
           })
         );
       }
-
-      return;
     }
 
-    // パネル配置モード
-    const placingPanel = panelPlacementMode.panel;
+    // Playモード
+    else{
+      const placingPanel = panelPlacementMode.panel;
 
-    if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
-      const panelRows = placingPanel.cells.length;
-      const panelCols = placingPanel.cells[0].length;
-
-      for (let i = 0; i < panelRows; i++) {
-        for (let j = 0; j < panelCols; j++) {
-          if (placingPanel.cells[i][j] === "Black") {
-            dispatch(
-              gridSlice.actions.flipCell({
-                row: rowIndex + i,
-                col: colIndex + j,
-              })
-            );
-          }
-        }
+      // パネルが選択されていない場合は何もしない
+      if (!placingPanel) {
+        return;
       }
 
-      // 履歴に保存
-      dispatch(gridSlice.actions.saveHistory());
-    }
+      // パネルを配置できるかチェック
+      if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
+        const panelRows = placingPanel.cells.length;
+        const panelCols = placingPanel.cells[0].length;
 
-    // 設置したらパネル配置モードを終了
-    dispatch(
-      panelPlacementSlice.actions.selectPanelForPlacement({
-        panel: null,
-        highlightedCell: null,
-      })
-    );
-    dispatch(cellTypeSlice.actions.changeCellType("Normal"));
+        for (let i = 0; i < panelRows; i++) {
+          for (let j = 0; j < panelCols; j++) {
+            if (placingPanel.cells[i][j] === "Black") {
+              dispatch(
+                gridSlice.actions.flipCell({
+                  row: rowIndex + i,
+                  col: colIndex + j,
+                })
+              );
+            }
+          }
+        }
+
+        // 履歴に保存
+        dispatch(gridSlice.actions.saveHistory());
+      }
+
+      // （設置可/不可をとわず）終了後はパネル選択を解除
+      dispatch(
+        panelPlacementSlice.actions.selectPanelForPlacement({
+          panel: null,
+          highlightedCell: null,
+        })
+      );
+    }
   };
 
   const renderGridCell = (

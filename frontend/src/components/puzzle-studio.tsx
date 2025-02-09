@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PuzzleStudio: React.FC = () => {
   const dispatch = useDispatch();
-  const studioMode = useSelector((state: RootState) => state.studioMode.mode);
+  const studioMode = useSelector((state: RootState) => state.studioMode.studioMode);
 
   // FastAPIの疎通確認
   useEffect(() => {
@@ -32,7 +32,6 @@ const PuzzleStudio: React.FC = () => {
         console.error('API疎通確認エラー:', error);
       }
     };
-
     checkApiConnection();
   }, []);
 
@@ -48,6 +47,7 @@ const PuzzleStudio: React.FC = () => {
       dispatch(gridSlice.actions.loadGrid(parsedData.cells));
       dispatch(panelListSlice.actions.loadPanels(parsedData.panels));
     }
+
   }, [dispatch]);
 
   const handleStudioModeSwitch = (mode: string) => {

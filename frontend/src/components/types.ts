@@ -53,7 +53,7 @@ export enum StudioMode {
 }
 
 export interface StudioModeState {
-  mode: StudioMode;
+  studioMode: StudioMode;
 }
 
 export interface GridState {

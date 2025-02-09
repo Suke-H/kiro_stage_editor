@@ -41,18 +41,10 @@ export const PanelList: React.FC = () => {
   // 「1つ戻す」メソッド
   const undoLastPlacement = () => {
     dispatch(gridSlice.actions.undo());
-
-    // setPanelPlacementMode(
-    //   newPanelPlacementHistory.length > 0
-    //     ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
-    //     : { panel: null, highlightedCell: null }
-    // );
-
   };
 
   // 「リセット」メソッド
   const resetPanelPlacement = () => {
-    // if (gridHistory.length > 1) {
     // グリッドとパネル配置履歴をリセット
     dispatch(gridSlice.actions.reset());
 

@@ -20,6 +20,6 @@ const EditorPage: React.FC = () => {
       </div>
     </div>
   );
-  };
-  
-  export default EditorPage;
+};
+
+export default EditorPage;
