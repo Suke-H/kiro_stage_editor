@@ -31,14 +31,14 @@ export const PlacementControllPart: React.FC = () => {
     <div className="flex gap-2 mb-10">
       <Button
         onClick={undoLastPlacement}
-        disabled={gridHistory.length <= 1}
+        disabled={gridHistory.length < 1}
         className="flex-grow"
       >
         1つ戻す
       </Button>
       <Button
         onClick={resetPanelPlacement}
-        disabled={gridHistory.length <= 1}
+        disabled={gridHistory.length < 1}
         variant="destructive"
         className="flex-grow"
       >

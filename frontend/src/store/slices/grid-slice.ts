@@ -73,12 +73,16 @@ export const gridSlice = createSlice({
     },
 
     // 履歴
+    clearHistory: (state) => {
+        state.gridHistory = [];
+    },
+
     saveHistory: (state) => {
         state.gridHistory.push(state.grid.map((row) => row.map((cell) => ({ ...cell }))));
     },
 
     undo: (state) => {
-        if (state.gridHistory.length > 1) {
+        if (state.gridHistory.length >= 1) {
             state.grid = state.gridHistory[state.gridHistory.length - 1];
             state.gridHistory.pop();
             
@@ -88,7 +92,7 @@ export const gridSlice = createSlice({
     },
 
     reset: (state) => {
-        if (state.gridHistory.length > 1) {
+        if (state.gridHistory.length >= 1) {
             console.log(JSON.parse(JSON.stringify(state.gridHistory)));
             console.log(JSON.parse(JSON.stringify(state.grid)));
 
