@@ -67,20 +67,24 @@ export const PanelList: React.FC = () => {
             ))
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => dispatch(panelListSlice.actions.removePanel(panel.id))}
-        >
-          <Trash2 size={16} />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => startPanelPlacement(panel)}
-        >
-          <Move size={16} />
-        </Button>
+        {studioMode === StudioMode.Editor && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => dispatch(panelListSlice.actions.removePanel(panel.id))}
+          >
+            <Trash2 size={16} />
+          </Button>
+        )}
+        {studioMode === StudioMode.Play && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => startPanelPlacement(panel)}
+          >
+            <Move size={16} />
+          </Button>
+        )}
       </div>
     ));
   };
