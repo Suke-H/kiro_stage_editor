@@ -55,6 +55,10 @@ export const Grid: React.FC = () => {
 
       // パネルを配置できるかチェック
       if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
+
+        // 事前に今のGridを履歴に保存
+        dispatch(gridSlice.actions.saveHistory());
+
         const panelRows = placingPanel.cells.length;
         const panelCols = placingPanel.cells[0].length;
 
@@ -71,8 +75,6 @@ export const Grid: React.FC = () => {
           }
         }
 
-        // 履歴に保存
-        dispatch(gridSlice.actions.saveHistory());
       }
 
       // （設置可/不可をとわず）終了後はパネル選択を解除
