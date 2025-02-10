@@ -44,10 +44,17 @@ export interface CreatePanelState {
 
 export interface PanelPlacementState {
   panelPlacementMode: PanelPlacementModeType;
-  panelPlacementHistory: PanelPlacementHistoryType;
 }
 
+export enum StudioMode {
+  Editor = 'editor',
+  Play = 'play',
+  Solver = 'solver'
+}
 
+export interface StudioModeState {
+  studioMode: StudioMode;
+}
 
 export interface GridState {
   grid: GridCell[][];

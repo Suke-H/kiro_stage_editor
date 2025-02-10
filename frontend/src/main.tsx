@@ -6,12 +6,13 @@ import { store } from './store';
 
 import './index.css'
 // import App from './App.tsx'
-import EditorPage from './pages/editor-page'
+// import EditorPage from './components/editor-page'
+import PuzzleStudio from './components/puzzle-studio'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <EditorPage />
+      <PuzzleStudio />
     </Provider>
   </StrictMode>,
 )

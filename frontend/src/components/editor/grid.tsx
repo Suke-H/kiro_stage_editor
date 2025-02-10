@@ -3,30 +3,24 @@ import { RootState } from "../../store";
 import { gridSlice } from "../../store/slices/grid-slice";
 import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Upload, Link } from "lucide-react";
-import { Add, Remove } from "@mui/icons-material";
-import { GridCell, Panel } from "../types";
+import { GridCell, Panel, StudioMode } from "../types";
 import { CELL_DEFINITIONS, CellSideInfo } from "../../constants/cell-types";
-import { exportStageToYaml, importStageFromYaml } from "../../utils/yaml";
-import { shareStageUrl } from "../../utils/url";
-import { cellTypeSlice } from "../../store/slices/cell-type-slice";
+
+import { MatrixOperationPart } from "./grid/matrix-operation-part";
+import { StageDataIOPart } from "./grid/stage-data-io-part";
+
 
 export const Grid: React.FC = () => {
   const dispatch = useDispatch();
+  const studioMode = useSelector((state: RootState) => state.studioMode.studioMode);
   const grid = useSelector((state: RootState) => state.grid.grid);
-  const panels = useSelector((state: RootState) => state.panelList.panels);
-  const selectedCellType = useSelector(
-    (state: RootState) => state.cellType.selectedCellType
-  );
-  const panelPlacementMode = useSelector(
-    (state: RootState) => state.panelPlacement.panelPlacementMode
-  );
+  const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
+  const panelPlacementMode = useSelector((state: RootState) => state.panelPlacement.panelPlacementMode);
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
-    // セル選択モード
-    if (!panelPlacementMode.panel) {
+    // Editorモード
+    if (studioMode === StudioMode.Editor) {
       const cellDef = CELL_DEFINITIONS[selectedCellType];
 
       // セル選択がFlipの場合：sideを反転
@@ -36,6 +30,7 @@ export const Grid: React.FC = () => {
             gridSlice.actions.flipCell({ row: rowIndex, col: colIndex })
           );
         }
+      // 通常のセル選択（Flipでない）
       } else {
         // 基本はfront（表）で設置する。neutralのみの場合はneutral
         const side = "neutral" in cellDef ? "neutral" : "front";
@@ -47,43 +42,49 @@ export const Grid: React.FC = () => {
           })
         );
       }
-
-      return;
     }
 
-    // パネル配置モード
-    const placingPanel = panelPlacementMode.panel;
+    // Playモード
+    else{
+      const placingPanel = panelPlacementMode.panel;
 
-    if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
-      const panelRows = placingPanel.cells.length;
-      const panelCols = placingPanel.cells[0].length;
-
-      for (let i = 0; i < panelRows; i++) {
-        for (let j = 0; j < panelCols; j++) {
-          if (placingPanel.cells[i][j] === "Black") {
-            dispatch(
-              gridSlice.actions.flipCell({
-                row: rowIndex + i,
-                col: colIndex + j,
-              })
-            );
-          }
-        }
+      // パネルが選択されていない場合は何もしない
+      if (!placingPanel) {
+        return;
       }
 
-      // 履歴に保存
-      dispatch(gridSlice.actions.saveHistory());
-      dispatch(panelPlacementSlice.actions.saveHistory(panelPlacementMode));
-    }
+      // パネルを配置できるかチェック
+      if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
 
-    // 設置したらパネル配置モードを終了
-    dispatch(
-      panelPlacementSlice.actions.selectPanelForPlacement({
-        panel: null,
-        highlightedCell: null,
-      })
-    );
-    dispatch(cellTypeSlice.actions.changeCellType("Normal"));
+        // 事前に今のGridを履歴に保存
+        dispatch(gridSlice.actions.saveHistory());
+
+        const panelRows = placingPanel.cells.length;
+        const panelCols = placingPanel.cells[0].length;
+
+        for (let i = 0; i < panelRows; i++) {
+          for (let j = 0; j < panelCols; j++) {
+            if (placingPanel.cells[i][j] === "Black") {
+              dispatch(
+                gridSlice.actions.flipCell({
+                  row: rowIndex + i,
+                  col: colIndex + j,
+                })
+              );
+            }
+          }
+        }
+
+      }
+
+      // （設置可/不可をとわず）終了後はパネル選択を解除
+      dispatch(
+        panelPlacementSlice.actions.selectPanelForPlacement({
+          panel: null,
+          highlightedCell: null,
+        })
+      );
+    }
   };
 
   const renderGridCell = (
@@ -162,17 +163,10 @@ export const Grid: React.FC = () => {
     return true;
   };
 
-  const triggerFileInput = () => {
-    const input = document.getElementById("yamlImport") as HTMLInputElement;
-    if (input) {
-      input.click();
-    }
-  };
-
   return (
     <Card className="flex-grow bg-[#B3B9D1]">
       <CardHeader>
-        <CardTitle>ステージエディター</CardTitle>
+        <CardTitle>ステージグリッド</CardTitle>
       </CardHeader>
       <CardContent>
         <div
@@ -189,136 +183,14 @@ export const Grid: React.FC = () => {
           )}
         </div>
 
-        <div className="flex flex-col gap-4 mt-4">
-          {/* 行操作 */}
-          <div className="flex flex-col gap-2">
-            <span className="font-semibold text-lg">行</span>
-            <div className="flex gap-4">
-              {/* 行 先頭 */}
-              <div className="flex items-center gap-2">
-                <span>先頭</span>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.addToRow({ isFirst: true }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Add />
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.removeFromRow({ isFirst: true }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Remove />
-                </Button>
-              </div>
-              {/* 行 末尾 */}
-              <div className="flex items-center gap-2">
-                <span>末尾</span>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.addToRow({ isFirst: false }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Add />
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch(
-                      gridSlice.actions.removeFromRow({ isFirst: false })
-                    )
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Remove />
-                </Button>
-              </div>
-            </div>
-          </div>
+        {/* Editorモードの場合、エディタ専用パーツを追加 */}
+        {studioMode === StudioMode.Editor && (
+          <>
+            <MatrixOperationPart />
+            <StageDataIOPart />
+          </>
+        )}
 
-          {/* 列操作 */}
-          <div className="flex flex-col gap-2">
-            <span className="font-semibold text-lg">列</span>
-            <div className="flex gap-4">
-              {/* 列 先頭 */}
-              <div className="flex items-center gap-2">
-                <span>先頭</span>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.addToCol({ isFirst: true }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Add />
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.removeFromCol({ isFirst: true }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Remove />
-                </Button>
-              </div>
-              {/* 列 末尾 */}
-              <div className="flex items-center gap-2">
-                <span>末尾</span>
-                <Button
-                  onClick={() =>
-                    dispatch(gridSlice.actions.addToCol({ isFirst: false }))
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Add />
-                </Button>
-                <Button
-                  onClick={() =>
-                    dispatch(
-                      gridSlice.actions.removeFromCol({ isFirst: false })
-                    )
-                  }
-                  className="flex items-center justify-center w-10 h-10"
-                >
-                  <Remove />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-2 mt-4">
-          <Button
-            onClick={() => exportStageToYaml(grid, panels)}
-            className="flex items-center gap-2"
-          >
-            <Download size={16} /> YAMLエクスポート
-          </Button>
-          <input
-            type="file"
-            accept=".yaml,.yml"
-            onChange={(event) => importStageFromYaml(event, dispatch)}
-            className="hidden"
-            id="yamlImport"
-          />
-          <label htmlFor="yamlImport" className="cursor-pointer">
-            <Button
-              onClick={triggerFileInput}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <Upload size={16} /> YAMLインポート
-            </Button>
-          </label>
-          <Button
-            onClick={() => shareStageUrl(grid, panels)}
-            className="mt-4 flex items-center gap-2"
-          >
-            <Link size={16} /> URLを生成
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );

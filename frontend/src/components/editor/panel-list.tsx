@@ -1,22 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Move } from "lucide-react";
-import { Panel } from "../types";
+import { Panel, StudioMode } from "../types";
 import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
-import { gridSlice } from "../../store/slices/grid-slice";
 import { RootState } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
 
+import { PlacementControllPart } from "./panel-list/placement-controll-part";
+
 export const PanelList: React.FC = () => {
   const dispatch = useDispatch();
-  const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
+  const studioMode = useSelector((state: RootState) => state.studioMode.studioMode);
   const panels = useSelector((state: RootState) => state.panelList.panels);
   const panelPlacementMode = useSelector(
     (state: RootState) => state.panelPlacement.panelPlacementMode
-  );
-  const panelPlacementHistory = useSelector(
-    (state: RootState) => state.panelPlacement.panelPlacementHistory
   );
 
   // パネル配置モードの開始
@@ -39,51 +37,6 @@ export const PanelList: React.FC = () => {
         highlightedCell: firstBlackCell || { row: 0, col: 0 },
       })
     );
-  };
-
-  // 「1つ戻す」メソッド
-  const undoLastPlacement = () => {
-    if (gridHistory.length > 1) {
-      const newGridHistory = [...gridHistory];
-      newGridHistory.pop(); // 最後の状態を削除
-      // setGrid(newGridHistory[newGridHistory.length - 1]);
-      // setGridHistory(newGridHistory);
-
-      dispatch(gridSlice.actions.undo());
-
-      const newPanelPlacementHistory = [...panelPlacementHistory];
-      newPanelPlacementHistory.pop();
-      // setPanelPlacementMode(
-      //   newPanelPlacementHistory.length > 0
-      //     ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
-      //     : { panel: null, highlightedCell: null }
-      // );
-      dispatch(
-        panelPlacementSlice.actions.selectPanelForPlacement(
-          newPanelPlacementHistory.length > 0
-            ? newPanelPlacementHistory[newPanelPlacementHistory.length - 1]
-            : { panel: null, highlightedCell: null }
-        )
-      );
-      dispatch(panelPlacementSlice.actions.undo());
-    }
-  };
-
-  // 「リセット」メソッド
-  const resetPanelPlacement = () => {
-    if (gridHistory.length > 1) {
-      // グリッドとパネル配置履歴をリセット
-      dispatch(gridSlice.actions.reset());
-      dispatch(panelPlacementSlice.actions.reset());
-
-      // パネル配置モードの終了
-      dispatch(
-        panelPlacementSlice.actions.selectPanelForPlacement({
-          panel: null,
-          highlightedCell: null,
-        })
-      );
-    }
   };
 
   // パネルビューのレンダリングを修正
@@ -114,50 +67,42 @@ export const PanelList: React.FC = () => {
             ))
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => dispatch(panelListSlice.actions.removePanel(panel.id))}
-        >
-          <Trash2 size={16} />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => startPanelPlacement(panel)}
-        >
-          <Move size={16} />
-        </Button>
+        {studioMode === StudioMode.Editor && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => dispatch(panelListSlice.actions.removePanel(panel.id))}
+          >
+            <Trash2 size={16} />
+          </Button>
+        )}
+        {studioMode === StudioMode.Play && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => startPanelPlacement(panel)}
+          >
+            <Move size={16} />
+          </Button>
+        )}
       </div>
     ));
   };
 
   return (
-    <div className="flex gap-4">
-      {/* パネル設置取り消しボタン */}
-      <div className="flex gap-2 mt-2">
-        <Button
-          onClick={undoLastPlacement}
-          disabled={gridHistory.length <= 1}
-          className="flex-grow"
-        >
-          1つ戻す
-        </Button>
-        <Button
-          onClick={resetPanelPlacement}
-          disabled={gridHistory.length <= 1}
-          variant="destructive"
-          className="flex-grow"
-        >
-          リセット
-        </Button>
-      </div>
-      <Card className="w-64 bg-[#B3B9D1]">
-        <CardHeader>
-          <CardTitle>パネル</CardTitle>
-        </CardHeader>
-        <CardContent>{renderPanels()}</CardContent>
-      </Card>
-    </div>
+    <Card className="w-64 bg-[#B3B9D1]">
+      <CardHeader>
+        <CardTitle>パネル</CardTitle>
+      </CardHeader>
+      <CardContent>
+
+        {/* Playモードの場合、プレイ専用パーツを追加 */}
+        {studioMode === StudioMode.Play && (
+          <PlacementControllPart />
+        )}
+        
+        {renderPanels()}
+      </CardContent>
+    </Card>
   );
 };

@@ -7,13 +7,7 @@ const initialState: GridState = {
         [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
         [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
     ],
-    gridHistory: [
-        [
-            [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-            [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-            [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
-        ],
-    ],
+    gridHistory: [],
 }
 
 export const gridSlice = createSlice({
@@ -79,19 +73,35 @@ export const gridSlice = createSlice({
     },
 
     // 履歴
+    clearHistory: (state) => {
+        state.gridHistory = [];
+    },
+
     saveHistory: (state) => {
         state.gridHistory.push(state.grid.map((row) => row.map((cell) => ({ ...cell }))));
     },
 
     undo: (state) => {
-        if (state.gridHistory.length > 1) {
-            state.gridHistory.pop();
+        if (state.gridHistory.length >= 1) {
             state.grid = state.gridHistory[state.gridHistory.length - 1];
+            state.gridHistory.pop();
+            
+            console.log(JSON.parse(JSON.stringify(state.gridHistory)));
+            console.log(JSON.parse(JSON.stringify(state.grid)));
         }
     },
 
     reset: (state) => {
-        state.gridHistory = [state.grid.map((row) => row.map((cell) => ({ ...cell })))];
+        if (state.gridHistory.length >= 1) {
+            console.log(JSON.parse(JSON.stringify(state.gridHistory)));
+            console.log(JSON.parse(JSON.stringify(state.grid)));
+
+            state.grid = state.gridHistory[0];
+            state.gridHistory = [];
+
+            console.log(JSON.parse(JSON.stringify(state.gridHistory)));
+            console.log(JSON.parse(JSON.stringify(state.grid)));
+        }
     },
   },
 });
