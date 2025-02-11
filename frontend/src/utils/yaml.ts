@@ -9,10 +9,7 @@ import { UnknownAction } from '@reduxjs/toolkit';
 import { Dispatch as DisPatch } from 'redux';
 
 interface CellYamlData {
-  Type: {
-    Type: string;
-    SkinId: number;
-  };
+  Type: string;
   CellSide: string;
 }
 
@@ -22,10 +19,7 @@ interface PanelYamlData {
 
 const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
   return { 
-    Type: { 
-      Type: cell.type, 
-      SkinId: 0 
-    }, 
+    Type: cell.type, 
     CellSide: capitalize(cell.side)
   };
 };
@@ -43,7 +37,6 @@ export const exportStageToYaml = (
   }));
 
   const yamlStageData = {
-    Id: 1,
     Height: grid.length,
     Width: grid[0].length,
     Cells: cells,
@@ -76,7 +69,7 @@ export const importStageFromYaml = (
         // グリッド変換
         const grid: GridCell[][] = Cells.map((row: CellYamlData[]) =>
           row.map((cell: CellYamlData) => ({
-            type: cell.Type.Type as CellDefinitions,
+            type: cell.Type as CellDefinitions,
             side: uncapitalize(cell.CellSide) as GridCell['side']
           }))
         );
