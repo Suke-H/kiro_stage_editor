@@ -32,7 +32,7 @@ export const NewPanelCreator: React.FC = () => {
   };
 
   return (
-    <Card className="w-64 bg-[#B3B9D1]">
+    <Card className="w-64 bg-[#B3B9D1] md:self-start">
       <CardHeader>
         <CardTitle>パネル作成</CardTitle>
       </CardHeader>
