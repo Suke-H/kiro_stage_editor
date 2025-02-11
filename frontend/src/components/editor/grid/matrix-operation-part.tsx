@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Add, Remove } from "@mui/icons-material";
 
 export const MatrixOperationPart: React.FC = () => {
-  const [isFirst, setIsFirst] = useState(true);
+  const [isFirst, setIsFirst] = useState(false);
   const dispatch = useDispatch();
 
   return (
