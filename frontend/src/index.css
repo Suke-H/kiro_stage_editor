@@ -62,5 +62,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    --background: 220 18% 88%; /* #DAE0EA相当 */
   }
 }
