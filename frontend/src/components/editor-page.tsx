@@ -23,7 +23,7 @@ const EditorPage: React.FC = () => {
         <Grid />
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex-1 flex flex-col gap-4">
         <PanelList />
         <NewPanelCreator />
       </div>

@@ -41,56 +41,61 @@ export const PanelList: React.FC = () => {
 
   // パネルビューのレンダリングを修正
   const renderPanels = () => {
-    return panels.map((panel) => (
-      <div key={panel.id} className="flex items-center gap-2 mb-2 relative">
-        <div
-          className="grid gap-1"
-          style={{
-            gridTemplateColumns: `repeat(${panel.cells[0].length}, 40px)`,
-            maxWidth: "160px",
-          }}
-        >
-          {panel.cells.map((row, rowIndex) =>
-            row.map((cellType, colIndex) => (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                className={`h-10 w-10 border ${
-                  panelPlacementMode.panel === panel &&
-                  rowIndex === 0 &&
-                  colIndex === 0
-                    ? "bg-red-500"
-                    : cellType === "Black"
-                    ? "bg-gray-500"
-                    : "bg-white"
-                }`}
-              />
-            ))
-          )}
-        </div>
-        {studioMode === StudioMode.Editor && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => dispatch(panelListSlice.actions.removePanel(panel.id))}
-          >
-            <Trash2 size={16} />
-          </Button>
-        )}
-        {studioMode === StudioMode.Play && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => startPanelPlacement(panel)}
-          >
-            <Move size={16} />
-          </Button>
-        )}
+    return (
+      <div className="flex flex-wrap gap-2 justify-start max-w-full">
+        {panels.map((panel) => (
+          <div key={panel.id} className="flex flex-col items-center">
+            <div
+              className="grid gap-1"
+              style={{
+                gridTemplateColumns: `repeat(${panel.cells[0].length}, 40px)`,
+              }}
+            >
+              {panel.cells.map((row, rowIndex) =>
+                row.map((cellType, colIndex) => (
+                  <div
+                    key={`${rowIndex}-${colIndex}`}
+                    className={`h-10 w-10 border ${
+                      panelPlacementMode.panel === panel &&
+                      rowIndex === 0 &&
+                      colIndex === 0
+                        ? "bg-red-500"
+                        : cellType === "Black"
+                        ? "bg-gray-500"
+                        : "bg-white"
+                    }`}
+                  />
+                ))
+              )}
+            </div>
+            <div className="flex gap-2">
+              {studioMode === StudioMode.Editor && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => dispatch(panelListSlice.actions.removePanel(panel.id))}
+                >
+                  <Trash2 size={16} />
+                </Button>
+              )}
+              {studioMode === StudioMode.Play && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => startPanelPlacement(panel)}
+                >
+                  <Move size={16} />
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
-    ));
+    );
   };
 
   return (
-    <Card className="w-64 bg-[#B3B9D1]">
+    <Card className="flex-1 bg-[#B3B9D1] min-w-[300px] max-w-[600px]">
       <CardHeader>
         <CardTitle>パネル</CardTitle>
       </CardHeader>

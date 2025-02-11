@@ -10,7 +10,7 @@ export const MatrixOperationPart: React.FC = () => {
   const dispatch = useDispatch();
 
   return (
-    <div className="flex flex-col gap-4 mt-4">
+    <div className="flex flex-col gap-4">
       {/* 行・列操作 */}
       <div className="grid grid-cols-2 gap-4 text-left">
         {/* 行 */}

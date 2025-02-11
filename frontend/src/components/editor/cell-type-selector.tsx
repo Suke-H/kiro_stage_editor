@@ -14,11 +14,12 @@ export const CellTypeSelector: React.FC = () => {
   );
 
   return (
-    <Card className="w-full max-w-32 mx-auto bg-[#B3B9D1]">
+    <Card className="w-full min-w-[120px] max-w-[300px] bg-[#B3B9D1]">
       <CardHeader>
         <CardTitle>セル種類</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-2">
+      {/* 画面幅に応じてコラムの数を変更 */}
+      <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
         {(Object.keys(CELL_DEFINITIONS) as CellDefinitions[]).map((type) => (
           <Button
             key={type}

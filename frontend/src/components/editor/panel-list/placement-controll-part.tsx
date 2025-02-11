@@ -32,7 +32,8 @@ export const PlacementControllPart: React.FC = () => {
       <Button
         onClick={undoLastPlacement}
         disabled={gridHistory.length < 1}
-        className="flex-grow"
+        className="flex items-center gap-2 w-20 text-left"              
+
       >
         1つ戻す
       </Button>
@@ -40,7 +41,7 @@ export const PlacementControllPart: React.FC = () => {
         onClick={resetPanelPlacement}
         disabled={gridHistory.length < 1}
         variant="destructive"
-        className="flex-grow"
+        className="flex items-center gap-2 w-20 text-left"      
       >
         リセット
       </Button>

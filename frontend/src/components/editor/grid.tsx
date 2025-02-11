@@ -169,28 +169,34 @@ export const Grid: React.FC = () => {
         <CardTitle>ステージグリッド</CardTitle>
       </CardHeader>
       <CardContent>
-        <div
-          className="grid"
-          style={{
-            gridTemplateColumns: `repeat(${grid[0].length}, 40px)`,
-            gap: "4px",
-          }}
-        >
-          {grid.map((row, rowIndex) =>
-            row.map((cellType, colIndex) =>
-              renderGridCell(cellType, rowIndex, colIndex)
-            )
+        <div className="flex flex-wrap items-start">
+          {/* ステージグリッド */}
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: `repeat(${grid[0].length}, 40px)`,
+              gridTemplateRows: `repeat(${grid.length}, 40px)`,
+              gap: "4px",
+            }}
+          >
+            {grid.map((row, rowIndex) =>
+              row.map((cellType, colIndex) =>
+                renderGridCell(cellType, rowIndex, colIndex)
+              )
+            )}
+          </div>
+
+          {/* 空白のdivを追加（右側の余白用） */}
+          <div className="hidden lg:block w-20"></div>
+
+          {/* パーツ配置エリア */}
+          {studioMode === StudioMode.Editor && (
+            <div className="flex flex-col gap-4 min-w-[200px] mt-8">
+              <MatrixOperationPart />
+              <StageDataIOPart />
+            </div>
           )}
         </div>
-
-        {/* Editorモードの場合、エディタ専用パーツを追加 */}
-        {studioMode === StudioMode.Editor && (
-          <>
-            <MatrixOperationPart />
-            <StageDataIOPart />
-          </>
-        )}
-
       </CardContent>
     </Card>
   );
