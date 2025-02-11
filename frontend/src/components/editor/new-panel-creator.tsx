@@ -37,31 +37,35 @@ export const NewPanelCreator: React.FC = () => {
         <CardTitle>パネル作成</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex gap-2 mb-4">
-          <Button
-            onClick={() => dispatch(createPanelSlice.actions.addToRow())}
-            className="flex items-center gap-2"
-          >
-            <PlusCircle size={16} /> 行追加
-          </Button>
-          <Button
-            onClick={() => dispatch(createPanelSlice.actions.removeFromRow())}
-            className="flex items-center gap-2"
-          >
-            <MinusCircle size={16} /> 行削除
-          </Button>
-          <Button
-            onClick={() => dispatch(createPanelSlice.actions.addToCol())}
-            className="flex items-center gap"
-          >
-            <PlusCircle size={16} /> 列追加
-          </Button>
-          <Button
-            onClick={() => dispatch(createPanelSlice.actions.removeFromCol())}
-            className="flex items-center gap-2"
-          >
-            <MinusCircle size={16} /> 列削除
-          </Button>
+        <div className="flex flex-col gap-2 mb-4">
+          <div className="flex gap-2">
+            <Button
+              onClick={() => dispatch(createPanelSlice.actions.addToRow())}
+              className="flex items-center gap-2"
+            >
+              <PlusCircle size={16} /> 行追加
+            </Button>
+            <Button
+              onClick={() => dispatch(createPanelSlice.actions.removeFromRow())}
+              className="flex items-center gap-2"
+            >
+              <MinusCircle size={16} /> 行削除
+            </Button>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => dispatch(createPanelSlice.actions.addToCol())}
+              className="flex items-center gap-2"
+            >
+              <PlusCircle size={16} /> 列追加
+            </Button>
+            <Button
+              onClick={() => dispatch(createPanelSlice.actions.removeFromCol())}
+              className="flex items-center gap-2"
+            >
+              <MinusCircle size={16} /> 列削除
+            </Button>
+          </div>
         </div>
         <div
           className="grid mb-4"

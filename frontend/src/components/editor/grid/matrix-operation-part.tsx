@@ -1,115 +1,61 @@
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { gridSlice } from "../../../store/slices/grid-slice";
-
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Add, Remove } from "@mui/icons-material";
 
 export const MatrixOperationPart: React.FC = () => {
+  const [isFirst, setIsFirst] = useState(true);
   const dispatch = useDispatch();
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 mt-4">
-        {/* 行操作 */}
-        <div className="flex flex-col gap-2">
-          <span className="font-semibold text-lg">行</span>
-          <div className="flex gap-4">
-            {/* 行 先頭 */}
-            <div className="flex items-center gap-2">
-              <span>先頭</span>
-              <Button
-                onClick={() =>
-                  dispatch(gridSlice.actions.addToRow({ isFirst: true }))
-                }
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Add />
-              </Button>
-              <Button
-                onClick={() =>
-                  dispatch(gridSlice.actions.removeFromRow({ isFirst: true }))
-                }
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Remove />
-              </Button>
-            </div>
-            {/* 行 末尾 */}
-            <div className="flex items-center gap-2">
-              <span>末尾</span>
-              <Button
-                onClick={() =>
-                  dispatch(gridSlice.actions.addToRow({ isFirst: false }))
-                }
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Add />
-              </Button>
-              <Button
-                onClick={() =>
-                  dispatch(
-                    gridSlice.actions.removeFromRow({ isFirst: false })
-                  )
-                }
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Remove />
-              </Button>
-            </div>
+    <div className="flex flex-col gap-4 mt-4">
+      {/* 行・列操作 */}
+      <div className="grid grid-cols-2 gap-4 text-left">
+        {/* 行 */}
+        <div>
+          <span className="font-semibold text-lg ml-2.5">行</span>
+          <div className="flex justify-center gap-2 mt-2">
+            <Button
+              onClick={() => dispatch(gridSlice.actions.addToRow({ isFirst }))}
+              className="flex items-center justify-center w-10 h-10"
+            >
+              <Add />
+            </Button>
+            <Button
+              onClick={() => dispatch(gridSlice.actions.removeFromRow({ isFirst }))}
+              className="flex items-center justify-center w-10 h-10"
+            >
+              <Remove />
+            </Button>
           </div>
         </div>
-
-        {/* 列操作 */}
-        <div className="flex flex-col gap-2">
-          <span className="font-semibold text-lg">列</span>
-          <div className="flex gap-4">
-            {/* 列 先頭 */}
-            <div className="flex items-center gap-2">
-              <span>先頭</span>
-              <Button
-                onClick={() =>
-                  dispatch(gridSlice.actions.addToCol({ isFirst: true }))
-                }
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Add />
-              </Button>
-              <Button
-                onClick={() =>
-                  dispatch(gridSlice.actions.removeFromCol({ isFirst: true }))
-                }
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Remove />
-              </Button>
-            </div>
-            {/* 列 末尾 */}
-            <div className="flex items-center gap-2">
-              <span>末尾</span>
-              <Button
-                onClick={() =>
-                  dispatch(gridSlice.actions.addToCol({ isFirst: false }))
-                }
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Add />
-              </Button>
-              <Button
-                onClick={() =>
-                  dispatch(
-                    gridSlice.actions.removeFromCol({ isFirst: false })
-                  )
-                }
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Remove />
-              </Button>
-            </div>
+        {/* 列 */}
+        <div>
+          <span className="font-semibold text-lg ml-2.5">列</span>
+          <div className="flex justify-center gap-2 mt-2">
+            <Button
+              onClick={() => dispatch(gridSlice.actions.addToCol({ isFirst }))}
+              className="flex items-center justify-center w-10 h-10"
+            >
+              <Add />
+            </Button>
+            <Button
+              onClick={() => dispatch(gridSlice.actions.removeFromCol({ isFirst }))}
+              className="flex items-center justify-center w-10 h-10"
+            >
+              <Remove />
+            </Button>
           </div>
         </div>
       </div>
 
+      {/* トグルボタン */}
+      <div className="flex justify-left items-center gap-2">
+        <Switch checked={!isFirst} onCheckedChange={() => setIsFirst(!isFirst)} />
+        <span>{isFirst ? "先頭の行/列を操作" : "末尾の行/列を操作"}</span>
+      </div>
     </div>
-
   );
 };

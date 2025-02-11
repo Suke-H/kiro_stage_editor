@@ -37,7 +37,7 @@ export const StageDataIOPart: React.FC = () => {
         onClick={() => exportStageToYaml(grid, panels)}
         className="flex items-center gap-2 w-40"
       >
-        <Download size={16} /> YAMLエクスポート
+        <Upload size={16} /> YAMLエクスポート
       </Button>
       <input
         type="file"
@@ -53,7 +53,7 @@ export const StageDataIOPart: React.FC = () => {
           variant="outline"
           className="flex items-center gap-2 w-40 text-left"
         >
-          <Upload size={16} /> YAMLインポート
+          <Download size={16} /> YAMLインポート
         </Button>
       </label>
       <Button
