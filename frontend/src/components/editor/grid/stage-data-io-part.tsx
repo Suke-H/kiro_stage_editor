@@ -1,6 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store";
 
+import { gridSlice } from '../../../store/slices/grid-slice';
+import { panelListSlice } from '../../../store/slices/panel-list-slice';
+
 import { Button } from "@/components/ui/button";
 import { Download, Upload, Link } from "lucide-react";
 import { exportStageToYaml, importStageFromYaml } from "../../../utils/yaml";
@@ -18,6 +21,15 @@ export const StageDataIOPart: React.FC = () => {
     }
   };
 
+  const handleImportStageFromYaml = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const result = await importStageFromYaml(event);
+    if (result) {
+      const [grid, trimmedPanels] = result;
+      dispatch(gridSlice.actions.loadGrid(grid));
+      dispatch(panelListSlice.actions.loadPanels(trimmedPanels));
+    }
+  };
+
   return (
     <div className="flex gap-2 mt-4">
       {/* YAML、URL */}
@@ -30,10 +42,11 @@ export const StageDataIOPart: React.FC = () => {
       <input
         type="file"
         accept=".yaml,.yml"
-        onChange={(event) => importStageFromYaml(event, dispatch)}
+        onChange={handleImportStageFromYaml}
         className="hidden"
         id="yamlImport"
       />
+
       <label htmlFor="yamlImport" className="cursor-pointer">
         <Button
           onClick={triggerFileInput}

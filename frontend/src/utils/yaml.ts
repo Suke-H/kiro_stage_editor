@@ -3,16 +3,8 @@ import { CellDefinitions, CellType, Panel, GridCell } from '@/components/types';
 // import { CELL_DEFINITIONS, CELL_TYPES } from '../constants/cell-types';
 import { capitalize, uncapitalize } from './string-operations';
 
-import { gridSlice } from '../store/slices/grid-slice';
-import { panelListSlice } from '../store/slices/panel-list-slice';
-import { UnknownAction } from '@reduxjs/toolkit';
-import { Dispatch as DisPatch } from 'redux';
-
 interface CellYamlData {
-  Type: {
-    Type: string;
-    SkinId: number;
-  };
+  Type: string;
   CellSide: string;
 }
 
@@ -22,10 +14,7 @@ interface PanelYamlData {
 
 const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
   return { 
-    Type: { 
-      Type: cell.type, 
-      SkinId: 0 
-    }, 
+    Type: cell.type, 
     CellSide: capitalize(cell.side)
   };
 };
@@ -43,7 +32,6 @@ export const exportStageToYaml = (
   }));
 
   const yamlStageData = {
-    Id: 1,
     Height: grid.length,
     Width: grid[0].length,
     Cells: cells,
@@ -59,14 +47,13 @@ export const exportStageToYaml = (
   link.click();
 };
 
-export const importStageFromYaml = (
-  event: React.ChangeEvent<HTMLInputElement>,
-  // setGrid: (grid: GridCell[][]) => void,
-  // setPanels: (panels: Panel[]) => void
-  dispatch: DisPatch<UnknownAction>
-) => {
+export const importStageFromYaml = async (
+  event: React.ChangeEvent<HTMLInputElement>
+): Promise<[GridCell[][], Panel[]] | null> => {
   const file = event.target.files?.[0];
-  if (file) {
+  if (!file) return null;
+
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -76,7 +63,7 @@ export const importStageFromYaml = (
         // グリッド変換
         const grid: GridCell[][] = Cells.map((row: CellYamlData[]) =>
           row.map((cell: CellYamlData) => ({
-            type: cell.Type.Type as CellDefinitions,
+            type: cell.Type as CellDefinitions,
             side: uncapitalize(cell.CellSide) as GridCell['side']
           }))
         );
@@ -98,18 +85,16 @@ export const importStageFromYaml = (
         // パネルのトリム処理
         const trimmedPanels = trimPanels(panels);
 
-        // setGrid(grid);
-        dispatch(gridSlice.actions.loadGrid(grid));
-        // setPanels(trimmedPanels);
-        dispatch(panelListSlice.actions.loadPanels(trimmedPanels));
-        
+        resolve([grid, trimmedPanels]);
       } catch (error) {
         console.error('Error importing YAML:', error);
+        reject(error);
       }
     };
     reader.readAsText(file);
-  }
+  });
 };
+
 
 // Panels全体をトリムする関数
 const trimPanels = (panels: Panel[]): Panel[] => panels.map(trimPanelCells);
