@@ -164,7 +164,7 @@ export const Grid: React.FC = () => {
   };
 
   return (
-    <Card className="flex-grow bg-[#B3B9D1]">
+    <Card className="w-fit bg-[#B3B9D1]">
       <CardHeader>
         <CardTitle>ステージグリッド</CardTitle>
       </CardHeader>

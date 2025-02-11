@@ -17,13 +17,13 @@ const EditorPage: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div className="flex flex-col p-4 gap-4 min-h-screen bg-[#DAE0EA]">
+    <div className="flex flex-col gap-4 md:flex-row justify-start">
       <div className="flex gap-4">
         <CellTypeSelector />
         <Grid />
       </div>
-  
-      <div className="flex gap-4">
+
+      <div className="flex flex-col gap-4">
         <PanelList />
         <NewPanelCreator />
       </div>

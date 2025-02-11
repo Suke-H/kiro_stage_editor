@@ -55,10 +55,10 @@ const PuzzleStudio: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col p-4 gap-4 min-h-screen bg-[#DAE0EA]">
+    <div className="flex flex-col p-4 gap-4 min-h-screen">
       <Tabs value={studioMode} onValueChange={handleStudioModeSwitch} className="w-full">
 
-        <TabsList className="grid w-full grid-cols-3 bg-[#DAE0EA]">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="editor" className="data-[state=active]:bg-[#B3B9D1]" >
             Editor
           </TabsTrigger>

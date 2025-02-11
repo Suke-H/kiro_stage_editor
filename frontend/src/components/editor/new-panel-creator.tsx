@@ -1,7 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, MinusCircle, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Panel } from "../types";
+import { Button } from "@/components/ui/button";
+import { Add, Remove } from "@mui/icons-material";
 
 import { createPanelSlice } from "../../store/slices/create-panel-slice";
 import { panelListSlice } from "../../store/slices/panel-list-slice";
@@ -32,39 +33,55 @@ export const NewPanelCreator: React.FC = () => {
   };
 
   return (
-    <Card className="w-64 bg-[#B3B9D1]">
+    <Card className="w-64 bg-[#B3B9D1] md:self-start">
       <CardHeader>
         <CardTitle>パネル作成</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex gap-2 mb-4">
-          <Button
-            onClick={() => dispatch(createPanelSlice.actions.addToRow())}
-            className="flex items-center gap-2"
-          >
-            <PlusCircle size={16} /> 行追加
-          </Button>
-          <Button
-            onClick={() => dispatch(createPanelSlice.actions.removeFromRow())}
-            className="flex items-center gap-2"
-          >
-            <MinusCircle size={16} /> 行削除
-          </Button>
-          <Button
-            onClick={() => dispatch(createPanelSlice.actions.addToCol())}
-            className="flex items-center gap"
-          >
-            <PlusCircle size={16} /> 列追加
-          </Button>
-          <Button
-            onClick={() => dispatch(createPanelSlice.actions.removeFromCol())}
-            className="flex items-center gap-2"
-          >
-            <MinusCircle size={16} /> 列削除
-          </Button>
+      <div className="flex flex-col gap-4">
+        {/* 行・列操作 */}
+        <div className="grid grid-cols-2 gap-4 text-left">
+          {/* 行 */}
+          <div>
+            <span className="font-semibold ml-4">行</span>
+            <div className="flex justify-center gap-2 mt-2">
+              <Button
+                onClick={() => dispatch(createPanelSlice.actions.addToRow())}
+                className="flex items-center justify-center w-10 h-10"
+              >
+                <Add />
+              </Button>
+              <Button
+                onClick={() => dispatch(createPanelSlice.actions.removeFromRow())}
+                className="flex items-center justify-center w-10 h-10"
+              >
+                <Remove />
+              </Button>
+            </div>
+          </div>
+          {/* 列 */}
+          <div>
+            <span className="font-semibold ml-4">列</span>
+            <div className="flex justify-center gap-2 mt-2">
+              <Button
+                onClick={() => dispatch(createPanelSlice.actions.addToCol())}
+                className="flex items-center justify-center w-10 h-10"
+              >
+                <Add />
+              </Button>
+              <Button
+                onClick={() => dispatch(createPanelSlice.actions.removeFromCol())}
+                className="flex items-center justify-center w-10 h-10"
+              >
+                <Remove />
+              </Button>
+            </div>
+          </div>
         </div>
+
+      </div>
         <div
-          className="grid mb-4"
+          className="grid mt-4 mb-4 ml-1"
           style={{
             gridTemplateColumns: `repeat(${newPanelGrid[0].length}, 40px)`,
             gap: "4px",

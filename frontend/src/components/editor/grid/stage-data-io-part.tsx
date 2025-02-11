@@ -31,13 +31,13 @@ export const StageDataIOPart: React.FC = () => {
   };
 
   return (
-    <div className="flex gap-2 mt-4">
+    <div className="flex flex-col gap-2 mt-8">
       {/* YAML、URL */}
       <Button
         onClick={() => exportStageToYaml(grid, panels)}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 w-40"
       >
-        <Download size={16} /> YAMLエクスポート
+        <Upload size={16} /> YAMLエクスポート
       </Button>
       <input
         type="file"
@@ -51,18 +51,17 @@ export const StageDataIOPart: React.FC = () => {
         <Button
           onClick={triggerFileInput}
           variant="outline"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 w-40 text-left"
         >
-          <Upload size={16} /> YAMLインポート
+          <Download size={16} /> YAMLインポート
         </Button>
       </label>
       <Button
         onClick={() => shareStageUrl(grid, panels)}
-        className="mt-4 flex items-center gap-2"
+        className="flex items-center gap-2 w-40 bg-white text-black"
       >
         <Link size={16} /> URLを生成
       </Button>
     </div>
-
   );
 };
