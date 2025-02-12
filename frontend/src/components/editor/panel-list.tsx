@@ -19,8 +19,8 @@ export const PanelList: React.FC = () => {
 
   // パネル配置モードの開始
   const startPanelPlacement = (panel: Panel) => {
-    // すでにパネル配置モードの場合、空にして終了
-    if (panelPlacementMode.panel !== null) {
+    // 同じパネルが選択された場合、選択解除
+    if (panelPlacementMode.panel === panel) {
       dispatch(panelPlacementSlice.actions.clearPanelSelection());
       return;
     }
