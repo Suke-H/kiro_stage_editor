@@ -23,6 +23,12 @@ export const panelPlacementSlice = createSlice({
     ) => {
       state.panelPlacementMode.panel = action.payload.panel;
       state.panelPlacementMode.highlightedCell = action.payload.highlightedCell;
+    },
+
+    // パネル選択解除
+    clearPanelSelection: (state) => {
+      state.panelPlacementMode.panel = null;
+      state.panelPlacementMode.highlightedCell = null;
     }
     
   },

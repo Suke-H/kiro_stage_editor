@@ -19,8 +19,11 @@ export const Grid: React.FC = () => {
   const panelPlacementMode = useSelector((state: RootState) => state.panelPlacement.panelPlacementMode);
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
-    // Editorモード
-    if (studioMode === StudioMode.Editor) {
+    const placingPanel = panelPlacementMode.panel;
+
+    // セル配置モード
+    // （エディタモード、かつ配置パネル未選択）
+    if (studioMode === StudioMode.Editor && placingPanel === null) {
       const cellDef = CELL_DEFINITIONS[selectedCellType];
 
       // セル選択がFlipの場合：sideを反転
@@ -44,14 +47,11 @@ export const Grid: React.FC = () => {
       }
     }
 
-    // Playモード
-    else{
-      const placingPanel = panelPlacementMode.panel;
-
-      // パネルが選択されていない場合は何もしない
-      if (!placingPanel) {
-        return;
-      }
+    // パネル配置モード
+    // （エディタモードでも実施可）
+    else {
+      // 配置するパネルが選択されていない場合は何もしない
+      if (!placingPanel) return;
 
       // パネルを配置できるかチェック
       if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {

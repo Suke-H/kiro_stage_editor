@@ -19,6 +19,12 @@ export const PanelList: React.FC = () => {
 
   // パネル配置モードの開始
   const startPanelPlacement = (panel: Panel) => {
+    // すでにパネル配置モードの場合、空にして終了
+    if (panelPlacementMode.panel !== null) {
+      dispatch(panelPlacementSlice.actions.clearPanelSelection());
+      return;
+    }
+
     let firstBlackCell = null;
     for (let i = 0; i < panel.cells.length; i++) {
       for (let j = 0; j < panel.cells[0].length; j++) {
@@ -69,6 +75,13 @@ export const PanelList: React.FC = () => {
               )}
             </div>
             <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => startPanelPlacement(panel)}
+              >
+                <Move size={16} />
+              </Button>
               {studioMode === StudioMode.Editor && (
                 <Button
                   variant="ghost"
@@ -78,15 +91,7 @@ export const PanelList: React.FC = () => {
                   <Trash2 size={16} />
                 </Button>
               )}
-              {studioMode === StudioMode.Play && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => startPanelPlacement(panel)}
-                >
-                  <Move size={16} />
-                </Button>
-              )}
+
             </div>
           </div>
         ))}
