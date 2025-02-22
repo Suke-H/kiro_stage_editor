@@ -27,7 +27,7 @@ const encodeStageToUrl = (grid: GridCell[][], panels: Panel[]) => {
     })
     .join('_');
 
-  return `cells=${cellsEncoded}&panels=${panelsEncoded}`;
+  return `cells=${cellsEncoded}&panels=${panelsEncoded}&mode=play`;
 };
 
 export const shareStageUrl = (grid: GridCell[][], panels: Panel[]) => {
