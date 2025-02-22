@@ -93,6 +93,14 @@ export const CELL_DEFINITIONS: Record<string, CellDefinition> = {
       picture: 'black.png'
     }
   },
+  Wolf: {
+    label: 'オオカミ',
+    color: 'bg-gray-500',
+    neutral: {
+      code: 'o',
+      picture: 'wolf.png'
+    }
+  },
   Warp: {
     label: 'ワープ',
     color: 'bg-purple-500',
