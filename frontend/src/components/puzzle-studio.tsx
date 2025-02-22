@@ -35,19 +35,26 @@ const PuzzleStudio: React.FC = () => {
     checkApiConnection();
   }, []);
 
-  // URLからステージをロード
+  // URLからステージをロード & studioMode の設定
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const cells = params.get('cells');
     const panels = params.get('panels');
-    
+    const modeParam = params.get('mode');
+
+    // URLの `mode` を `StudioMode` に対応させる
+    const mode = Object.values(StudioMode).includes(modeParam as StudioMode)
+      ? (modeParam as StudioMode)
+      : StudioMode.Editor; // デフォルトは Editor
+
+    dispatch(studioModeSlice.actions.switchMode(mode));
+
     if (cells && panels) {
       const stageData = `cells=${cells}&panels=${panels}`;
       const parsedData = decodeStageFromUrl(stageData);
       dispatch(gridSlice.actions.loadGrid(parsedData.cells));
       dispatch(panelListSlice.actions.loadPanels(parsedData.panels));
     }
-
   }, [dispatch]);
 
   const handleStudioModeSwitch = (mode: string) => {
