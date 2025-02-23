@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { gridSlice } from "../../store/slices/grid-slice";
+import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +56,8 @@ export const Grid: React.FC = () => {
 
       // パネルを配置できるかチェック
       if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
+        // パネルを配置(リストから削除)
+        dispatch(panelListSlice.actions.placePanel(placingPanel));
 
         // 事前に今のGridを履歴に保存
         dispatch(gridSlice.actions.saveHistory());

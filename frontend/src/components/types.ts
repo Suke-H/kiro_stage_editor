@@ -27,15 +27,9 @@ export interface CellTypeState {
   selectedCellType: CellDefinitions;
 }
 
-export interface PanelState {
-  newPanelGrid: CellType[][];
-  panels: Panel[];
-  panelPlacementMode: PanelPlacementModeType;
-  panelPlacementHistory: PanelPlacementHistoryType;
-}
-
 export interface PanelListState {
   panels: Panel[];
+  removedPanels: { panel: Panel; index: number }[];
 }
 
 export interface CreatePanelState {
