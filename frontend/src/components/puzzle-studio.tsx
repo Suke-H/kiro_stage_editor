@@ -90,6 +90,21 @@ const PuzzleStudio: React.FC = () => {
         </TabsContent>
 
       </Tabs>
+
+      <footer className="mt-8 py-4 text-center text-sm text-gray-500">
+        <p>
+          <a 
+            href="https://github.com/Suke-H/kiro_stage_editor" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-blue-500 hover:underline"
+          >
+            GitHub Repository
+          </a>
+        </p>
+        <p>© 2025 みちくさ</p>
+      </footer>
+
     </div>
   );
 };
