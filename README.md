@@ -16,16 +16,19 @@ https://store.steampowered.com/app/3409620/
 <img src="https://github.com/user-attachments/assets/fce0b76b-0238-411d-87d1-5f1e346d3a1e" alt="kiro-main-cupsule-animation" width="600"/>
 
 ## 機能
-- Editorモード
-  - マップ、パネルの作成
-  - URL共有機能：作ったステージを遊うための機能
-  - Yamlのエクスポート/インポート機能：Unity受け渡し用
+### Editorモード
+- マップ、パネルの作成
+- URL共有機能：作ったステージを遊うための機能
+- Yamlのエクスポート/インポート機能：Unity受け渡し用
 <img src="docs/img/editor-mode.gif" alt="Editorモード" width="600"/>
-- Playモード
-  - お試しでパネル設置
-  - undo, reset機能
+
+### Playモード
+- お試しでパネル設置
+- undo, reset機能
 <img src="docs/img/play-mode.gif" alt="Playモード" width="600"/>
-- Solverモード（制作予定）
+
+### Solverモード
+- 今後制作予定
 
 ## パズルのルール
 <img src="docs/img/rule-1.png" alt="ルールその1" width="500"/>
