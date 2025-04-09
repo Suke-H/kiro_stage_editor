@@ -12,11 +12,13 @@ import { NewPanelCreator } from '@/components/editor/new-panel-creator';
 const EditorPage: React.FC = () => {
   const dispatch = useDispatch();
 
-  // エディタモード時に、プレイモードで実施したパネル配置をリセット
+  // Play->Editor移行時に、Playモード時のパネル配置をリセット
   useEffect(() => {
     dispatch(gridSlice.actions.reset());
     dispatch(panelListSlice.actions.reset());
-
+    
+    // 最後に履歴を完全クリア
+    dispatch(gridSlice.actions.clearHistory());
   }, [dispatch]);
 
   return (

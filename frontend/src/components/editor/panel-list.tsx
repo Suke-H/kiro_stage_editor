@@ -105,12 +105,7 @@ export const PanelList: React.FC = () => {
         <CardTitle>パネル</CardTitle>
       </CardHeader>
       <CardContent>
-
-        {/* Playモードの場合、プレイ専用パーツを追加 */}
-        {studioMode === StudioMode.Play && (
-          <PlacementControllPart />
-        )}
-        
+        <PlacementControllPart />
         {renderPanels()}
       </CardContent>
     </Card>

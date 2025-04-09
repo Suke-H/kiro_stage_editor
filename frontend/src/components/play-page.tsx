@@ -2,13 +2,20 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { gridSlice } from '../store/slices/grid-slice';
+import { panelListSlice } from '../store/slices/panel-list-slice';
+
 import { Grid } from '@/components/editor/grid';
 import { PanelList } from '@/components/editor/panel-list';
 
+// Editor->Play移行時に、Playモード時のパネル配置をリセット
 const PlayPage: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(gridSlice.actions.reset());
+    dispatch(panelListSlice.actions.reset());
+
+    // 最後に履歴を完全クリア
     dispatch(gridSlice.actions.clearHistory());
   }, [dispatch]);
 
