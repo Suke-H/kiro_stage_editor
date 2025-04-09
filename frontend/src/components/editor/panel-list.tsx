@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Move } from "lucide-react";
-import { Panel, StudioMode } from "../types";
+import { Panel, StudioMode, StudioModeInEditor } from "../types";
 import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
+import { studioModeInEditorSlice } from "../../store/slices/studio-mode-in-editor-slice";
 import { RootState } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -43,6 +44,11 @@ export const PanelList: React.FC = () => {
         highlightedCell: firstBlackCell || { row: 0, col: 0 },
       })
     );
+
+    // Editorの場合、「Editor内スタジオモード」をPlayに変更
+    if (studioMode === StudioMode.Editor) {
+      dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
+    }
   };
 
   // パネルビューのレンダリングを修正
@@ -105,12 +111,7 @@ export const PanelList: React.FC = () => {
         <CardTitle>パネル</CardTitle>
       </CardHeader>
       <CardContent>
-
-        {/* Playモードの場合、プレイ専用パーツを追加 */}
-        {studioMode === StudioMode.Play && (
-          <PlacementControllPart />
-        )}
-        
+        <PlacementControllPart />
         {renderPanels()}
       </CardContent>
     </Card>

@@ -34,5 +34,4 @@ export const panelPlacementSlice = createSlice({
   },
 });
 
-// export const { selectPanelForPlacement } = panelSlice.actions;
 export default panelPlacementSlice.reducer;

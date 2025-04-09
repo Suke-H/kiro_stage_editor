@@ -2,9 +2,10 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CellDefinitions } from "../types";
+import { CellDefinitions, StudioModeInEditor } from "../types";
 import { CELL_DEFINITIONS } from "../../constants/cell-types";
-import { changeCellType } from "../../store/slices/cell-type-slice";
+import { cellTypeSlice } from "../../store/slices/cell-type-slice";
+import { studioModeInEditorSlice } from "../../store/slices/studio-mode-in-editor-slice";
 import { RootState } from "../../store";
 
 export const CellTypeSelector: React.FC = () => {
@@ -12,6 +13,12 @@ export const CellTypeSelector: React.FC = () => {
   const selectedCellType = useSelector(
     (state: RootState) => state.cellType.selectedCellType
   );
+
+  // セルをクリック -> 「Editor内スタジオモード」をEditorに変更し、セルタイプを変更
+  const handleCellTypeChange = (cellType: CellDefinitions) => {
+    dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Editor));
+    dispatch(cellTypeSlice.actions.changeCellType(cellType));
+  };
 
   return (
     <Card className="w-full min-w-[120px] max-w-[300px] bg-[#B3B9D1]">
@@ -29,7 +36,7 @@ export const CellTypeSelector: React.FC = () => {
                 ? "text-black"
                 : "text-white"
             } truncate`}
-            onClick={() => dispatch(changeCellType(type))}
+            onClick={() => handleCellTypeChange(type)}
           >
             {CELL_DEFINITIONS[type].label}
           </Button>

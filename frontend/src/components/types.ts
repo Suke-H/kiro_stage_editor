@@ -50,6 +50,16 @@ export interface StudioModeState {
   studioMode: StudioMode;
 }
 
+export enum StudioModeInEditor {
+  Editor = 'editor',
+  Play = 'play'
+}
+export interface StudioModeStateInEditor {
+  studioModeInEditor: StudioModeInEditor;
+}
+
+
+
 export interface GridState {
   grid: GridCell[][];
   gridHistory: GridCell[][][];

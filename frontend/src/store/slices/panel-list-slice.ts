@@ -74,5 +74,4 @@ export const panelListSlice = createSlice({
   },
 });
 
-// export const { selectPanelForPlacement } = panelSlice.actions;
 export default panelListSlice.reducer;
