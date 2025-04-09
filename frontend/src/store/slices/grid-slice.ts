@@ -98,5 +98,4 @@ export const gridSlice = createSlice({
   },
 });
 
-// export const { initGrid,  } = panelSlice.actions;
 export default gridSlice.reducer;

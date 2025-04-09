@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CellDefinitions, StudioModeInEditor } from "../types";
 import { CELL_DEFINITIONS } from "../../constants/cell-types";
-import { changeCellType } from "../../store/slices/cell-type-slice";
+import { cellTypeSlice } from "../../store/slices/cell-type-slice";
 import { studioModeInEditorSlice } from "../../store/slices/studio-mode-in-editor-slice";
 import { RootState } from "../../store";
 
@@ -17,7 +17,7 @@ export const CellTypeSelector: React.FC = () => {
   // セルをクリック -> 「Editor内スタジオモード」をEditorに変更し、セルタイプを変更
   const handleCellTypeChange = (cellType: CellDefinitions) => {
     dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Editor));
-    dispatch(changeCellType(cellType));
+    dispatch(cellTypeSlice.actions.changeCellType(cellType));
   };
 
   return (

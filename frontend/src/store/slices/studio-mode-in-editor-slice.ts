@@ -16,5 +16,4 @@ export const studioModeInEditorSlice = createSlice({
   },
 });
 
-// reducer 部分はデフォルトエクスポートとしてエクスポートしてもよい
 export default studioModeInEditorSlice.reducer;

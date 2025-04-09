@@ -16,5 +16,4 @@ export const cellTypeSlice = createSlice({
   },
 });
 
-export const { changeCellType } = cellTypeSlice.actions;
 export default cellTypeSlice.reducer;

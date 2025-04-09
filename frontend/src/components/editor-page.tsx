@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { gridSlice } from '../store/slices/grid-slice';
 import { panelListSlice } from '../store/slices/panel-list-slice';
+import { panelPlacementSlice } from '../store/slices/panel-placement-slice';
 import { studioModeInEditorSlice } from "../store/slices/studio-mode-in-editor-slice";
 import { RootState } from '../store';
 import { StudioModeInEditor } from "./types";
@@ -36,8 +37,9 @@ const EditorPage: React.FC = () => {
     if (studioModeInEditor === StudioModeInEditor.Editor) {
       // グリッド状態を元に戻すことなく、履歴クリアする
       dispatch(gridSlice.actions.clearHistory());
-      // パネル配置はリセット
+      // パネル配置リセット
       dispatch(panelListSlice.actions.reset());
+      dispatch(panelPlacementSlice.actions.clearPanelSelection());
     }
   }, [studioModeInEditor, dispatch]);
 
