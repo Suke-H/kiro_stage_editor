@@ -12,4 +12,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'), // `@` を `src` にマッピング
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000', // FastAPI が動作するアドレス
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
+    },
+  },
 });
