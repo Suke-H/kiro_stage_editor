@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# from app.routers import health
+from routers import health
 
 app = FastAPI(title="Kiro Stage Editor Logic API")
 
@@ -12,8 +12,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/api/health")
-async def health_check():
-    return {"status": "ok"}
-
-# app.include_router(health.router, prefix="/api")
+app.include_router(health.router, prefix="/api")
