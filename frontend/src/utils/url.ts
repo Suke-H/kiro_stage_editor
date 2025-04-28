@@ -1,5 +1,12 @@
-import { CellDefinitions, CellType, Panel, GridCell } from '@/components/types';
-import { CELL_DEFINITIONS, CELL_TYPES } from '../constants/cell-types';
+import {
+  CellType,
+  CellDefinitionKey,
+  CELL_DEFINITIONS,
+  CELL_TYPES,
+} from "@/types/cell";
+import { Panel } from "@/types/panel";
+import { GridCell } from "@/types/grid";
+import {} from "@/types/cell";
 
 const encodeStageToUrl = (grid: GridCell[][], panels: Panel[]) => {
   // Cells のエンコード
@@ -9,9 +16,9 @@ const encodeStageToUrl = (grid: GridCell[][], panels: Panel[]) => {
     .flat()
     .map((cell) => {
       const cellDef = CELL_DEFINITIONS[cell.type]?.[cell.side];
-      return cellDef ? cellDef.code : '';
+      return cellDef ? cellDef.code : "";
     })
-    .join('');
+    .join("");
   const cellsEncoded = `h${cellsHeight}w${cellsWidth}g${cellsGrid}`;
 
   // Panels のエンコード (unchanged)
@@ -22,10 +29,10 @@ const encodeStageToUrl = (grid: GridCell[][], panels: Panel[]) => {
       const gridData = panel.cells
         .flat()
         .map((cell) => CELL_TYPES[cell].code)
-        .join('');
+        .join("");
       return `h${height}w${width}g${gridData}`;
     })
-    .join('_');
+    .join("_");
 
   return `cells=${cellsEncoded}&panels=${panelsEncoded}&mode=play`;
 };
@@ -34,21 +41,21 @@ export const shareStageUrl = (grid: GridCell[][], panels: Panel[]) => {
   const stageData = encodeStageToUrl(grid, panels);
   const url = `${window.location.origin}/stage?${stageData}`;
   navigator.clipboard.writeText(url);
-  alert('URLをコピーしました！');
+  alert("URLをコピーしました！");
 };
 
 export const decodeStageFromUrl = (stageData: string) => {
   const params = new URLSearchParams(stageData);
 
   // Cells のデコード
-  const cellsRaw = params.get('cells') || '';
+  const cellsRaw = params.get("cells") || "";
   const cellsHeightMatch = cellsRaw.match(/h(\d+)/);
   const cellsWidthMatch = cellsRaw.match(/w(\d+)/);
   const cellsGridMatch = cellsRaw.match(/g(.+)/);
 
-  const cellsHeight = parseInt(cellsHeightMatch?.[1] || '0', 10);
-  const cellsWidth = parseInt(cellsWidthMatch?.[1] || '0', 10);
-  const cellsGridString = cellsGridMatch?.[1] || '';
+  const cellsHeight = parseInt(cellsHeightMatch?.[1] || "0", 10);
+  const cellsWidth = parseInt(cellsWidthMatch?.[1] || "0", 10);
+  const cellsGridString = cellsGridMatch?.[1] || "";
 
   // グリッドデータをデコード
   const decodeCellGrid = (gridString: string): GridCell[] => {
@@ -56,29 +63,38 @@ export const decodeStageFromUrl = (stageData: string) => {
     let i = 0;
     while (i < gridString.length) {
       const currentChar = gridString[i];
-      
-      const cellType = Object.keys(CELL_DEFINITIONS).find(type => 
+
+      const cellType = Object.keys(CELL_DEFINITIONS).find((type) =>
         Object.values(CELL_DEFINITIONS[type]).some(
-          sideInfo => typeof sideInfo === 'object' && 'code' in sideInfo && sideInfo.code === currentChar
+          (sideInfo) =>
+            typeof sideInfo === "object" &&
+            "code" in sideInfo &&
+            sideInfo.code === currentChar
         )
       );
-  
+
       if (cellType) {
-        let side: GridCell['side'] = 'neutral';
-        
-        // Determine the side based on the code
+        let side: GridCell["side"] = "neutral";
+
         Object.entries(CELL_DEFINITIONS[cellType]).forEach(([key, value]) => {
-          if (key !== 'label' && key !== 'color' && typeof value === 'object' && value && 'code' in value && value.code === currentChar) {
-            side = key as GridCell['side'];
+          if (
+            key !== "label" &&
+            key !== "color" &&
+            typeof value === "object" &&
+            value &&
+            "code" in value &&
+            value.code === currentChar
+          ) {
+            side = key as GridCell["side"];
           }
         });
-  
-        cells.push({ type: cellType as CellDefinitions, side });
+
+        cells.push({ type: cellType as CellDefinitionKey, side });
       } else {
         // Fallback to Empty if no matching cell type
-        cells.push({ type: 'Empty', side: 'neutral' });
+        cells.push({ type: "Empty", side: "neutral" });
       }
-      
+
       i += 1;
     }
     return cells;
@@ -90,38 +106,39 @@ export const decodeStageFromUrl = (stageData: string) => {
     let i = 0;
     while (i < gridString.length) {
       const currentChar = gridString[i];
-      
+
       // 'a'で始まる場合は矢印として処理
-      if (currentChar === 'a' && i + 1 < gridString.length) {
+      if (currentChar === "a" && i + 1 < gridString.length) {
         const direction = gridString[i + 1];
         let arrowType: CellType;
-        
+
         switch (direction) {
-          case 'u':
-            arrowType = 'ArrowUp';
+          case "u":
+            arrowType = "ArrowUp";
             break;
-          case 'd':
-            arrowType = 'ArrowDown';
+          case "d":
+            arrowType = "ArrowDown";
             break;
-          case 'l':
-            arrowType = 'ArrowLeft';
+          case "l":
+            arrowType = "ArrowLeft";
             break;
-          case 'r':
-            arrowType = 'ArrowRight';
+          case "r":
+            arrowType = "ArrowRight";
             break;
           default:
             // 不正な方向の場合はEmptyとして扱う
-            arrowType = 'Empty';
+            arrowType = "Empty";
         }
-        
+
         cells.push(arrowType);
         i += 2; // 矢印は2文字分進める
       } else {
         // 通常のセル処理
-        const cellType = Object.keys(CELL_TYPES).find(
-          (key) => CELL_TYPES[key as CellType].code === currentChar
-        ) as CellType || 'Empty';
-        
+        const cellType =
+          (Object.keys(CELL_TYPES).find(
+            (key) => CELL_TYPES[key as CellType].code === currentChar
+          ) as CellType) || "Empty";
+
         cells.push(cellType);
         i += 1; // 1文字分進める
       }
@@ -136,15 +153,15 @@ export const decodeStageFromUrl = (stageData: string) => {
   );
 
   // Panels のデコード
-  const panelsRaw = params.get('panels') || '';
-  const panels = panelsRaw.split('_').map((panelStr, index) => {
+  const panelsRaw = params.get("panels") || "";
+  const panels = panelsRaw.split("_").map((panelStr, index) => {
     const heightMatch = panelStr.match(/h(\d+)/);
     const widthMatch = panelStr.match(/w(\d+)/);
     const gridMatch = panelStr.match(/g(.+)/);
 
-    const height = parseInt(heightMatch?.[1] || '0', 10);
-    const width = parseInt(widthMatch?.[1] || '0', 10);
-    const gridData = gridMatch?.[1] || '';
+    const height = parseInt(heightMatch?.[1] || "0", 10);
+    const width = parseInt(widthMatch?.[1] || "0", 10);
+    const gridData = gridMatch?.[1] || "";
 
     const decodedPanelCells = decodePanelGrid(gridData);
     const panelCells = Array.from({ length: height }, (_, i) =>

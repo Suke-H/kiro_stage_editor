@@ -6,7 +6,7 @@ import { panelListSlice } from '../store/slices/panel-list-slice';
 import { panelPlacementSlice } from '../store/slices/panel-placement-slice';
 import { studioModeInEditorSlice } from "../store/slices/studio-mode-in-editor-slice";
 import { RootState } from '../store';
-import { StudioModeInEditor } from "./types";
+import { StudioModeInEditor } from "@/types/store";
 
 import { CellTypeSelector } from '@/components/editor/cell-type-selector';
 import { Grid } from '@/components/editor/grid';

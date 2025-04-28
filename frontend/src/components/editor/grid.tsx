@@ -5,19 +5,30 @@ import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GridCell, Panel, StudioMode } from "../types";
-import { CELL_DEFINITIONS, CellSideInfo } from "../../constants/cell-types";
+import { GridCell } from "@/types/grid";
+import { Panel } from "@/types/panel";
+import { StudioMode } from "@/types/store";
+import {
+  CELL_DEFINITIONS,
+  CellDefinitionKey,
+  CellSideInfo,
+} from "@/types/cell";
 
 import { MatrixOperationPart } from "./grid/matrix-operation-part";
 import { StageDataIOPart } from "./grid/stage-data-io-part";
 
-
 export const Grid: React.FC = () => {
   const dispatch = useDispatch();
-  const studioMode = useSelector((state: RootState) => state.studioMode.studioMode);
+  const studioMode = useSelector(
+    (state: RootState) => state.studioMode.studioMode
+  );
   const grid = useSelector((state: RootState) => state.grid.grid);
-  const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
-  const panelPlacementMode = useSelector((state: RootState) => state.panelPlacement.panelPlacementMode);
+  const selectedCellType = useSelector(
+    (state: RootState) => state.cellType.selectedCellType
+  ) as CellDefinitionKey;
+  const panelPlacementMode = useSelector(
+    (state: RootState) => state.panelPlacement.panelPlacementMode
+  );
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
     const placingPanel = panelPlacementMode.panel;
@@ -34,7 +45,7 @@ export const Grid: React.FC = () => {
             gridSlice.actions.flipCell({ row: rowIndex, col: colIndex })
           );
         }
-      // 通常のセル選択（Flipでない）
+        // 通常のセル選択（Flipでない）
       } else {
         // 基本はfront（表）で設置する。neutralのみの場合はneutral
         const side = "neutral" in cellDef ? "neutral" : "front";
@@ -77,7 +88,6 @@ export const Grid: React.FC = () => {
             }
           }
         }
-
       }
 
       // （設置可/不可をとわず）終了後はパネル選択を解除
@@ -182,8 +192,8 @@ export const Grid: React.FC = () => {
               gap: "4px",
             }}
           >
-            {grid.map((row, rowIndex) =>
-              row.map((cellType, colIndex) =>
+            {grid.map((row: GridCell[], rowIndex: number) =>
+              row.map((cellType: GridCell, colIndex: number) =>
                 renderGridCell(cellType, rowIndex, colIndex)
               )
             )}

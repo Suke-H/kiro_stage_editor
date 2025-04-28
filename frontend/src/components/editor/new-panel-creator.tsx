@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { Panel } from "../types";
+import { Panel } from "@/types/panel";
 import { Button } from "@/components/ui/button";
 import { Add, Remove } from "@mui/icons-material";
 
@@ -9,9 +9,11 @@ import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 
+import { CellType } from "@/types/cell";
+
 export const NewPanelCreator: React.FC = () => {
   const dispatch = useDispatch();
-  const newPanelGrid = useSelector(
+  const newPanelGrid: CellType[][] = useSelector(
     (state: RootState) => state.createPanel.newPanelGrid
   );
 
@@ -38,48 +40,51 @@ export const NewPanelCreator: React.FC = () => {
         <CardTitle>パネル作成</CardTitle>
       </CardHeader>
       <CardContent>
-      <div className="flex flex-col gap-4">
-        {/* 行・列操作 */}
-        <div className="grid grid-cols-2 gap-4 text-left">
-          {/* 行 */}
-          <div>
-            <span className="font-semibold ml-4">行</span>
-            <div className="flex justify-center gap-2 mt-2">
-              <Button
-                onClick={() => dispatch(createPanelSlice.actions.addToRow())}
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Add />
-              </Button>
-              <Button
-                onClick={() => dispatch(createPanelSlice.actions.removeFromRow())}
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Remove />
-              </Button>
+        <div className="flex flex-col gap-4">
+          {/* 行・列操作 */}
+          <div className="grid grid-cols-2 gap-4 text-left">
+            {/* 行 */}
+            <div>
+              <span className="font-semibold ml-4">行</span>
+              <div className="flex justify-center gap-2 mt-2">
+                <Button
+                  onClick={() => dispatch(createPanelSlice.actions.addToRow())}
+                  className="flex items-center justify-center w-10 h-10"
+                >
+                  <Add />
+                </Button>
+                <Button
+                  onClick={() =>
+                    dispatch(createPanelSlice.actions.removeFromRow())
+                  }
+                  className="flex items-center justify-center w-10 h-10"
+                >
+                  <Remove />
+                </Button>
+              </div>
             </div>
-          </div>
-          {/* 列 */}
-          <div>
-            <span className="font-semibold ml-4">列</span>
-            <div className="flex justify-center gap-2 mt-2">
-              <Button
-                onClick={() => dispatch(createPanelSlice.actions.addToCol())}
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Add />
-              </Button>
-              <Button
-                onClick={() => dispatch(createPanelSlice.actions.removeFromCol())}
-                className="flex items-center justify-center w-10 h-10"
-              >
-                <Remove />
-              </Button>
+            {/* 列 */}
+            <div>
+              <span className="font-semibold ml-4">列</span>
+              <div className="flex justify-center gap-2 mt-2">
+                <Button
+                  onClick={() => dispatch(createPanelSlice.actions.addToCol())}
+                  className="flex items-center justify-center w-10 h-10"
+                >
+                  <Add />
+                </Button>
+                <Button
+                  onClick={() =>
+                    dispatch(createPanelSlice.actions.removeFromCol())
+                  }
+                  className="flex items-center justify-center w-10 h-10"
+                >
+                  <Remove />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-
-      </div>
         <div
           className="grid mt-4 mb-4 ml-1"
           style={{

@@ -23,17 +23,21 @@ export interface PanelPlacementState {
   panelPlacementMode: PanelPlacementMode;
 }
 
-// export interface GridState {
-//   grid: { type: CellDefinitionKey; side: 'neutral' | 'front' | 'back' }[][];
-//   gridHistory: any[];
-// }
-
 export enum StudioMode {
   Editor = 'editor',
   Play   = 'play',
   Solver = 'solver',
 }
 
+export enum StudioModeInEditor {
+  Editor = 'editor',
+  Play = 'play'
+}
+
 export interface StudioModeState {
   studioMode: StudioMode;
+}
+
+export interface StudioModeStateInEditor {
+  studioModeInEditor: StudioModeInEditor;
 }

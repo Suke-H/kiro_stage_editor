@@ -1,4 +1,19 @@
-export const CELL_TYPES = {
+import type { CellDefinition, CellTypeInfo } from './schema';
+
+export type CellTypeKey =
+  | 'Empty' 
+  | 'White' 
+  | 'Black' 
+  | 'Start' 
+  | 'Goal'
+  | 'DummyGoal' 
+  | 'Crow' 
+  | 'ArrowUp' 
+  | 'ArrowDown'
+  | 'ArrowLeft' 
+  | 'ArrowRight';
+
+export const CELL_TYPES: Record<CellTypeKey, CellTypeInfo> = {
   Empty:      { label: '空',         color: 'bg-white',      code: 'e',  imagePath: '/cells/empty.png' },
   White:      { label: '白',         color: 'bg-white',      code: 'w',  imagePath: '/cells/white.png' },
   Black:      { label: '黒',         color: 'bg-black',      code: 'b',  imagePath: '/cells/black.png' },
@@ -12,7 +27,21 @@ export const CELL_TYPES = {
   ArrowRight: { label: '矢印→',      color: 'bg-white',      code: 'ar', imagePath: '/cells/arrow-right.png' },
 } as const;
 
-export const CELL_DEFINITIONS = {
+export type CellDefinitionKey =
+  | 'Flip'
+  | 'Empty'
+  | 'Normal'
+  | 'Start'
+  | 'Goal'
+  | 'DummyGoal'
+  | 'Crow'
+  | 'Wolf'
+  | 'Warp'
+  | 'ArrowUpDown'
+  | 'ArrowRightLeft'
+  | 'Rest';
+
+export const CELL_DEFINITIONS: Record<CellDefinitionKey, CellDefinition> = {
   Flip:       { label: '反転',    color: 'bg-black' },
   Empty:      { label: '空',      color: 'bg-white',   neutral: { code: 'e', picture: 'empty.png' } },
   Normal:     { label: '通常床',  color: 'bg-[#DAE0EA]', front: { code: 'w', picture: 'white.png' }, back: { code: 'b', picture: 'black.png' } },

@@ -2,11 +2,12 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CellDefinitions, StudioModeInEditor } from "../types";
-import { CELL_DEFINITIONS } from "../../constants/cell-types";
+import { StudioModeInEditor } from "@/types/store";
+import { CellDefinitionKey, CELL_DEFINITIONS } from "@/types/cell/";
 import { cellTypeSlice } from "../../store/slices/cell-type-slice";
 import { studioModeInEditorSlice } from "../../store/slices/studio-mode-in-editor-slice";
 import { RootState } from "../../store";
+// import { types } from "util";
 
 export const CellTypeSelector: React.FC = () => {
   const dispatch = useDispatch();
@@ -15,8 +16,10 @@ export const CellTypeSelector: React.FC = () => {
   );
 
   // セルをクリック -> 「Editor内スタジオモード」をEditorに変更し、セルタイプを変更
-  const handleCellTypeChange = (cellType: CellDefinitions) => {
-    dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Editor));
+  const handleCellTypeChange = (cellType: CellDefinitionKey) => {
+    dispatch(
+      studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Editor)
+    );
     dispatch(cellTypeSlice.actions.changeCellType(cellType));
   };
 
@@ -27,7 +30,7 @@ export const CellTypeSelector: React.FC = () => {
       </CardHeader>
       {/* 画面幅に応じてコラムの数を変更 */}
       <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-        {(Object.keys(CELL_DEFINITIONS) as CellDefinitions[]).map((type) => (
+        {(Object.keys(CELL_DEFINITIONS) as CellDefinitionKey[]).map((type) => (
           <Button
             key={type}
             variant={selectedCellType === type ? "default" : "outline"}

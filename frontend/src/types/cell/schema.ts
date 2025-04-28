@@ -1,7 +1,13 @@
-import { CELL_TYPES, CELL_DEFINITIONS } from './constants';
+import { CELL_TYPES } from './constants';
 
 export type CellType           = keyof typeof CELL_TYPES;
-export type CellDefinitionKey  = keyof typeof CELL_DEFINITIONS;
+
+export interface CellTypeInfo {
+  label:     string;
+  color:     string;
+  code:      string;
+  imagePath: string;
+}
 
 export type CellSideInfo       = {
   code:    string;

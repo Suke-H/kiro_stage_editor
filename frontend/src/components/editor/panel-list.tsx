@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Move } from "lucide-react";
-import { Panel, StudioMode, StudioModeInEditor } from "../types";
+import { Panel } from "@/types/panel";
+import { StudioMode, StudioModeInEditor } from "@/types/store";
 import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
 import { studioModeInEditorSlice } from "../../store/slices/studio-mode-in-editor-slice";
@@ -12,7 +13,9 @@ import { PlacementControllPart } from "./panel-list/placement-controll-part";
 
 export const PanelList: React.FC = () => {
   const dispatch = useDispatch();
-  const studioMode = useSelector((state: RootState) => state.studioMode.studioMode);
+  const studioMode = useSelector(
+    (state: RootState) => state.studioMode.studioMode
+  );
   const panels = useSelector((state: RootState) => state.panelList.panels);
   const panelPlacementMode = useSelector(
     (state: RootState) => state.panelPlacement.panelPlacementMode
@@ -47,7 +50,9 @@ export const PanelList: React.FC = () => {
 
     // Editorの場合、「Editor内スタジオモード」をPlayに変更
     if (studioMode === StudioMode.Editor) {
-      dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
+      dispatch(
+        studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play)
+      );
     }
   };
 
@@ -55,7 +60,7 @@ export const PanelList: React.FC = () => {
   const renderPanels = () => {
     return (
       <div className="flex flex-wrap gap-2 justify-start max-w-full">
-        {panels.map((panel) => (
+        {panels.map((panel: Panel) => (
           <div key={panel.id} className="flex flex-col items-center">
             <div
               className="grid gap-1"
@@ -92,12 +97,13 @@ export const PanelList: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => dispatch(panelListSlice.actions.removePanel(panel.id))}
+                  onClick={() =>
+                    dispatch(panelListSlice.actions.removePanel(panel.id))
+                  }
                 >
                   <Trash2 size={16} />
                 </Button>
               )}
-
             </div>
           </div>
         ))}
