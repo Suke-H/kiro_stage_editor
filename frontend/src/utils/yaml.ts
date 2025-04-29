@@ -1,6 +1,9 @@
 import { parse, stringify } from 'yaml';
-import { CellDefinitions, CellType, Panel, GridCell } from '@/components/types';
-// import { CELL_DEFINITIONS, CELL_TYPES } from '../constants/cell-types';
+
+import { CellType, CellDefinitionKey } from "@/types/cell";
+import { Panel } from "@/types/panel";
+import { Grid, GridCell } from "@/types/grid";
+
 import { capitalize, uncapitalize } from './string-operations';
 
 interface CellYamlData {
@@ -20,7 +23,7 @@ const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
 };
 
 export const exportStageToYaml = (
-  grid: GridCell[][],
+  grid: Grid,
   panels: Panel[]
 ) => {
   const cells = grid.map(row => row.map(cell => transformCellToYamlFormat(cell)));
@@ -49,7 +52,7 @@ export const exportStageToYaml = (
 
 export const importStageFromYaml = async (
   event: React.ChangeEvent<HTMLInputElement>
-): Promise<[GridCell[][], Panel[]] | null> => {
+): Promise<[Grid, Panel[]] | null> => {
   const file = event.target.files?.[0];
   if (!file) return null;
 
@@ -61,9 +64,9 @@ export const importStageFromYaml = async (
         const { Height, Width, Cells, Panels } = yamlData;
 
         // グリッド変換
-        const grid: GridCell[][] = Cells.map((row: CellYamlData[]) =>
+        const grid: Grid = Cells.map((row: CellYamlData[]) =>
           row.map((cell: CellYamlData) => ({
-            type: cell.Type as CellDefinitions,
+            type: cell.Type as CellDefinitionKey,
             side: uncapitalize(cell.CellSide) as GridCell['side']
           }))
         );

@@ -5,7 +5,7 @@ import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GridCell } from "@/types/grid";
+import { GridCell, Grid } from "@/types/grid";
 import { Panel } from "@/types/panel";
 import { StudioMode } from "@/types/store";
 import {
@@ -17,12 +17,12 @@ import {
 import { MatrixOperationPart } from "./grid/matrix-operation-part";
 import { StageDataIOPart } from "./grid/stage-data-io-part";
 
-export const Grid: React.FC = () => {
+export const GridViewer: React.FC = () => {
   const dispatch = useDispatch();
   const studioMode = useSelector(
     (state: RootState) => state.studioMode.studioMode
   );
-  const grid = useSelector((state: RootState) => state.grid.grid);
+  const grid: Grid = useSelector((state: RootState) => state.grid.grid);
   const selectedCellType = useSelector(
     (state: RootState) => state.cellType.selectedCellType
   ) as CellDefinitionKey;
@@ -135,7 +135,7 @@ export const Grid: React.FC = () => {
   };
 
   const canPlacePanelAtLocation = (
-    grid: GridCell[][],
+    grid: Grid,
     rowIndex: number,
     colIndex: number,
     panel: Panel

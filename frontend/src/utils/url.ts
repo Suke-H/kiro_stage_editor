@@ -1,14 +1,8 @@
-import {
-  CellType,
-  CellDefinitionKey,
-  CELL_DEFINITIONS,
-  CELL_TYPES,
-} from "@/types/cell";
+import { CellType, CellDefinitionKey, CELL_DEFINITIONS, CELL_TYPES, CellSideInfo, CellDefinition } from "@/types/cell";
 import { Panel } from "@/types/panel";
-import { GridCell } from "@/types/grid";
-import {} from "@/types/cell";
+import { Grid, GridCell } from "@/types/grid";
 
-const encodeStageToUrl = (grid: GridCell[][], panels: Panel[]) => {
+const encodeStageToUrl = (grid: Grid, panels: Panel[]) => {
   // Cells のエンコード
   const cellsHeight = grid.length;
   const cellsWidth = grid[0].length;
@@ -37,7 +31,7 @@ const encodeStageToUrl = (grid: GridCell[][], panels: Panel[]) => {
   return `cells=${cellsEncoded}&panels=${panelsEncoded}&mode=play`;
 };
 
-export const shareStageUrl = (grid: GridCell[][], panels: Panel[]) => {
+export const shareStageUrl = (grid: Grid, panels: Panel[]) => {
   const stageData = encodeStageToUrl(grid, panels);
   const url = `${window.location.origin}/stage?${stageData}`;
   navigator.clipboard.writeText(url);
@@ -57,50 +51,50 @@ export const decodeStageFromUrl = (stageData: string) => {
   const cellsWidth = parseInt(cellsWidthMatch?.[1] || "0", 10);
   const cellsGridString = cellsGridMatch?.[1] || "";
 
-  // グリッドデータをデコード
+  const cellDefinitionKeys = Object.keys(CELL_DEFINITIONS) as CellDefinitionKey[];
+
+  // 型ガード
+  const isCellSideInfo = (v: unknown): v is CellSideInfo =>
+    typeof v === "object" && v !== null && "code" in v;
+
   const decodeCellGrid = (gridString: string): GridCell[] => {
     const cells: GridCell[] = [];
     let i = 0;
+
     while (i < gridString.length) {
       const currentChar = gridString[i];
 
-      const cellType = Object.keys(CELL_DEFINITIONS).find((type) =>
+      const cellType = cellDefinitionKeys.find((type) =>
         Object.values(CELL_DEFINITIONS[type]).some(
-          (sideInfo) =>
-            typeof sideInfo === "object" &&
-            "code" in sideInfo &&
-            sideInfo.code === currentChar
+          (side) => isCellSideInfo(side) && side.code === currentChar
         )
       );
 
       if (cellType) {
         let side: GridCell["side"] = "neutral";
 
-        Object.entries(CELL_DEFINITIONS[cellType]).forEach(([key, value]) => {
-          if (
-            key !== "label" &&
-            key !== "color" &&
-            typeof value === "object" &&
-            value &&
-            "code" in value &&
-            value.code === currentChar
-          ) {
+        (
+          Object.entries(CELL_DEFINITIONS[cellType]) as [
+            keyof CellDefinition,
+            unknown
+          ][]
+        ).forEach(([key, value]) => {
+          if (isCellSideInfo(value) && value.code === currentChar) {
             side = key as GridCell["side"];
           }
         });
 
-        cells.push({ type: cellType as CellDefinitionKey, side });
+        cells.push({ type: cellType, side });
       } else {
-        // Fallback to Empty if no matching cell type
         cells.push({ type: "Empty", side: "neutral" });
       }
 
       i += 1;
     }
+
     return cells;
   };
 
-  // グリッドデータをデコード（矢印の処理を改善）
   const decodePanelGrid = (gridString: string): CellType[] => {
     const cells: CellType[] = [];
     let i = 0;

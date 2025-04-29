@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GridState, GridCell } from "../../components/types";
+import { GridState, Grid, GridCell } from "@/types/grid";
 
 const initialState: GridState = {
     grid: [
@@ -25,7 +25,7 @@ export const gridSlice = createSlice({
     },
 
     // ロード
-    loadGrid: (state, action: PayloadAction<GridCell[][]>) => {
+    loadGrid: (state, action: PayloadAction<Grid>) => {
         state.grid = action.payload;
     },
 

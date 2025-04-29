@@ -5,7 +5,9 @@ export type GridCell = {
   side: 'neutral' | 'front' | 'back';
 };
 
+export type Grid = GridCell[][];
+
 export interface GridState {
-  grid: GridCell[][];
-  gridHistory: GridCell[][][];
+  grid: Grid;
+  gridHistory: Grid[];
 }
