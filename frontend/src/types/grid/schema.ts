@@ -19,7 +19,4 @@ export type GridCell = {
 
 export type Grid = GridCell[][];
 
-export interface GridState {
-  grid: Grid;
-  gridHistory: Grid[];
-}
+
