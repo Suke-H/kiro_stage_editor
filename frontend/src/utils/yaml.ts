@@ -1,6 +1,7 @@
 import { parse, stringify } from "yaml";
 
-import { PanelCellTypeKey, GridCellKey } from "@/types/cell";
+import { PanelCellTypeKey } from "@/types/panel";
+import { GridCellKey } from "@/types/grid";
 import { Panel } from "@/types/panel";
 import { Grid, GridCell } from "@/types/grid";
 

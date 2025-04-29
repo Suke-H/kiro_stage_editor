@@ -9,7 +9,7 @@ import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 
-import { PanelCellTypeKey } from "@/types/cell";
+import { PanelCellTypeKey } from "@/types/panel";
 
 export const NewPanelCreator: React.FC = () => {
   const dispatch = useDispatch();

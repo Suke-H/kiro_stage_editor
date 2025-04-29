@@ -1,5 +1,6 @@
 import { Panel } from "../panel";
-import { GridCellKey, PanelCellTypeKey } from "../cell";
+import { GridCellKey } from "@/types/grid";
+import { PanelCellTypeKey } from "@/types/panel";
 
 export interface CellTypeState {
   selectedCellType: GridCellKey;
