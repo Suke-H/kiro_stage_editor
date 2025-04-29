@@ -65,7 +65,7 @@ export const PanelList: React.FC = () => {
             <div
               className="grid gap-1"
               style={{
-                gridTemplateColumns: `repeat(${panel.cells[0].length}, 40px)`,
+                gridTemplateColumns: `repeat(${panel.cells[0]?.length ?? 0}, 40px)`,
               }}
             >
               {panel.cells.map((row, rowIndex) =>

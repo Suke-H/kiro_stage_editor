@@ -187,7 +187,7 @@ export const Grid: React.FC = () => {
           <div
             className="grid"
             style={{
-              gridTemplateColumns: `repeat(${grid[0].length}, 40px)`,
+              gridTemplateColumns: `repeat(${grid[0]?.length ?? 0}, 40px)`,
               gridTemplateRows: `repeat(${grid.length}, 40px)`,
               gap: "4px",
             }}

@@ -88,7 +88,7 @@ export const NewPanelCreator: React.FC = () => {
         <div
           className="grid mt-4 mb-4 ml-1"
           style={{
-            gridTemplateColumns: `repeat(${newPanelGrid[0].length}, 40px)`,
+            gridTemplateColumns: `repeat(${newPanelGrid[0]?.length ?? 0}, 40px)`,
             gap: "4px",
           }}
         >
