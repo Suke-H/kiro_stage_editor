@@ -1,0 +1,53 @@
+{
+  "$ref": "#/definitions/Grid",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Grid": {
+      "items": {
+        "items": {
+          "$ref": "#/definitions/GridCell"
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "GridCell": {
+      "additionalProperties": false,
+      "properties": {
+        "side": {
+          "enum": [
+            "neutral",
+            "front",
+            "back"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/GridCellKey"
+        }
+      },
+      "required": [
+        "type",
+        "side"
+      ],
+      "type": "object"
+    },
+    "GridCellKey": {
+      "enum": [
+        "Flip",
+        "Empty",
+        "Normal",
+        "Start",
+        "Goal",
+        "DummyGoal",
+        "Crow",
+        "Wolf",
+        "Warp",
+        "ArrowUpDown",
+        "ArrowRightLeft",
+        "Rest"
+      ],
+      "type": "string"
+    }
+  }
+}

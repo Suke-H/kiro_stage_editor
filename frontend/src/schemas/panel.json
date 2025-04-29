@@ -1,0 +1,35 @@
+{
+  "$ref": "#/definitions/Panel",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Panel": {
+      "additionalProperties": false,
+      "properties": {
+        "cells": {
+          "items": {
+            "items": {
+              "$ref": "#/definitions/PanelCellTypeKey"
+            },
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "cells"
+      ],
+      "type": "object"
+    },
+    "PanelCellTypeKey": {
+      "enum": [
+        "White",
+        "Black"
+      ],
+      "type": "string"
+    }
+  }
+}
