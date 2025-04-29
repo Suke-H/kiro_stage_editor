@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { PanelListState, Panel } from "../../components/types";
+import { Panel } from "@/types/panel"
+import { PanelListState } from "@/types/store/states";
 
 const initialState: PanelListState = {
   panels: [

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { CreatePanelState } from "../../components/types";
+import { CreatePanelState } from "@/types/store/states";
 
 const initialState: CreatePanelState = {
   newPanelGrid: Array(3)

@@ -1,5 +1,5 @@
 import { Panel } from '../panel';
-import { CellDefinitionKey } from '../cell';
+import { CellDefinitionKey, CellType } from '../cell';
 
 export interface CellTypeState {
   selectedCellType: CellDefinitionKey;
@@ -11,13 +11,18 @@ export interface PanelListState {
 }
 
 export interface CreatePanelState {
-  newPanelGrid: string[][]; // or CellType[][]
+  newPanelGrid: CellType[][]
 }
 
 export interface PanelPlacementMode {
   panel: Panel | null;
   highlightedCell: { row: number; col: number } | null;
 }
+
+export type PanelPlacementModeType = {
+  panel: Panel | null;
+  highlightedCell: { row: number; col: number } | null;
+};
 
 export interface PanelPlacementState {
   panelPlacementMode: PanelPlacementMode;
