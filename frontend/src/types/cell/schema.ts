@@ -5,10 +5,7 @@ import  { CellTypeKey } from './constants';
 export type CellType           = CellTypeKey;
 
 export interface CellTypeInfo {
-  label:     string;
-  color:     string;
   code:      string;
-  imagePath: string;
 }
 
 export type CellSideInfo       = {

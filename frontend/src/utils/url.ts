@@ -100,42 +100,14 @@ export const decodeStageFromUrl = (stageData: string) => {
     let i = 0;
     while (i < gridString.length) {
       const currentChar = gridString[i];
+      
+      const cellType =
+        (Object.keys(CELL_TYPES).find(
+          (key) => CELL_TYPES[key as CellType].code === currentChar
+        ) as CellType) || "Empty";
 
-      // 'a'で始まる場合は矢印として処理
-      if (currentChar === "a" && i + 1 < gridString.length) {
-        const direction = gridString[i + 1];
-        let arrowType: CellType;
-
-        switch (direction) {
-          case "u":
-            arrowType = "ArrowUp";
-            break;
-          case "d":
-            arrowType = "ArrowDown";
-            break;
-          case "l":
-            arrowType = "ArrowLeft";
-            break;
-          case "r":
-            arrowType = "ArrowRight";
-            break;
-          default:
-            // 不正な方向の場合はEmptyとして扱う
-            arrowType = "Empty";
-        }
-
-        cells.push(arrowType);
-        i += 2; // 矢印は2文字分進める
-      } else {
-        // 通常のセル処理
-        const cellType =
-          (Object.keys(CELL_TYPES).find(
-            (key) => CELL_TYPES[key as CellType].code === currentChar
-          ) as CellType) || "Empty";
-
-        cells.push(cellType);
-        i += 1; // 1文字分進める
-      }
+      cells.push(cellType);
+      i += 1; // 1文字分進める
     }
     return cells;
   };

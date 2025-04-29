@@ -74,7 +74,7 @@ export const importStageFromYaml = async (
         // パネル変換とトリム
         const panels: Panel[] = Panels.map((panel: PanelYamlData, index: number) => {
           const panelGrid: CellType[][] = Array.from({ length: Height }, () =>
-            Array.from({ length: Width }, () => 'Empty')
+            Array.from({ length: Width }, () => 'White')
           );
           panel.Coordinates.forEach(({ X, Y }) => {
             panelGrid[Y][X] = 'Black';
