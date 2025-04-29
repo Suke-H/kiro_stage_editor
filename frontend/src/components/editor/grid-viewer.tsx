@@ -8,11 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GridCell, Grid } from "@/types/grid";
 import { Panel } from "@/types/panel";
 import { StudioMode } from "@/types/store";
-import {
-  CELL_DEFINITIONS,
-  CellDefinitionKey,
-  CellSideInfo,
-} from "@/types/cell";
+import { GRID_CELL_TYPES, GridCellKey, CellSideInfo } from "@/types/grid";
 
 import { MatrixOperationPart } from "./grid/matrix-operation-part";
 import { StageDataIOPart } from "./grid/stage-data-io-part";
@@ -25,7 +21,7 @@ export const GridViewer: React.FC = () => {
   const grid: Grid = useSelector((state: RootState) => state.grid.grid);
   const selectedCellType = useSelector(
     (state: RootState) => state.cellType.selectedCellType
-  ) as CellDefinitionKey;
+  ) as GridCellKey;
   const panelPlacementMode = useSelector(
     (state: RootState) => state.panelPlacement.panelPlacementMode
   );
@@ -36,7 +32,7 @@ export const GridViewer: React.FC = () => {
     // セル配置モード
     // （エディタモード、かつ配置パネル未選択）
     if (studioMode === StudioMode.Editor && placingPanel === null) {
-      const cellDef = CELL_DEFINITIONS[selectedCellType];
+      const cellDef = GRID_CELL_TYPES[selectedCellType];
 
       // セル選択がFlipの場合：sideを反転
       if (selectedCellType === "Flip") {
@@ -105,7 +101,7 @@ export const GridViewer: React.FC = () => {
     rowIndex: number,
     colIndex: number
   ) => {
-    const cellDef = CELL_DEFINITIONS[cell.type];
+    const cellDef = GRID_CELL_TYPES[cell.type];
 
     // セルの状態に応じた情報を取得
     const sideInfo: CellSideInfo | undefined = cellDef[cell.side];
@@ -165,7 +161,7 @@ export const GridViewer: React.FC = () => {
           }
 
           // // neutralなセルには置けない（開始、ゴール、ダミーゴールなど）
-          // const cellDef = CELL_DEFINITIONS[targetCell.type];
+          // const cellDef = GRID_CELL_TYPES[targetCell.type];
           // if ('neutral' in cellDef) {
           //   return false;
           // }

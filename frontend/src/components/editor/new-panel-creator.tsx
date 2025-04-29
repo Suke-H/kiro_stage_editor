@@ -9,11 +9,11 @@ import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 
-import { CellType } from "@/types/cell";
+import { PanelCellTypeKey } from "@/types/panel";
 
 export const NewPanelCreator: React.FC = () => {
   const dispatch = useDispatch();
-  const newPanelGrid: CellType[][] = useSelector(
+  const newPanelGrid: PanelCellTypeKey[][] = useSelector(
     (state: RootState) => state.createPanel.newPanelGrid
   );
 
@@ -88,7 +88,9 @@ export const NewPanelCreator: React.FC = () => {
         <div
           className="grid mt-4 mb-4 ml-1"
           style={{
-            gridTemplateColumns: `repeat(${newPanelGrid[0]?.length ?? 0}, 40px)`,
+            gridTemplateColumns: `repeat(${
+              newPanelGrid[0]?.length ?? 0
+            }, 40px)`,
             gap: "4px",
           }}
         >

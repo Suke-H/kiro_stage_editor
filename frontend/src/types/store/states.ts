@@ -1,8 +1,15 @@
-import { Panel } from '../panel';
-import { CellDefinitionKey, CellType } from '../cell';
+import { Grid } from "../grid";
+import { Panel } from "../panel";
+import { GridCellKey } from "@/types/grid";
+import { PanelCellTypeKey } from "@/types/panel";
+
+export interface GridState {
+  grid: Grid;
+  gridHistory: Grid[];
+}
 
 export interface CellTypeState {
-  selectedCellType: CellDefinitionKey;
+  selectedCellType: GridCellKey;
 }
 
 export interface PanelListState {
@@ -11,7 +18,7 @@ export interface PanelListState {
 }
 
 export interface CreatePanelState {
-  newPanelGrid: CellType[][]
+  newPanelGrid: PanelCellTypeKey[][];
 }
 
 export interface PanelPlacementMode {
@@ -29,14 +36,14 @@ export interface PanelPlacementState {
 }
 
 export enum StudioMode {
-  Editor = 'editor',
-  Play   = 'play',
-  Solver = 'solver',
+  Editor = "editor",
+  Play = "play",
+  Solver = "solver",
 }
 
 export enum StudioModeInEditor {
-  Editor = 'editor',
-  Play = 'play'
+  Editor = "editor",
+  Play = "play",
 }
 
 export interface StudioModeState {
