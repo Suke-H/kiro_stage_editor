@@ -1,10 +1,10 @@
-import { parse, stringify } from 'yaml';
+import { parse, stringify } from "yaml";
 
-import { CellType, CellDefinitionKey } from "@/types/cell";
+import { PanelCellTypeKey, GridCellKey } from "@/types/cell";
 import { Panel } from "@/types/panel";
 import { Grid, GridCell } from "@/types/grid";
 
-import { capitalize, uncapitalize } from './string-operations';
+import { capitalize, uncapitalize } from "./string-operations";
 
 interface CellYamlData {
   Type: string;
@@ -16,22 +16,25 @@ interface PanelYamlData {
 }
 
 const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
-  return { 
-    Type: cell.type, 
-    CellSide: capitalize(cell.side)
+  return {
+    Type: cell.type,
+    CellSide: capitalize(cell.side),
   };
 };
 
-export const exportStageToYaml = (
-  grid: Grid,
-  panels: Panel[]
-) => {
-  const cells = grid.map(row => row.map(cell => transformCellToYamlFormat(cell)));
+export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
+  const cells = grid.map((row) =>
+    row.map((cell) => transformCellToYamlFormat(cell))
+  );
 
-  const panelCoordinates = panels.map(panel => ({
-    Coordinates: panel.cells.flatMap((row, y) =>
-      row.map((cell, x) => cell === 'Black' ? { X: x, Y: y } : null).filter(coord => coord !== null)
-    ).flat(),
+  const panelCoordinates = panels.map((panel) => ({
+    Coordinates: panel.cells
+      .flatMap((row, y) =>
+        row
+          .map((cell, x) => (cell === "Black" ? { X: x, Y: y } : null))
+          .filter((coord) => coord !== null)
+      )
+      .flat(),
   }));
 
   const yamlStageData = {
@@ -42,11 +45,11 @@ export const exportStageToYaml = (
   };
 
   const yamlString = stringify(yamlStageData);
-  const blob = new Blob([yamlString], { type: 'text/yaml' });
+  const blob = new Blob([yamlString], { type: "text/yaml" });
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = url;
-  link.download = 'stage.yaml';
+  link.download = "stage.yaml";
   link.click();
 };
 
@@ -66,31 +69,34 @@ export const importStageFromYaml = async (
         // グリッド変換
         const grid: Grid = Cells.map((row: CellYamlData[]) =>
           row.map((cell: CellYamlData) => ({
-            type: cell.Type as CellDefinitionKey,
-            side: uncapitalize(cell.CellSide) as GridCell['side']
+            type: cell.Type as GridCellKey,
+            side: uncapitalize(cell.CellSide) as GridCell["side"],
           }))
         );
 
         // パネル変換とトリム
-        const panels: Panel[] = Panels.map((panel: PanelYamlData, index: number) => {
-          const panelGrid: CellType[][] = Array.from({ length: Height }, () =>
-            Array.from({ length: Width }, () => 'White')
-          );
-          panel.Coordinates.forEach(({ X, Y }) => {
-            panelGrid[Y][X] = 'Black';
-          });
-          return {
-            id: `panel-${index}`,
-            cells: panelGrid,
-          };
-        });
+        const panels: Panel[] = Panels.map(
+          (panel: PanelYamlData, index: number) => {
+            const panelGrid: PanelCellTypeKey[][] = Array.from(
+              { length: Height },
+              () => Array.from({ length: Width }, () => "White")
+            );
+            panel.Coordinates.forEach(({ X, Y }) => {
+              panelGrid[Y][X] = "Black";
+            });
+            return {
+              id: `panel-${index}`,
+              cells: panelGrid,
+            };
+          }
+        );
 
         // パネルのトリム処理
         const trimmedPanels = trimPanels(panels);
 
         resolve([grid, trimmedPanels]);
       } catch (error) {
-        console.error('Error importing YAML:', error);
+        console.error("Error importing YAML:", error);
         reject(error);
       }
     };
@@ -98,15 +104,17 @@ export const importStageFromYaml = async (
   });
 };
 
-
 // Panels全体をトリムする関数
 const trimPanels = (panels: Panel[]): Panel[] => panels.map(trimPanelCells);
 
 const trimPanelCells = (panel: Panel): Panel => {
   // "Black"セルの座標を取得
   const coordinates = panel.cells.flatMap((row, rowIndex) =>
-    row.map((cell, colIndex) => (cell === 'Black' ? { X: colIndex, Y: rowIndex } : null))
-      .filter(coord => coord !== null)
+    row
+      .map((cell, colIndex) =>
+        cell === "Black" ? { X: colIndex, Y: rowIndex } : null
+      )
+      .filter((coord) => coord !== null)
   );
 
   if (coordinates.length === 0) {
@@ -115,14 +123,15 @@ const trimPanelCells = (panel: Panel): Panel => {
   }
 
   // x, yの最小値と最大値を計算
-  const minX = Math.min(...coordinates.map(coord => coord!.X));
-  const maxX = Math.max(...coordinates.map(coord => coord!.X));
-  const minY = Math.min(...coordinates.map(coord => coord!.Y));
-  const maxY = Math.max(...coordinates.map(coord => coord!.Y));
+  const minX = Math.min(...coordinates.map((coord) => coord!.X));
+  const maxX = Math.max(...coordinates.map((coord) => coord!.X));
+  const minY = Math.min(...coordinates.map((coord) => coord!.Y));
+  const maxY = Math.max(...coordinates.map((coord) => coord!.Y));
 
   // トリムされたセルを作成
-  const trimmedCells = panel.cells.slice(minY, maxY + 1)
-    .map(row => row.slice(minX, maxX + 1));
+  const trimmedCells = panel.cells
+    .slice(minY, maxY + 1)
+    .map((row) => row.slice(minX, maxX + 1));
 
   return {
     id: panel.id,

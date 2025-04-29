@@ -1,8 +1,6 @@
-export type CellType =
-  | 'White' 
-  | 'Black' 
+export type PanelCellTypeKey = "White" | "Black";
 
 export interface Panel {
-  id:    string;
-  cells: CellType[][];
+  id: string;
+  cells: PanelCellTypeKey[][];
 }

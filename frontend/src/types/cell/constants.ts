@@ -1,15 +1,15 @@
 import type { CellDefinition, CellTypeInfo } from './schema';
 
-export type CellTypeKey =
+export type PanelCellTypeKey =
   | 'White' 
   | 'Black' 
 
-export const CELL_TYPES: Record<CellTypeKey, CellTypeInfo> = {
+export const PANEL_CELL_TYPES: Record<PanelCellTypeKey, CellTypeInfo> = {
   White:      { code: 'w' },
   Black:      { code: 'b' },
 } as const;
 
-export type CellDefinitionKey =
+export type GridCellKey =
   | 'Flip'
   | 'Empty'
   | 'Normal'
@@ -23,7 +23,7 @@ export type CellDefinitionKey =
   | 'ArrowRightLeft'
   | 'Rest';
 
-export const CELL_DEFINITIONS: Record<CellDefinitionKey, CellDefinition> = {
+export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
   Flip:       { label: '反転',    color: 'bg-black' },
   Empty:      { label: '空',      color: 'bg-white',   neutral: { code: 'e', picture: 'empty.png' } },
   Normal:     { label: '通常床',  color: 'bg-[#DAE0EA]', front: { code: 'w', picture: 'white.png' }, back: { code: 'b', picture: 'black.png' } },

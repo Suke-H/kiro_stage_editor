@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StudioModeInEditor } from "@/types/store";
-import { CellDefinitionKey, CELL_DEFINITIONS } from "@/types/cell/";
+import { GridCellKey, GRID_CELL_TYPES } from "@/types/grid/";
 import { cellTypeSlice } from "../../store/slices/cell-type-slice";
 import { studioModeInEditorSlice } from "../../store/slices/studio-mode-in-editor-slice";
 import { RootState } from "../../store";
@@ -16,7 +16,7 @@ export const CellTypeSelector: React.FC = () => {
   );
 
   // セルをクリック -> 「Editor内スタジオモード」をEditorに変更し、セルタイプを変更
-  const handleCellTypeChange = (cellType: CellDefinitionKey) => {
+  const handleCellTypeChange = (cellType: GridCellKey) => {
     dispatch(
       studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Editor)
     );
@@ -30,18 +30,18 @@ export const CellTypeSelector: React.FC = () => {
       </CardHeader>
       {/* 画面幅に応じてコラムの数を変更 */}
       <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-        {(Object.keys(CELL_DEFINITIONS) as CellDefinitionKey[]).map((type) => (
+        {(Object.keys(GRID_CELL_TYPES) as GridCellKey[]).map((type) => (
           <Button
             key={type}
             variant={selectedCellType === type ? "default" : "outline"}
-            className={`w-full ${CELL_DEFINITIONS[type].color} ${
-              CELL_DEFINITIONS[type].color === "bg-white"
+            className={`w-full ${GRID_CELL_TYPES[type].color} ${
+              GRID_CELL_TYPES[type].color === "bg-white"
                 ? "text-black"
                 : "text-white"
             } truncate`}
             onClick={() => handleCellTypeChange(type)}
           >
-            {CELL_DEFINITIONS[type].label}
+            {GRID_CELL_TYPES[type].label}
           </Button>
         ))}
       </CardContent>

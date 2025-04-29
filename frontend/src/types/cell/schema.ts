@@ -1,8 +1,6 @@
-// import { CELL_TYPES }  from './constants';
-import  { CellTypeKey } from './constants';
+import  { PanelCellTypeKey } from './constants';
 
-// export type CellType           = keyof typeof CELL_TYPES;
-export type CellType           = CellTypeKey;
+export type PanelCellType           = PanelCellTypeKey;
 
 export interface CellTypeInfo {
   code:      string;
