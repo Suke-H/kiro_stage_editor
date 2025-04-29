@@ -1,13 +1,13 @@
 // studio-mode-slice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { StudioModeInEditor, StudioModeStateInEditor } from '../../components/types';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { StudioModeInEditor, StudioModeStateInEditor } from "@/types/store";
 
 const initialState: StudioModeStateInEditor = {
   studioModeInEditor: StudioModeInEditor.Editor,
 };
 
 export const studioModeInEditorSlice = createSlice({
-  name: 'studioModeInEditor',
+  name: "studioModeInEditor",
   initialState,
   reducers: {
     switchMode(state, action: PayloadAction<StudioModeInEditor>) {

@@ -1,6 +1,6 @@
 // studio-mode-slice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { StudioMode, StudioModeState } from '../../components/types';
+import { StudioMode, StudioModeState } from '@/types/store';
 
 const initialState: StudioModeState = {
   studioMode: StudioMode.Editor,

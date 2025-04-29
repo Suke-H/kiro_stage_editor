@@ -5,7 +5,8 @@ import { RootState } from "../store";
 import { gridSlice } from '../store/slices/grid-slice';
 import { panelListSlice } from '../store/slices/panel-list-slice';
 import { studioModeSlice }  from "../store/slices/studio-mode-slice";
-import { StudioMode } from "../components/types";
+
+import { StudioMode } from "../types/store";
 
 import EditorPage from "@/components/editor-page";
 import PlayPage from "./play-page";

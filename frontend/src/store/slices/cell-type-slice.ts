@@ -1,16 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { CellDefinitions } from "../../constants/cell-types";
-import { CellTypeState } from "../../components/types";
+import { CellDefinitionKey } from "@/types/cell"
+import { CellTypeState } from "@/types/store/states";
 
 const initialState: CellTypeState = {
-  selectedCellType: "Black",
+  selectedCellType: "Normal",
 };
 
 export const cellTypeSlice = createSlice({
   name: "cellType",
   initialState,
   reducers: {
-    changeCellType: (state, action: PayloadAction<CellDefinitions>) => {
+    changeCellType: (state, action: PayloadAction<CellDefinitionKey>) => {
       state.selectedCellType = action.payload;
     },
   },

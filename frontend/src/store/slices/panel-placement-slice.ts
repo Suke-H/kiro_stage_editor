@@ -1,8 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {
-  PanelPlacementState,
-  PanelPlacementModeType,
-} from "../../components/types";
+import { PanelPlacementState, PanelPlacementModeType } from "@/types/store/states";
 
 const initialState: PanelPlacementState = {
   panelPlacementMode: {

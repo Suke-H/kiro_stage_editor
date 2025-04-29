@@ -1,17 +1,17 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { gridSlice } from '../store/slices/grid-slice';
-import { panelListSlice } from '../store/slices/panel-list-slice';
-import { panelPlacementSlice } from '../store/slices/panel-placement-slice';
+import { gridSlice } from "../store/slices/grid-slice";
+import { panelListSlice } from "../store/slices/panel-list-slice";
+import { panelPlacementSlice } from "../store/slices/panel-placement-slice";
 import { studioModeInEditorSlice } from "../store/slices/studio-mode-in-editor-slice";
-import { RootState } from '../store';
-import { StudioModeInEditor } from "./types";
+import { RootState } from "../store";
+import { StudioModeInEditor } from "@/types/store";
 
-import { CellTypeSelector } from '@/components/editor/cell-type-selector';
-import { Grid } from '@/components/editor/grid';
-import { PanelList } from '@/components/editor/panel-list';
-import { NewPanelCreator } from '@/components/editor/new-panel-creator';
+import { CellTypeSelector } from "@/components/editor/cell-type-selector";
+import { GridViewer } from "@/components/editor/grid-viewer";
+import { PanelList } from "@/components/editor/panel-list";
+import { NewPanelCreator } from "@/components/editor/new-panel-creator";
 
 const EditorPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -24,12 +24,14 @@ const EditorPage: React.FC = () => {
   useEffect(() => {
     dispatch(gridSlice.actions.reset());
     dispatch(panelListSlice.actions.reset());
-    
+
     // 最後に履歴を完全クリア
     dispatch(gridSlice.actions.clearHistory());
 
     // 「Editor内スタジオモード」をEditorに変更
-    dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Editor));
+    dispatch(
+      studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Editor)
+    );
   }, [dispatch]);
 
   // 「Editor内スタジオモード」を監視して、Editorに変わった時、履歴をクリア
@@ -47,7 +49,7 @@ const EditorPage: React.FC = () => {
     <div className="flex flex-col gap-4 md:flex-row justify-start">
       <div className="flex gap-4">
         <CellTypeSelector />
-        <Grid />
+        <GridViewer />
       </div>
 
       <div className="flex-1 flex flex-col gap-4">
