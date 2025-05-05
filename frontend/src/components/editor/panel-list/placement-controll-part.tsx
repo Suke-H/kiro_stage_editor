@@ -31,9 +31,40 @@ export const PlacementControllPart: React.FC = () => {
   };
 
   // 「再生」メソッド
-  const playSimulation = () => {
-      alert("再生");
-  }
+  // const playSimulation = () => {
+    
+  // }
+  // api/judgeを実施
+  // 下記を参考に
+    // useEffect(() => {
+    //   const checkApiConnection = async () => {
+    //     try {
+    //       const response = await fetch('/api/health');
+    //       if (!response.ok) {
+    //         throw new Error(`HTTP error! Status: ${response.status}`);
+    //       }
+    //       const data = await response.json();
+    //       console.log('API疎通確認成功:', data);
+    //     } catch (error) {
+    //       console.error('API疎通確認エラー:', error);
+    //     }
+    //   };
+    //   checkApiConnection();
+    // }, []);
+
+    const playSimulation = async () => {
+      try {
+        const response = await fetch('/api/judge');
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('API疎通確認成功:', data);
+      } catch (error) {
+        console.error('API疎通確認エラー:', error);
+      }
+    };
+    
 
   return (
     <div className="flex gap-2 mb-10">
