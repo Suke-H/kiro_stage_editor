@@ -1,0 +1,52 @@
+{
+  "$ref": "#/definitions/PathResult",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Path": {
+      "items": {
+        "$ref": "#/definitions/Vector"
+      },
+      "type": "array"
+    },
+    "PathResult": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/definitions/Path"
+        },
+        "result": {
+          "$ref": "#/definitions/Result"
+        }
+      },
+      "required": [
+        "result",
+        "path"
+      ],
+      "type": "object"
+    },
+    "Result": {
+      "enum": [
+        "NoPath",
+        "HasClearPath",
+        "HasFailPath"
+      ],
+      "type": "string"
+    },
+    "Vector": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "type": "object"
+    }
+  }
+}

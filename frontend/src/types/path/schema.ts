@@ -1,4 +1,4 @@
-export enum PathResult{
+export enum Result{
   NoPath = "NoPath",
   HasClearPath = "HasClearPath",
   HasFailPath = "HasFailPath",
@@ -10,3 +10,8 @@ export type Vector = {
 };
 
 export type Path = Vector[];
+
+export interface PathResult{
+  result: Result;
+  path: Path;
+}
