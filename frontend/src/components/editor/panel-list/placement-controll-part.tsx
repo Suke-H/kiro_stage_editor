@@ -30,6 +30,11 @@ export const PlacementControllPart: React.FC = () => {
     );
   };
 
+  // 「再生」メソッド
+  const playSimulation = () => {
+      alert("再生");
+  }
+
   return (
     <div className="flex gap-2 mb-10">
       <Button
@@ -43,10 +48,17 @@ export const PlacementControllPart: React.FC = () => {
       <Button
         onClick={resetPanelPlacement}
         disabled={gridHistory.length < 1}
-        variant="destructive"
+        variant="secondary"
         className="flex items-center gap-2 w-20 text-left"      
       >
         リセット
+      </Button>
+      <Button
+        onClick={playSimulation}
+        variant="destructive"
+        className="flex items-center gap-2 w-20 text-left"      
+      >
+        再生
       </Button>
     </div>
   );
