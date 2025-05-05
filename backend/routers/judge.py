@@ -1,23 +1,23 @@
-# routers/judge.py
-# --- Pydantic v1 compatibility patch for importing path models -----
 import pydantic
 import pydantic.v1
-# path.py uses __root__ v1 style, so swap BaseModel before importing it
 pydantic.BaseModel = pydantic.v1.BaseModel
 pydantic.Extra     = pydantic.v1.Extra
-# ------------------------------------------------------------------
 
 from fastapi import APIRouter
+from fastapi import Request, Body
 from fastapi.encoders import jsonable_encoder
 from models.path import Path, PathResult, Result, Vector
+from models.grid import Grid
 
 router = APIRouter()
 
-@router.get("/judge")
-async def judge_check():
-    """Return status=ok and a PathResult (from models.path) without modifying path.py"""
+@router.post("/judge")
+async def judge_check(grid: Grid):
+    # raw = await request.body()
+    # print(f"Raw request body: {raw!r}")
 
-    # Build example PathResult using v1-compatible models
+    print(f"Grid: {grid}")
+
     example = PathResult(
         path=Path(__root__=[
             Vector(x=0, y=0),
