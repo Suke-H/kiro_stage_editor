@@ -11,6 +11,8 @@ from pydantic import BaseModel, ConfigDict, RootModel
 
 
 class Result(Enum):
+    NoStart = 'NoStart'
+    NoGoal = 'NoGoal'
     NoPath = 'NoPath'
     HasClearPath = 'HasClearPath'
     HasFailPath = 'HasFailPath'

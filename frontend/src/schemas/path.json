@@ -26,6 +26,8 @@
     },
     "Result": {
       "enum": [
+        "NoStart",
+        "NoGoal",
         "NoPath",
         "HasClearPath",
         "HasFailPath"
