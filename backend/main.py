@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import health
+from routers import judge
 
 app = FastAPI(title="Kiro Stage Editor Logic API")
 
@@ -13,3 +14,5 @@ app.add_middleware(
 )
 
 app.include_router(health.router, prefix="/api")
+app.include_router(judge.router, prefix="/api")
+

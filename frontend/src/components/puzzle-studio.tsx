@@ -23,7 +23,7 @@ const PuzzleStudio: React.FC = () => {
   useEffect(() => {
     const checkApiConnection = async () => {
       try {
-        const response = await fetch('/api/health'); // FastAPIのエンドポイント
+        const response = await fetch('/api/health');
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
