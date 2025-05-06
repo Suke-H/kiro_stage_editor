@@ -1,30 +1,20 @@
-import pydantic
-# import pydantic.v1
-# pydantic.BaseModel = pydantic.v1.BaseModel
-# pydantic.Extra     = pydantic.v1.Extra
-
-from fastapi import APIRouter
-from fastapi import Request, Body
+from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
+
 from models.path import Path, PathResult, Result, Vector
-from models.grid import Grid
+from models.grid import Grid, GridCellKey, Side
+
+from logic.find_path import find_path
 
 router = APIRouter()
 
 @router.post("/judge")
 async def judge_check(grid: Grid):
-    print(f"Grid: {grid}")
+    """
+    - Start, Goal が無ければ NoPath
+    - 経路が見つかれば HasClearPath
+    """
 
-    example = PathResult(
-        path=Path([
-            Vector(x=0, y=0),
-            Vector(x=1, y=1),
-            Vector(x=2, y=2),
-        ]),
-        result=Result.HasClearPath,
-    )
-
-    return {
-        "status": "ok",
-        "data": jsonable_encoder(example),
-    }
+    path_result = find_path(grid)
+    
+    return {"status": "ok", "data": jsonable_encoder(path_result)}
