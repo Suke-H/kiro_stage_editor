@@ -1,0 +1,71 @@
+{
+  "$ref": "#/definitions/PanelPlacement",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Panel": {
+      "additionalProperties": false,
+      "properties": {
+        "cells": {
+          "items": {
+            "items": {
+              "$ref": "#/definitions/PanelCellTypeKey"
+            },
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "cells"
+      ],
+      "type": "object"
+    },
+    "PanelCellTypeKey": {
+      "enum": [
+        "White",
+        "Black"
+      ],
+      "type": "string"
+    },
+    "PanelPlacement": {
+      "additionalProperties": false,
+      "properties": {
+        "highlight": {
+          "$ref": "#/definitions/Vector"
+        },
+        "panel": {
+          "$ref": "#/definitions/Panel"
+        },
+        "point": {
+          "$ref": "#/definitions/Vector"
+        }
+      },
+      "required": [
+        "panel",
+        "highlight",
+        "point"
+      ],
+      "type": "object"
+    },
+    "Vector": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "type": "object"
+    }
+  }
+}

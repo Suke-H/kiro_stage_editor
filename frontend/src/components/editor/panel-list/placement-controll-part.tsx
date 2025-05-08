@@ -5,7 +5,7 @@ import { gridSlice } from "../../../store/slices/grid-slice";
 import { RootState } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
 
-import { PlaySimulateAsync } from "./play-simulate";
+import { PlaySimulateAsync } from "@/api/play-simulate";
 
 export const PlacementControllPart: React.FC = () => {
   const dispatch = useDispatch();

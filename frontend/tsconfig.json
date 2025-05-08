@@ -10,6 +10,7 @@
       "@/components/*": ["./src/components/*"],
       "@/lib/*": ["./src/lib/*"],
       "@/types/*": ["./src/types/*"],
+      "@/api/*": ["./src/api/*"],
     }
   }
 }

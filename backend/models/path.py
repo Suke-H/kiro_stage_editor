@@ -22,9 +22,8 @@ class Vector(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    x: float
-    y: float
-
+    x: int
+    y: int
 
 class Path(RootModel[List[Vector]]):
     root: List[Vector]
