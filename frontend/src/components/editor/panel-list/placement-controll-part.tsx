@@ -5,14 +5,12 @@ import { gridSlice } from "../../../store/slices/grid-slice";
 import { RootState } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
 
-import { PlaySimulateAsync } from "./play-simulate";
-// import { PlaySolveAsync } from "@/api/solve";
+import { PlaySimulateAsync } from "@/api/play-simulate";
 
 export const PlacementControllPart: React.FC = () => {
   const dispatch = useDispatch();
   const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
   const grid = useSelector((state: RootState) => state.grid.grid);
-  // const panels = useSelector((state: RootState) => state.panelList.panels);
   
   // 「1つ戻す」メソッド
   const undoLastPlacement = () => {
@@ -38,7 +36,6 @@ export const PlacementControllPart: React.FC = () => {
   // 「再生」メソッド
   const playSimulation = async () => {
       await PlaySimulateAsync(grid);
-      // await PlaySolveAsync(grid, panels);
   };
     
 

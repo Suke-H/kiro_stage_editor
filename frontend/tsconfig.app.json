@@ -29,7 +29,8 @@
     "paths": {
       "@/components/*": ["./components/*"],
       "@/lib/*": ["./lib/*"],
-      "@/types/*":      ["./types/*"]
+      "@/types/*":["./types/*"],
+      "@/api/*": ["./api/*"],
     }
   },
   "include": ["src"]

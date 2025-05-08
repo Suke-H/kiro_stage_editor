@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
 import { RootState } from "../store";
 
-import { PlaySolveAsync } from "./solve";
+import { PlaySolveAsync } from '@/api/solve';
 
 const SolverPage: React.FC = () => {
 
