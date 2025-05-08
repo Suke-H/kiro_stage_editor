@@ -1,15 +1,23 @@
 # app/routers/solver.py
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
+from pydantic import BaseModel
 from models.grid import Grid
 from models.panel import Panel
 from models.panel_placement import PanelPlacement
-from logic.solve import solve
+from logic.solve import solve_all
+
+from pprint import pprint
 
 router = APIRouter()
 
-@router.post('/solve')
+# class SolveRequest(BaseModel):
+#     grid: Grid
+#     panels: list[Panel]
+class SolveResponse(BaseModel):
+    solutions: list[list[PanelPlacement]]
+
+@router.post('/solve', response_model=SolveResponse)
 async def solver(grid: Grid, panels: list[Panel]):
-    placements = solve(grid, panels)
-    if placements is None:
-        raise HTTPException(status_code=404, detail='No solution')
-    return {'placements': placements}
+    sols = solve_all(grid, panels)
+    pprint(f"sols: {sols}")
+    return SolveResponse(solutions=sols)

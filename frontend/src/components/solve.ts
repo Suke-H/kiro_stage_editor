@@ -2,9 +2,9 @@ import { Grid } from '@/types/grid';
 import { Panel } from '@/types/panel';
 import { PanelPlacement } from '@/types/panel-placement';
 
-export type SolveResponse = {
-  placements: PanelPlacement[];
-};
+export interface SolveResponse {
+    solutions: PanelPlacement[][];
+}
 
 export const PlaySolveAsync = async (
   grid: Grid,
@@ -27,7 +27,7 @@ export const PlaySolveAsync = async (
     }
 
     const json: SolveResponse = await res.json();
-    console.log('Solve placements:', json.placements);
+    console.log('Solve placements:', json.solutions);
     return json;
   } catch (err) {
     console.error('Solve API error:', err);
