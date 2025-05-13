@@ -1,6 +1,8 @@
 
 import { Grid } from '@/types/grid';
-import { PathResult, resultMessages } from '@/types/path';
+import { PathResult } from '@/types/path';
+
+
 
 export const PlaySimulateAsync = async (grid: Grid): Promise<PathResult> => {
   try {
@@ -17,9 +19,9 @@ export const PlaySimulateAsync = async (grid: Grid): Promise<PathResult> => {
     const pathResult: PathResult = response_json.data as PathResult;
     console.log('API疎通確認成功:', pathResult);
 
-    // 対応するResultMessageをポップアップ
-    const resultMessage = resultMessages[pathResult.result];
-    alert(resultMessage);
+    // // 対応するResultMessageをポップアップ
+    // const resultMessage = resultMessages[pathResult.result];
+    // alert(resultMessage);
 
     return pathResult;
 
