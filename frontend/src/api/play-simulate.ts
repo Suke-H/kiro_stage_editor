@@ -1,18 +1,10 @@
 
 import { Grid } from '@/types/grid';
-import { PathResult, resultMessages } from '@/types/path';
+import { PathResult } from '@/types/path';
 
-const PlaySimulate = (pathResult: PathResult) => {
 
-    console.log('PlaySimulate:', pathResult);
 
-    // 対応するResultMessageを取得
-    const resultMessage = resultMessages[pathResult.result];
-    alert(resultMessage);
-
-}
-
-export const PlaySimulateAsync = async (grid: Grid) => {
+export const PlaySimulateAsync = async (grid: Grid): Promise<PathResult> => {
   try {
     // Gridを引数にしてAPIを呼び出す
     const response = await fetch('/api/judge', {
@@ -27,9 +19,14 @@ export const PlaySimulateAsync = async (grid: Grid) => {
     const pathResult: PathResult = response_json.data as PathResult;
     console.log('API疎通確認成功:', pathResult);
 
-    PlaySimulate(pathResult);
+    // // 対応するResultMessageをポップアップ
+    // const resultMessage = resultMessages[pathResult.result];
+    // alert(resultMessage);
+
+    return pathResult;
 
   } catch (error) {
     console.error('API疎通確認エラー:', error);
+    throw error;
   }
 }

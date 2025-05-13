@@ -75,4 +75,24 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
     color: "bg-yellow-500",
     neutral: { code: "r", picture: "rest.png" },
   },
+    FootUp: {
+    label: "足あと↑",
+    color: "bg-gray-200",
+    neutral: { code: "fu", picture: "foot_up.png" },
+  },
+  FootRight: {
+    label: "足あと→",
+    color: "bg-gray-200",
+    neutral: { code: "fr", picture: "foot_right.png" },
+  },
+  FootDown: {
+    label: "足あと↓",
+    color: "bg-gray-200",
+    neutral: { code: "fd", picture: "foot_down.png" },
+  },
+  FootLeft: {
+    label: "足あと←",
+    color: "bg-gray-200",
+    neutral: { code: "fl", picture: "foot_left.png" },
+  },
 } as const;

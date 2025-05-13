@@ -10,7 +10,11 @@ export type GridCellKey =
   | "Warp"
   | "ArrowUpDown"
   | "ArrowRightLeft"
-  | "Rest";
+  | "Rest"
+  | "FootUp"
+  | "FootRight"
+  | "FootDown"
+  | "FootLeft";
 
 export type GridCell = {
   type: GridCellKey;

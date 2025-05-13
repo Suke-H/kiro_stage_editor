@@ -6,11 +6,17 @@ import { RootState } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
 
 import { PlaySimulateAsync } from "@/api/play-simulate";
+import { Result, resultMessages } from "@/types/path";
+
+// import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner";
 
 export const PlacementControllPart: React.FC = () => {
   const dispatch = useDispatch();
   const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
   const grid = useSelector((state: RootState) => state.grid.grid);
+
+  // const { toast } = useToast();
   
   // 「1つ戻す」メソッド
   const undoLastPlacement = () => {
@@ -35,7 +41,17 @@ export const PlacementControllPart: React.FC = () => {
 
   // 「再生」メソッド
   const playSimulation = async () => {
-      await PlaySimulateAsync(grid);
+      const _pathResult = await PlaySimulateAsync(grid);
+
+      // 対応するResultMessageをポップアップ
+      if (_pathResult.result === Result.HasClearPath)
+          toast.success(resultMessages[_pathResult.result]) ;
+      else
+          toast.info(resultMessages[_pathResult.result]) ;
+      
+      // クリアした場合、足あと配置
+      if (_pathResult.result === Result.HasClearPath)
+        dispatch(gridSlice.actions.placeFootprints(_pathResult));
   };
     
 

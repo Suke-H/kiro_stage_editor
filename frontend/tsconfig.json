@@ -11,6 +11,7 @@
       "@/lib/*": ["./src/lib/*"],
       "@/types/*": ["./src/types/*"],
       "@/api/*": ["./src/api/*"],
+      "@/hooks/*": ["./src/hooks/*"],
     }
   }
 }
