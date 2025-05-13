@@ -6,6 +6,7 @@ import { RootState } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
 
 import { PlaySimulateAsync } from "@/api/play-simulate";
+import { Result } from "@/types/path";
 
 export const PlacementControllPart: React.FC = () => {
   const dispatch = useDispatch();
@@ -35,7 +36,11 @@ export const PlacementControllPart: React.FC = () => {
 
   // 「再生」メソッド
   const playSimulation = async () => {
-      await PlaySimulateAsync(grid);
+      const _pathResult = await PlaySimulateAsync(grid);
+
+      // クリアした場合、足あと配置
+      if (_pathResult.result === Result.HasClearPath)
+        dispatch(gridSlice.actions.placeFootprints(_pathResult));
   };
     
 

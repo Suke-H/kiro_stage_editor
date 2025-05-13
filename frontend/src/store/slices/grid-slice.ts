@@ -1,6 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Grid, GridCell } from "@/types/grid";
 import { GridState } from "@/types/store/states";
+import { Path } from "@/types/path";
+import { GridCellKey } from "@/types/grid/schema";
+
 
 const initialState: GridState = {
     grid: [
@@ -96,6 +99,34 @@ export const gridSlice = createSlice({
     clearHistory: (state) => {
         state.gridHistory = [];
     },
+
+
+    // 足あとの設置
+    placeFootprints: (state, action: PayloadAction<{path: Path}>) => {
+      const {  path } = action.payload;
+      // ループ：先頭(0)と末尾(path.length-1)を除外
+      for (let i = 1; i < path.length - 1; i++) {
+        const prev = path[i - 1];
+        const curr = path[i];
+        const dx = curr.x - prev.x;
+        const dy = curr.y - prev.y;
+
+        let footprintType: GridCellKey | null = null;
+        if (dx === 1 && dy === 0) footprintType = "FootRight";
+        else if (dx === -1 && dy === 0) footprintType = "FootLeft";
+        else if (dx === 0 && dy === 1) footprintType = "FootDown";
+        else if (dx === 0 && dy === -1) footprintType = "FootUp";
+
+        if (footprintType) {
+          // Grid は [row][col]、Vector は {x: col, y: row}
+          state.grid[curr.y][curr.x] = {
+            type: footprintType,
+            side: "neutral",
+          };
+        }
+      }
+    },
+
   },
 });
 
