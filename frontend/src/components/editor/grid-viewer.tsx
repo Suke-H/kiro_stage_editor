@@ -114,7 +114,7 @@ export const GridViewer: React.FC = () => {
     return (
       <div
         key={`${rowIndex}-${colIndex}`}
-        className={`h-10 w-10 flex items-center justify-center ${
+        className={`relative h-10 w-10 flex items-center justify-center ${
           cell.type === "Empty" ? "" : "border"
         }`}
         onClick={() => handleGridCellClick(rowIndex, colIndex)}
