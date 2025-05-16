@@ -3,18 +3,14 @@ import { PanelPlacement } from "@/types/panel-placement";
 import { NumberGrid } from "@/types/solution";
 
 type SolutionState = {
-  /** ソルバが返した解そのもの */
-  solutions: PanelPlacement[][];      // [ 解1, 解2, … ]
-  /** 各解ごとの numberGrid（行=y / 列=x で計算済み） */
-  numberGrids: NumberGrid[];          // solutions と同じ長さ
+  solutions: PanelPlacement[][];
+  numberGrids: NumberGrid[]; 
 };
 
 const initialState: SolutionState = {
   solutions: [],
   numberGrids: [],
 };
-
-/* ─────────────────────────────────────────── */
 
 const buildNumberGrid = (
   placements: PanelPlacement[],
@@ -25,12 +21,10 @@ const buildNumberGrid = (
     Array(cols).fill(null),
   );
   placements.forEach((p, i) => {
-    g[p.point.y][p.point.x] = i + 1; // ★ row = y, col = x
+    g[p.point.y][p.point.x] = i + 1;
   });
   return g;
 };
-
-/* ─────────────────────────────────────────── */
 
 const solutionSlice = createSlice({
   name: "solution",

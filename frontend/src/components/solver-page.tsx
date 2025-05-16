@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store";
 import { solutionActions } from "../store/slices/solution-slice";
+import { SolverPanelList } from '@/components/solver/solver-panel-list';
 import { PlaySolveAsync } from "@/api/solve";
 
-import { PanelList } from "@/components/editor/panel-list";
+// import { PanelList } from "@/components/editor/panel-list";
 import { SolverGridViewer } from "@/components/solver/solver-grid-viewer";
 
 const SolverPage: React.FC = () => {
@@ -44,7 +45,8 @@ const SolverPage: React.FC = () => {
           {solutions.map((_, idx) => (
             <div key={idx} className="flex gap-6 items-start">
               <SolverGridViewer baseGrid={grid} index={idx} />
-              <PanelList />
+              {/* <PanelList /> */}
+              <SolverPanelList solutionIndex={idx} />
             </div>
           ))}
         </div>
