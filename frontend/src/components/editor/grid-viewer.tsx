@@ -1,11 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-
 import { RootState } from "../../store";
 import { gridSlice } from "../../store/slices/grid-slice";
 import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
-import { solutionActions } from "../../store/slices/solution-slice";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GridCell, Grid } from "@/types/grid";
@@ -27,9 +24,6 @@ export const GridViewer: React.FC = () => {
   ) as GridCellKey;
   const panelPlacementMode = useSelector(
     (state: RootState) => state.panelPlacement.panelPlacementMode
-  );
-  const numberGrid = useSelector(
-    (state: RootState) => state.solution.numberGrid
   );
 
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
@@ -102,40 +96,6 @@ export const GridViewer: React.FC = () => {
     }
   };
 
-  const currentSolutionIndex = useSelector(
-    (state: RootState) => state.solution.currentIndex
-  );
-  useEffect(() => {
-    dispatch(
-      solutionActions.buildNumberGrid({
-        rows: grid.length,
-        cols: grid[0]?.length ?? 0,
-      })
-    );
-  }, [dispatch, grid.length, grid[0]?.length, currentSolutionIndex]);
-
-  const renderNumberOverlay = (row: number, col: number) => {
-    const num = numberGrid[row]?.[col];
-    if (num == null) return null;
-
-    console.log("renderNumberOverlay", row, col, num);
-
-    return (
-      <span
-        className="
-          absolute inset-0 z-10            /* セル全面を覆う */
-          flex items-center justify-center /* 中央寄せ */
-          font-bold drop-shadow
-          text-yellow-300 text-base        /* 40×40 に程よい大きさ */
-          pointer-events-none              /* クリック透過 */
-        "
-      >
-        {num}
-      </span>
-    );
-  };
-
-
   const renderGridCell = (
     cell: GridCell,
     rowIndex: number,
@@ -166,8 +126,6 @@ export const GridViewer: React.FC = () => {
             className="w-full h-full object-contain"
           />
         )}
-        {/* 数字オーバレイ */}
-        {renderNumberOverlay(rowIndex, colIndex)}
       </div>
     );
   };

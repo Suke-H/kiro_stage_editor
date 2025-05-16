@@ -1,58 +1,65 @@
-// src/store/slices/solution-slice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { PanelPlacement } from "@/types/panel-placement";
 import { NumberGrid } from "@/types/solution";
-import { SolutionState } from "@/types/store/states";
+
+type SolutionState = {
+  /** ソルバが返した解そのもの */
+  solutions: PanelPlacement[][];      // [ 解1, 解2, … ]
+  /** 各解ごとの numberGrid（行=y / 列=x で計算済み） */
+  numberGrids: NumberGrid[];          // solutions と同じ長さ
+};
 
 const initialState: SolutionState = {
   solutions: [],
-  currentIndex: -1,
-  numberGrid: [],
+  numberGrids: [],
 };
+
+/* ─────────────────────────────────────────── */
+
+const buildNumberGrid = (
+  placements: PanelPlacement[],
+  rows: number,
+  cols: number,
+): NumberGrid => {
+  const g: NumberGrid = Array.from({ length: rows }, () =>
+    Array(cols).fill(null),
+  );
+  placements.forEach((p, i) => {
+    g[p.point.y][p.point.x] = i + 1; // ★ row = y, col = x
+  });
+  return g;
+};
+
+/* ─────────────────────────────────────────── */
 
 const solutionSlice = createSlice({
   name: "solution",
   initialState,
   reducers: {
-    /** 解のリストを受け取る */
+    /** 解を保存（まだ numberGrid は作らない） */
     setSolutions(state, action: PayloadAction<PanelPlacement[][]>) {
       state.solutions = action.payload;
-      state.currentIndex = action.payload.length > 0 ? 0 : -1;
+      state.numberGrids = [];               // クリア
     },
 
-    /** 何通り目を見るか */
-    setCurrentSolutionIndex(state, action: PayloadAction<number>) {
-      state.currentIndex = action.payload;
-    },
-
-    /** numberGrid を再計算する   */
-    buildNumberGrid(
+    /** 盤面サイズを渡して *全部* の numberGrid を生成 */
+    buildNumberGrids(
       state,
-      action: PayloadAction<{ rows: number; cols: number }>
+      action: PayloadAction<{ rows: number; cols: number }>,
     ) {
       const { rows, cols } = action.payload;
-      const placements = state.solutions[state.currentIndex] ?? [];
-      const newGrid: NumberGrid = Array.from({ length: rows }, () =>
-        Array(cols).fill(null)
+      state.numberGrids = state.solutions.map((placements) =>
+        buildNumberGrid(placements, rows, cols),
       );
-
-      placements.forEach((placement, idx) => {
-        const { point } = placement;
-
-        newGrid[point.x][point.y] = idx + 1; // 1-origin
-      });
-
-      state.numberGrid = newGrid;
     },
 
     /** 全クリア */
     clearSolutions(state) {
       state.solutions = [];
-      state.currentIndex = -1;
-      state.numberGrid = [];
+      state.numberGrids = [];
     },
   },
 });
 
-export const solutionActions = solutionSlice.actions; 
-export default solutionSlice.reducer;                
+export const solutionActions = solutionSlice.actions;
+export default solutionSlice.reducer;
