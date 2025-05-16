@@ -7,7 +7,8 @@ import { solutionActions } from "../store/slices/solution-slice";
 import { SolverPanelList } from '@/components/solver/solver-panel-list';
 import { PlaySolveAsync } from "@/api/solve";
 
-// import { PanelList } from "@/components/editor/panel-list";
+import { GridViewer } from "@/components/editor/grid-viewer";
+import { PanelList } from "@/components/editor/panel-list";
 import { SolverGridViewer } from "@/components/solver/solver-grid-viewer";
 
 const SolverPage: React.FC = () => {
@@ -29,30 +30,35 @@ const SolverPage: React.FC = () => {
   };
 
   return (
-    <Card className="w-full max-w-[1000px] bg-[#B3B9D1]">
-      <CardHeader>
-        <CardTitle>解探索モード</CardTitle>
-      </CardHeader>
+    <>
+      <div className="flex gap-4 flex-col md:flex-row mb-8">
+        <GridViewer />
+        <PanelList />
+      </div>
+    
+      <Card className="w-full max-w-[1000px] bg-[#B3B9D1]">
+        <CardHeader>
+          <CardTitle>解探索モード</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center">
+            <Button variant="secondary" className="w-1/4" onClick={solve}>
+              Solve
+            </Button>
+          </div>
 
-      <CardContent>
-        <div className="flex justify-center mt-8 mb-8">
-          <Button variant="secondary" className="w-1/2" onClick={solve}>
-            Solve
-          </Button>
-        </div>
+          <div className="flex flex-col gap-8">
+            {solutions.map((_, idx) => (
+              <div key={idx} className="flex gap-6 items-start">
+                <SolverGridViewer baseGrid={grid} index={idx} />
+                <SolverPanelList solutionIndex={idx} />
+              </div>
+            ))}
+          </div>
 
-        <div className="flex flex-col gap-8">
-          {solutions.map((_, idx) => (
-            <div key={idx} className="flex gap-6 items-start">
-              <SolverGridViewer baseGrid={grid} index={idx} />
-              {/* <PanelList /> */}
-              <SolverPanelList solutionIndex={idx} />
-            </div>
-          ))}
-        </div>
-
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 
