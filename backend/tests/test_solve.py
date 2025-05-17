@@ -1,75 +1,68 @@
-from typing import List
-
 import pytest
+from typing import List
 
 from logic.find_path import find_path
 from models.grid import Grid, GridCell, GridCellKey, Side
-from models.path import Result  # PathResult.Result enum
+from models.path import Result
 
-CHARMAP = {
-    "S": (GridCellKey.Start,     Side.neutral),
-    "G": (GridCellKey.Goal,      Side.neutral),
-    "D": (GridCellKey.DummyGoal, Side.neutral),
-    "C": (GridCellKey.Crow,      Side.neutral),
-    "#": (GridCellKey.Empty,     Side.neutral),
-
-    ".": (GridCellKey.Normal,    Side.front),
-    "x": (GridCellKey.Normal,    Side.back),
-}
+from tests.cases.grid_cases import grid_test_cases, test_ids, CHARMAP
 
 def grid_from(lines: List[str]) -> Grid:
-    rows: List[list[GridCell]] = []
+    rows = []
     for line in lines:
-        row: List[GridCell] = []
-        for ch in line.strip():
-            if ch not in CHARMAP:
-                raise ValueError(f"Unknown cell char: {ch!r}")
+        row = []
+        for ch in line:
             cell_type, side = CHARMAP[ch]
             row.append(GridCell(type=cell_type, side=side))
         rows.append(row)
     return Grid(root=rows)
 
+# テストケース定義 
+@pytest.mark.parametrize(
+    argnames=("lines", "exp_result", "exp_dummy", "exp_crows"),
+    argvalues=grid_test_cases,
+    ids=test_ids,
+)
 
-# 1) 同距離なら本物ゴール優先
-def test_real_goal_priority():
-    """
-    S→G と S→D が等距離なら、Result は HasClearPath
-    """
-    grid = grid_from([
-        "S.G",
-        "...",
-        "D..",
-    ])
+def test_find_path(
+    lines: List[str],
+    exp_result: Result,
+    exp_dummy: bool,
+    exp_crows: int
+):
+    grid = grid_from(lines)
     res = find_path(grid)
-    assert res.result == Result.HasClearPath
 
+    # 結果
+    assert res.result == exp_result
 
-# 2) ダミーの方が近い → FailPath
-def test_dummy_shorter_fails():
-    """
-    D が距離 1、G が距離 3 の場合は HasFailPath
-    """
-    grid = grid_from([
-        "SD.",
-        ".x.",  # x は back 側の壁なので迂回させる
-        "..G",
-    ])
-    res = find_path(grid)
-    assert res.result == Result.HasFailPath
+    # ダミーゴール通過フラグ
+    dummy_pos = None
+    for y, row in enumerate(grid.root):
+        for x, cell in enumerate(row):
+            if cell.type == GridCellKey.DummyGoal:
+                dummy_pos = (x, y)
+                break
+        if dummy_pos:
+            break
 
+    passed_dummy = False
+    if dummy_pos:
+        passed_dummy = any(
+            (v.x, v.y) == dummy_pos
+            for v in res.path.root
+        )
+    assert passed_dummy is exp_dummy
 
-# 3) 同距離ならカラス多い方を選択 → ClearPath
-def test_crow_tiebreak():
-    """
-    ２つの等距離経路のうち、
-    カラス C を通る経路を選べば HasClearPath
-    """
-    grid = grid_from([
-        "S..",
-        ".x.",   # ここは壁でも行けるもう一方のルートを選ぶ感じ
-        "C.G",
-    ])
-    res = find_path(grid)
-    assert res.result == Result.HasClearPath
-    # オプションで「本当に C を通っているか」もチェックするなら：
-    assert any(vec.x == 0 and vec.y == 2 for vec in res.path.root)
+    # カラス通過数
+    crow_positions = {
+        (x, y)
+        for y, row in enumerate(grid.root)
+        for x, cell in enumerate(row)
+        if cell.type == GridCellKey.Crow
+    }
+    count_crows = sum(
+        1 for v in res.path.root
+        if (v.x, v.y) in crow_positions
+    )
+    assert count_crows == exp_crows
