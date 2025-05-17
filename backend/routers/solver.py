@@ -10,9 +10,6 @@ from pprint import pprint
 
 router = APIRouter()
 
-# class SolveRequest(BaseModel):
-#     grid: Grid
-#     panels: list[Panel]
 class SolveResponse(BaseModel):
     solutions: list[list[PanelPlacement]]
 

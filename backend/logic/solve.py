@@ -8,11 +8,12 @@ from models.panel import Panel
 from models.panel_placement import PanelPlacement, Vector
 from models.path import Result
 from logic.find_path import find_path
-from logic.place_panels import place_panels, _can_place_single   # _can... を再利用
+from logic.place_panels import place_panels, _can_place_single
 
 
 def _enumerate_single_panel(grid: Grid, panel: Panel) -> List[PanelPlacement]:
-    """1枚のパネルについて、黒セルハイライトを１つだけに固定して全配置を列挙"""
+    """1枚のパネルの全配置を列挙"""
+
     g_rows, g_cols = len(grid.root), len(grid.root[0])
 
     # パネル内の最初の黒セル (hx, hy) を探す
@@ -40,52 +41,61 @@ def _enumerate_single_panel(grid: Grid, panel: Panel) -> List[PanelPlacement]:
                 placements.append(pl)
     return placements
 
-
-def solve_single(initial: Grid,
-          panels: List[Panel]) -> Optional[List[PanelPlacement]]:
+def solve_single(
+    initial: Grid,
+    panels: List[Panel]
+) -> Optional[List[PanelPlacement]]:
     """
     与えられたグリッドとパネル集合に対し、
     『クリア(HasClearPath)になる最初の配置列』を返す。
-    見つからなければ None
     """
-    # 前計算：各パネルの全パターン
-    all_opts = [_enumerate_single_panel(initial, p) for p in panels]
+    # 各パネルの全配置パターン
+    all_opts: List[List[PanelPlacement]] = [
+        _enumerate_single_panel(initial, p) for p in panels
+    ]
 
-    # ✔ どのパネルも「置かない」という選択肢も含めたいなら
-    #   `opts = [[]] + list_opts` などで補完してから product を回す
+    # 直積を回して最初にクリアになるものを返す
     for comb in product(*all_opts):
-        # product は tuple; list にして mutate 可能に
-        grid_after = place_panels(initial, list(comb))
+        placements: List[PanelPlacement] = list(comb)
+
+        # 配置適用＆有効判定
+        grid_after, ok = place_panels(initial, placements)
+        if not ok:
+            continue
+
+        # パス探索
         path_result = find_path(grid_after)
         if path_result.result == Result.HasClearPath:
-            return list(comb)
+            return placements
 
-    return None       # クリア不可
+    return None
 
-def solve_all(initial: Grid,
-              panels: List[Panel],
-              *,
-              allow_skip: bool = True
-              ) -> List[List[PanelPlacement]]:
+def solve_all(
+    initial: Grid,
+    panels: List[Panel],
+    *,
+    allow_skip: bool = True
+) -> List[List[PanelPlacement]]:
     """
-    クリア(HasClearPath)になる **すべての** 配置列を返す。
-    1 つも無ければ空 list。
-    `allow_skip=True` で「パネルを置かない」選択肢も許可。
+    クリア(HasClearPath)になるすべての配置列を返す。
+    None（置かない）も許可する場合は allow_skip=True。
     """
     # 各パネルの取り得る全パターン
     all_opts = [_enumerate_single_panel(initial, p) for p in panels]
-
     if allow_skip:
-        # 置かない (= None) を追加
         all_opts = [[None] + opts for opts in all_opts]
 
     solutions: List[List[PanelPlacement]] = []
 
     for comb in product(*all_opts):
-        # None を除外（＝置かないパネル）
         placements = [pl for pl in comb if pl is not None]
 
-        grid_after = place_panels(initial, placements)
+        # place_panels の戻り値をアンパック
+        grid_after, ok = place_panels(initial, placements)
+        if not ok:
+            # 配置不可ならスキップ
+            continue
+
         path_result = find_path(grid_after)
         if path_result.result == Result.HasClearPath:
             solutions.append(placements)
