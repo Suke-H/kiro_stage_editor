@@ -138,7 +138,7 @@ grid_test_cases = [
             "G....",
             ".xxx.",
             "DxCxC",
-            ".xxx."
+            ".xxx.",
             "S....",
         ], Result.HasFailPath, True, 0),
 
@@ -147,7 +147,7 @@ grid_test_cases = [
             "G....",
             ".xxx.",
             "D.CxC",
-            "xx.x."
+            "xx.x.",
             "S....",
         ], Result.HasFailPath, True, 1),
 
@@ -156,7 +156,7 @@ grid_test_cases = [
             "G....",
             ".xxx.",
             "D.C.C",
-            "xxxx."
+            "xxxx.",
             "S....",
         ], Result.HasFailPath, True, 2),
 
@@ -165,17 +165,17 @@ grid_test_cases = [
             "G....",
             "xx.xx",
             "DxC.C",
-            "xxxx."
+            "xxxx.",
             "S....",
-        ], Result.HasClearPath, True, 2),
+        ], Result.HasClearPath, False, 2),
 
         # 18) 複数カラス：1つだけ通り本物ゴール
         ([
             "G....",
             ".xxx.",
             "DxCxC",
-            "xxxx."
+            "xxxx.",
             "S....",
-        ], Result.HasFailPath, True, 2),
+        ], Result.HasFailPath, False, 1),
     ]
 

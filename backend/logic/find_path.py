@@ -90,7 +90,8 @@ def _bfs_all_shortest_paths(
 
 def find_path(grid: Grid) -> PathResult:
     """
-    優先度: 最短経路 → 本物ゴール → 通過カラス数
+    優先度: 最短経路 → 本物ゴール優先 → 通過カラス数多い順
+    クリア条件: 本物ゴールに到達かつステージ内の全カラスを通過
     """
     # Start が無ければ即終了
     start = find_single(grid, GridCellKey.Start)
@@ -106,51 +107,51 @@ def find_path(grid: Grid) -> PathResult:
         return PathResult(result=Result.NoGoal, path=Path(root=[]))
 
     # 最短経路群を取得
-    real_paths: List[List[Tuple[int, int]]] = (
-        _bfs_all_shortest_paths(grid, start, goal_real) if goal_real else []
-    )
+    real_paths: List[List[Tuple[int, int]]] = _bfs_all_shortest_paths(grid, start, goal_real)
     dummy_paths: List[List[Tuple[int, int]]] = (
         _bfs_all_shortest_paths(grid, start, goal_dummy) if goal_dummy else []
     )
 
+    # 候補リスト作成
     all_candidates: List[dict] = []
     for p in real_paths:
-        all_candidates.append(
-            {"path": p, "is_real": True, "crow_cnt": 0}
-        )
+        all_candidates.append({"path": p, "is_real": True, "crow_cnt": 0})
     for p in dummy_paths:
-        all_candidates.append(
-            {"path": p, "is_real": False, "crow_cnt": 0}
-        )
+        all_candidates.append({"path": p, "is_real": False, "crow_cnt": 0})
 
     if not all_candidates:
         return PathResult(result=Result.NoPath, path=Path(root=[]))
 
-    # カラス位置をセットで取得
+    # ステージ内の全カラス位置
     crow_positions: Set[Tuple[int, int]] = {
         (x, y)
         for y, row in enumerate(grid.root)
         for x, cell in enumerate(row)
         if cell.type == GridCellKey.Crow
     }
+    total_crows = len(crow_positions)
 
     # 各候補にカラス数を付与
     for cand in all_candidates:
-        cand["crow_cnt"] = sum(
-            1 for pt in cand["path"] if pt in crow_positions
-        )
+        cand["crow_cnt"] = sum(1 for pt in cand["path"] if pt in crow_positions)
 
-    ### --  ソート: 経路の長さ → 本物ゴール優先 → カラス多い順 -- 
+    # ソート: 経路長 → 本物ゴール優先 → カラス多い順
     all_candidates.sort(
         key=lambda c: (
             len(c["path"]),
-            0 if c["is_real"] else 1,  # 0 が先 ⇒ 本物ゴール優先
-            -c["crow_cnt"],            # 多いほど優先
+            0 if c["is_real"] else 1,
+            -c["crow_cnt"],
         )
     )
 
     best = all_candidates[0]
     vectors = [Vector(x=x, y=y) for x, y in best["path"]]
-    status = Result.HasClearPath if best["is_real"] else Result.HasFailPath
+
+    # 新クリア判定：本物ゴール＆全カラス通過
+    if best["is_real"] and best["crow_cnt"] == total_crows:
+        status = Result.HasClearPath
+    else:
+        status = Result.HasFailPath
 
     return PathResult(path=Path(root=vectors), result=status)
+
