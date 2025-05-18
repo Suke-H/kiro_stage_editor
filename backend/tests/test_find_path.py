@@ -103,18 +103,13 @@ def test_find_path(
     assert res.result == exp_result
 
     # 2. ダミーゴール到達
-    dummy_pos = None
-    for y, row in enumerate(grid.root):
-        for x, cell in enumerate(row):
-            if cell.type == GridCellKey.DummyGoal:
-                dummy_pos = (x, y)
-                break
-        if dummy_pos:
-            break
-
-    passed_dummy = False
-    if dummy_pos:
-        passed_dummy = any((v.x, v.y) == dummy_pos for v in res.path.root)
+    dummy_positions = {
+        (x, y)
+            for y, row in enumerate(grid.root)
+            for x, cell in enumerate(row)
+            if cell.type == GridCellKey.DummyGoal
+    }
+    passed_dummy = any((v.x, v.y) in dummy_positions for v in res.path.root)
     assert passed_dummy is exp_dummy
 
     # 3. カラス通過数

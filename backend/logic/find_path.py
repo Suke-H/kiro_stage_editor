@@ -31,6 +31,15 @@ def find_single(grid: Grid, target: GridCellKey) -> Tuple[int, int] | None:
                 return (x, y)
     return None
 
+def find_all(grid: Grid, target: GridCellKey) -> List[Tuple[int, int]]:
+    """grid 内で見つかった target の全座標リストを返す"""
+    coords: List[Tuple[int, int]] = []
+    for y, row in enumerate(grid.root):
+        for x, cell in enumerate(row):
+            if cell.type == target:
+                coords.append((x, y))
+    return coords
+
 def _bfs_all_shortest_paths(
     grid: Grid, start: Tuple[int, int], goal: Tuple[int, int]
 ) -> List[List[Tuple[int, int]]]:
@@ -100,7 +109,8 @@ def find_path(grid: Grid) -> PathResult:
 
     # Goal / DummyGoal を検出
     goal_real = find_single(grid, GridCellKey.Goal)
-    goal_dummy = find_single(grid, GridCellKey.DummyGoal)
+    # goal_dummy = find_single(grid, GridCellKey.DummyGoal)
+    dummy_goals = find_all(grid, GridCellKey.DummyGoal)
 
     # Goal が無ければ即終了
     if goal_real is None:
@@ -108,9 +118,14 @@ def find_path(grid: Grid) -> PathResult:
 
     # 最短経路群を取得
     real_paths: List[List[Tuple[int, int]]] = _bfs_all_shortest_paths(grid, start, goal_real)
-    dummy_paths: List[List[Tuple[int, int]]] = (
-        _bfs_all_shortest_paths(grid, start, goal_dummy) if goal_dummy else []
-    )
+    # dummy_paths: List[List[Tuple[int, int]]] = (
+    #     _bfs_all_shortest_paths(grid, start, goal_dummy) if goal_dummy else []
+    # )
+
+    # すべての DummyGoal に対して最短経路を取得
+    dummy_paths: List[List[Tuple[int, int]]] = []
+    for dg in dummy_goals:
+        dummy_paths.extend(_bfs_all_shortest_paths(grid, start, dg))
 
     # 候補リスト作成
     all_candidates: List[dict] = []
