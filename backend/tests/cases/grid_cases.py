@@ -32,6 +32,14 @@ test_ids=[
         "16_multi_crow_all_get_and_dummy_goal",
         "17_multi_crow_all_get_and_real_goal",
         "18_multi_crow_one_get_and_real_goal",
+        "19_multi_dummy_goal_near_real_goal",
+        "20_multi_dummy_goal_near_dummy_goal",
+        "21_multi_dummy_goal_equal_length",
+        "22_multi_dummy_goal_get_crow_and_real_goal",
+        "23_multi_dummy_goal_get_crow_and_dummy_goal",
+        "24_multi_dummy_goal_choose_crow_dummy_goal",
+        "25_multi_dummy_goal_skip_crow_and_real_goal",
+        "26_multi_dummy_goal_skip_crow_and_dummy_goal",
     ]
 
 grid_test_cases = [
@@ -177,5 +185,69 @@ grid_test_cases = [
             "xxxx.",
             "S....",
         ], Result.HasFailPath, False, 1),
+
+        # 19) 複数ダミー：本物ゴールが近い
+        ([
+            "D.xx.",
+            "#.x..",
+            "#..GD",
+            "S....",
+        ], Result.HasClearPath, False, 0),
+
+        # 20) 複数ダミー：ダミーゴールが近い
+        ([
+            "D.xx.",
+            "#.x..",
+            "#..DG",
+            "S....",
+        ], Result.HasFailPath, True, 0),
+
+        # 21) 複数ダミー：同じ長さ（クリア）
+        ([
+            "D.xxD",
+            "#.x..",
+            "#...G",
+            "S....",
+        ], Result.HasClearPath, False, 0),
+
+        # 22) 複数ダミー：カラスを通り本物ゴール（クリア）
+        ([
+            "Dx...",
+            "#C.x.",
+            "#.xDG",
+            "S.x..",
+        ], Result.HasClearPath, False, 1),
+
+        # 23) 複数ダミー：カラスを通りダミーゴール
+        ([
+            "D.xx.",
+            "#C...",
+            "#.xDG",
+            "S.x..",
+        ], Result.HasFailPath, True, 1),
+
+        # 24) 複数ダミー：経路の長さが同じダミーゴールのうち、カラスがいる道を選ぶ
+        ([
+            "D.xx.",
+            "#Cx.G",
+            "#...D",
+            "S....",
+        ], Result.HasFailPath, True, 1),
+
+        # 25) 複数ダミー：カラスを通らず本物ゴール
+        ([
+            "D.xxD",
+            "#Cx..",
+            "#...G",
+            "S....",
+        ], Result.HasFailPath, False, 0),
+
+        # 26) 複数ダミー：カラスを通らずダミーゴール
+        ([
+            "D.xx.",
+            "#Cx..",
+            "#..DG",
+            "S....",
+        ], Result.HasFailPath, True, 0),
     ]
 
