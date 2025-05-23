@@ -74,7 +74,20 @@ export const GridViewer: React.FC = () => {
 
         for (let i = 0; i < panelRows; i++) {
           for (let j = 0; j < panelCols; j++) {
-            if (placingPanel.cells[i][j] === "Black") {
+
+            // パネルがFlagなら、GridにもFlagを設置
+            if (placingPanel.cells[i][j] === "Flag") {
+              dispatch(
+                gridSlice.actions.placeCell({
+                  row: rowIndex + i,
+                  col: colIndex + j,
+                  cell: { type: "Flag", side: "neutral" },
+                })
+              );
+            }
+
+            // パネルセルが存在する（=Black）場合、反転
+            else if (placingPanel.cells[i][j] === "Black") {
               dispatch(
                 gridSlice.actions.flipCell({
                   row: rowIndex + i,
