@@ -45,6 +45,14 @@ export const createPanelSlice = createSlice({
       state.newPanelGrid[row][col] =
         state.newPanelGrid[row][col] === "Black" ? "White" : "Black";
     },
+
+    // Black をすべて Cut に置き換える
+    transformCutPanel: (state) => {
+      state.newPanelGrid = state.newPanelGrid.map((row) =>
+        row.map((cell) => (cell === "Black" ? "Cut" : cell))
+      );
+    },
+
   },
 });
 

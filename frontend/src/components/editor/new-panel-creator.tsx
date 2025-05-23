@@ -3,15 +3,19 @@ import { Plus } from "lucide-react";
 import { Panel } from "@/types/panel";
 import { Button } from "@/components/ui/button";
 import { Add, Remove } from "@mui/icons-material";
+import { Switch } from "@/components/ui/switch";
 
 import { createPanelSlice } from "../../store/slices/create-panel-slice";
 import { panelListSlice } from "../../store/slices/panel-list-slice";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 
 import { PanelCellTypeKey } from "@/types/panel";
 
 export const NewPanelCreator: React.FC = () => {
+  const [isCut, setIsCut] = useState(false);
+
   const dispatch = useDispatch();
   const newPanelGrid: PanelCellTypeKey[][] = useSelector(
     (state: RootState) => state.createPanel.newPanelGrid
@@ -22,6 +26,11 @@ export const NewPanelCreator: React.FC = () => {
       row.some((cell) => cell === "Black")
     );
     if (nonEmptyCells) {
+
+      // 切り取りモードの場合、Black を Cut に置き換える
+      if (isCut)
+        dispatch(createPanelSlice.actions.transformCutPanel());
+
       const newPanel: Panel = {
         id: `panel-${Date.now()}`,
         cells: newPanelGrid,
@@ -116,6 +125,12 @@ export const NewPanelCreator: React.FC = () => {
         <Button onClick={addPanel} className="w-full flex items-center gap-2">
           <Plus size={16} /> パネル追加
         </Button>
+
+        {/* トグルボタン */}
+        <div className="flex justify-left items-center gap-2">
+          <Switch checked={isCut} onCheckedChange={() => setIsCut(!isCut)} />
+          <span>{isCut ? "切り取りモードOFF" : "切り取りモードON"}</span>
+        </div>
       </CardContent>
     </Card>
   );

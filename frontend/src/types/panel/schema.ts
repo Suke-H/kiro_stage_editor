@@ -1,6 +1,6 @@
 import { Vector } from '@/types/path';
 
-export type PanelCellTypeKey = "White" | "Black" | "Flag";
+export type PanelCellTypeKey = "White" | "Black" | "Flag" | "Cut" | "CopyWhite" | "CopyBlack";
 
 export interface Panel {
   id: string;
