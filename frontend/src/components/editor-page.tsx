@@ -12,6 +12,7 @@ import { CellTypeSelector } from "@/components/editor/cell-type-selector";
 import { GridViewer } from "@/components/editor/grid-viewer";
 import { PanelList } from "@/components/editor/panel-list";
 import { NewPanelCreator } from "@/components/editor/new-panel-creator";
+import { FlagCreator } from "@/components/editor/flag-creator";
 
 const EditorPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ const EditorPage: React.FC = () => {
       <div className="flex-1 flex flex-col gap-4">
         <PanelList />
         <NewPanelCreator />
+        <FlagCreator />
       </div>
     </div>
   );

@@ -1,11 +1,21 @@
 import { PanelCellTypeKey } from "./schema";
 
-export interface PanelCellTypeKeyInfo {
+export type PanelCellInfo = {
   code: string;
-}
+  picture: string;
+};
 
-export const PANEL_CELL_TYPES: Record<PanelCellTypeKey, PanelCellTypeKeyInfo> =
-  {
-    White: { code: "w" },
-    Black: { code: "b" },
-  } as const;
+export const PANEL_CELL_TYPES: Record<PanelCellTypeKey, PanelCellInfo> = {
+  White: {
+    code: "w",
+    picture: "white.png", 
+  },
+  Black: {
+    code: "b",
+    picture: "black.png", 
+  },
+  Flag: {
+    code: "f",
+    picture: "flag.png", 
+  },
+} as const;
