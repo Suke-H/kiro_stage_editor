@@ -20,6 +20,7 @@ export const FlagCreator: React.FC = () => {
     const newPanel: Panel = {
       id: `panel-${Date.now()}`,
       cells: flagGrid,
+      type: "Flag",
     };
 
     // パネル追加

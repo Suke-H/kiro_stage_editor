@@ -29,21 +29,16 @@ export const GridViewer: React.FC = () => {
   const handleGridCellClick = (rowIndex: number, colIndex: number) => {
     const placingPanel = panelPlacementMode.panel;
 
-    // セル配置モード
-    // （エディタモード、かつ配置パネル未選択）
-    if (studioMode === StudioMode.Editor && placingPanel === null) {
+    // セル配置モード（エディタモード & パネル未選択）
+    if (studioMode === StudioMode.Editor && !placingPanel) {
       const cellDef = GRID_CELL_TYPES[selectedCellType];
-
-      // セル選択がFlipの場合：sideを反転
       if (selectedCellType === "Flip") {
         if (grid[rowIndex][colIndex].type !== "Empty") {
           dispatch(
             gridSlice.actions.flipCell({ row: rowIndex, col: colIndex })
           );
         }
-        // 通常のセル選択（Flipでない）
       } else {
-        // 基本はfront（表）で設置する。neutralのみの場合はneutral
         const side = "neutral" in cellDef ? "neutral" : "front";
         dispatch(
           gridSlice.actions.placeCell({
@@ -53,79 +48,169 @@ export const GridViewer: React.FC = () => {
           })
         );
       }
+      return;
     }
 
     // パネル配置モード
-    // （エディタモードでも実施可）
-    else {
-      // 配置するパネルが選択されていない場合は何もしない
-      if (!placingPanel) return;
+    if (!placingPanel) return;
+    const panelType = placingPanel.type ?? "Normal";
 
-      // パネルを配置できるかチェック
-      if (canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
-        // パネルを配置(リストから削除)
-        dispatch(panelListSlice.actions.placePanel(placingPanel));
-
-        // 事前に今のGridを履歴に保存
-        dispatch(gridSlice.actions.saveHistory());
-
-        const panelRows = placingPanel.cells.length;
-        const panelCols = placingPanel.cells[0].length;
-
-        for (let i = 0; i < panelRows; i++) {
-          for (let j = 0; j < panelCols; j++) {
-
-            // パネルがFlagなら、GridにもFlagを設置
-            if (placingPanel.cells[i][j] === "Flag") {
-              dispatch(
-                gridSlice.actions.placeCell({
-                  row: rowIndex + i,
-                  col: colIndex + j,
-                  cell: { type: "Flag", side: "neutral" },
-                })
-              );
-            }
-
-          
-            // パネルがCutなら、GridをEmptyにする
-            else if (placingPanel.cells[i][j] === "Cut") {
-              console.log(
-                `Cut panel placed at (${rowIndex + i}, ${colIndex + j})`
-              );
-              dispatch(
-                gridSlice.actions.placeCell({
-                  row: rowIndex + i,
-                  col: colIndex + j,
-                  cell: { type: "Empty", side: "neutral" },
-                })
-              );
-            }
-
-            // パネルセルが存在する（=Black）場合、反転
-            else if (placingPanel.cells[i][j] === "Black") {
-              console.log(
-                `Black panel placed at (${rowIndex + i}, ${colIndex + j})`
-              );
-
-              dispatch(
-                gridSlice.actions.flipCell({
-                  row: rowIndex + i,
-                  col: colIndex + j,
-                })
-              );
-            }
-          }
-        }
-      }
-
-      // （設置可/不可をとわず）終了後はパネル選択を解除
+    // 配置可否チェック
+    if (!canPlacePanelAtLocation(grid, rowIndex, colIndex, placingPanel)) {
       dispatch(
         panelPlacementSlice.actions.selectPanelForPlacement({
           panel: null,
           highlightedCell: null,
         })
       );
+      return;
     }
+
+    // 履歴保存
+    dispatch(gridSlice.actions.saveHistory());
+
+    // Cut用コピー先初期化
+    let newCutPanelCells: GridCellKey[][] = [];
+    if (panelType === "Cut") {
+      newCutPanelCells = placingPanel.cells.map(row =>
+        row.map(() => "Empty")
+      );
+    }
+
+    // 各セルごとに分岐配置
+    placingPanel.cells.forEach((row, i) => {
+      row.forEach((cellType, j) => {
+        const r = rowIndex + i;
+        const c = colIndex + j;
+        const target = grid[r][c];
+
+        if (panelType === "Normal") {
+          // 元の挙動：Black なら flip
+          if (cellType === "Black") {
+            dispatch(gridSlice.actions.flipCell({ row: r, col: c }));
+          }
+          // 元の挙動：Flag セルなら Flag、Cut セルなら Empty
+          else if (cellType === "Flag") {
+            dispatch(
+              gridSlice.actions.placeCell({
+                row: r,
+                col: c,
+                cell: { type: "Flag", side: "neutral" },
+              })
+            );
+          } else if (cellType === "Cut") {
+            dispatch(
+              gridSlice.actions.placeCell({
+                row: r,
+                col: c,
+                cell: { type: "Empty", side: "neutral" },
+              })
+            );
+          }
+        }
+        else if (panelType === "Flag") {
+          // Flag パネル：セルが Empty でなければすべて Flag
+          // if (cellType !== "Empty") {
+            dispatch(
+              gridSlice.actions.placeCell({
+                row: r,
+                col: c,
+                cell: { type: "Flag", side: "neutral" },
+              })
+            );
+          // }
+        }
+        else if (panelType === "Cut") {
+          // Cut パネル：Black なら Empty にしつつコピー
+          if (cellType === "Black") {
+            newCutPanelCells[i][j] = target.type;
+            dispatch(
+              gridSlice.actions.placeCell({
+                row: r,
+                col: c,
+                cell: { type: "Empty", side: "neutral" },
+              })
+            );
+          }
+        }
+        else if (panelType === "Paste") {
+          // Paste パネル：Empty 以外なら上書き
+          const casted = cellType as unknown as GridCellKey;
+          if (casted !== "Empty") {
+            dispatch(
+              gridSlice.actions.placeCell({
+                row: r,
+                col: c,
+                cell: { type: casted, side: "front" },
+              })
+            );
+          }
+        }
+      });
+    });
+
+    // パネルをリストから削除
+    dispatch(panelListSlice.actions.placePanel(placingPanel));
+
+    // Cutでコピーしたパネルを追加
+    if (panelType === "Cut") {
+      dispatch(
+        panelListSlice.actions.createPanel({
+          id: `cut-${Date.now()}`,
+          type: "Paste",
+          cells: newCutPanelCells,
+        } as Panel)
+      );
+    }
+
+    // 選択解除
+    dispatch(
+      panelPlacementSlice.actions.selectPanelForPlacement({
+        panel: null,
+        highlightedCell: null,
+      })
+    );
+  };
+
+  const canPlacePanelAtLocation = (
+    grid: Grid,
+    rowIndex: number,
+    colIndex: number,
+    panel: Panel
+  ): boolean => {
+    const rows = panel.cells.length;
+    const cols = panel.cells[0].length;
+
+    // 範囲外チェック
+    if (
+      rowIndex + rows > grid.length ||
+      colIndex + cols > grid[0].length
+    ) {
+      return false;
+    }
+
+    if (panel.type === "Paste") {
+      // Paste：すべてEmptyであること
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const key = panel.cells[i][j] as unknown as GridCellKey;
+          if (key !== "Empty" && grid[rowIndex + i][colIndex + j].type !== "Empty") {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    // それ以外（Normal/Flag/Cut）は元の Blackのみ判定
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        if (panel.cells[i][j] === "Black" && grid[rowIndex + i][colIndex + j].type === "Empty") {
+          return false;
+        }
+      }
+    }
+    return true;
   };
 
   const renderGridCell = (
@@ -134,15 +219,11 @@ export const GridViewer: React.FC = () => {
     colIndex: number
   ) => {
     const cellDef = GRID_CELL_TYPES[cell.type];
-
-    // セルの状態に応じた情報を取得
     const sideInfo: CellSideInfo | undefined = cellDef[cell.side];
-
     if (!sideInfo) {
-      console.error(`No valid sideInfo found for cell type: ${cell.type}`);
-      return null; // またはデフォルトの要素を返す
+      console.error(`No valid sideInfo for ${cell.type}`);
+      return null;
     }
-
     return (
       <div
         key={`${rowIndex}-${colIndex}`}
@@ -162,48 +243,6 @@ export const GridViewer: React.FC = () => {
     );
   };
 
-  const canPlacePanelAtLocation = (
-    grid: Grid,
-    rowIndex: number,
-    colIndex: number,
-    panel: Panel
-  ): boolean => {
-    const panelRows = panel.cells.length;
-    const panelCols = panel.cells[0].length;
-
-    // グリッド範囲内に収まるか
-    if (
-      rowIndex + panelRows > grid.length ||
-      colIndex + panelCols > grid[0].length
-    ) {
-      return false;
-    }
-
-    // パネルを配置するセルがすべて適切であるかチェック
-    for (let i = 0; i < panelRows; i++) {
-      for (let j = 0; j < panelCols; j++) {
-        const panelCell = panel.cells[i][j];
-        // パネルセルが黒の場合のみ設置判定
-        if (panelCell === "Black") {
-          const targetCell = grid[rowIndex + i][colIndex + j];
-
-          // Emptyには置けない
-          if (targetCell.type === "Empty") {
-            return false;
-          }
-
-          // // neutralなセルには置けない（開始、ゴール、ダミーゴールなど）
-          // const cellDef = GRID_CELL_TYPES[targetCell.type];
-          // if ('neutral' in cellDef) {
-          //   return false;
-          // }
-        }
-      }
-    }
-
-    return true;
-  };
-
   return (
     <Card className="w-fit bg-[#B3B9D1]">
       <CardHeader>
@@ -211,7 +250,6 @@ export const GridViewer: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap items-start">
-          {/* ステージグリッド */}
           <div
             className="grid"
             style={{
@@ -220,17 +258,11 @@ export const GridViewer: React.FC = () => {
               gap: "4px",
             }}
           >
-            {grid.map((row: GridCell[], rowIndex: number) =>
-              row.map((cellType: GridCell, colIndex: number) =>
-                renderGridCell(cellType, rowIndex, colIndex)
-              )
+            {grid.map((row, ri) =>
+              row.map((cell, ci) => renderGridCell(cell, ri, ci))
             )}
           </div>
-
-          {/* 空白のdivを追加（右側の余白用） */}
           <div className="hidden lg:block w-20"></div>
-
-          {/* パーツ配置エリア */}
           {studioMode === StudioMode.Editor && (
             <div className="flex flex-col gap-4 min-w-[200px] mt-8">
               <MatrixOperationPart />

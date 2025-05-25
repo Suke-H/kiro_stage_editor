@@ -9,33 +9,34 @@ import { createPanelSlice } from "../../store/slices/create-panel-slice";
 import { panelListSlice } from "../../store/slices/panel-list-slice";
 import { RootState } from "../../store";
 import { useState } from "react";
-import { useDispatch, useSelector, useStore } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { PanelCellTypeKey } from "@/types/panel";
 
 export const NewPanelCreator: React.FC = () => {
   const [isCut, setIsCut] = useState(false);
   const dispatch = useDispatch();
-  let newPanelGrid: PanelCellTypeKey[][] = useSelector(
+  const newPanelGrid: PanelCellTypeKey[][] = useSelector(
     (state: RootState) => state.createPanel.newPanelGrid
   );
-  const store = useStore<RootState>();
+  // const store = useStore<RootState>();
 
   const addPanel = () => {
     // "Black" セルがひとつでもあるか
     const hasBlack = newPanelGrid.some(row => row.includes("Black"));
     if (!hasBlack) return;
 
-    // 切り取りモード
-    if (isCut) {
-      dispatch(createPanelSlice.actions.transformCutPanel());
-      newPanelGrid = (store.getState() as RootState).createPanel.newPanelGrid;
-    }
+    // // 切り取りモード
+    // if (isCut) {
+    //   dispatch(createPanelSlice.actions.transformCutPanel());
+    //   newPanelGrid = (store.getState() as RootState).createPanel.newPanelGrid;
+    // }
 
     // パネルを追加
     const newPanel: Panel = {
       id: `panel-${Date.now()}`,
       cells: newPanelGrid,
+      type: isCut ? "Cut" : "Normal",
     };
 
     dispatch(panelListSlice.actions.createPanel(newPanel));
