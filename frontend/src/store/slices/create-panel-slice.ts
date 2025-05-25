@@ -51,6 +51,8 @@ export const createPanelSlice = createSlice({
       state.newPanelGrid = state.newPanelGrid.map((row) =>
         row.map((cell) => (cell === "Black" ? "Cut" : cell))
       );
+
+      console.log("Transformed to Cut panel:", state.newPanelGrid);
     },
 
   },

@@ -86,8 +86,27 @@ export const GridViewer: React.FC = () => {
               );
             }
 
+          
+            // パネルがCutなら、GridをEmptyにする
+            else if (placingPanel.cells[i][j] === "Cut") {
+              console.log(
+                `Cut panel placed at (${rowIndex + i}, ${colIndex + j})`
+              );
+              dispatch(
+                gridSlice.actions.placeCell({
+                  row: rowIndex + i,
+                  col: colIndex + j,
+                  cell: { type: "Empty", side: "neutral" },
+                })
+              );
+            }
+
             // パネルセルが存在する（=Black）場合、反転
             else if (placingPanel.cells[i][j] === "Black") {
+              console.log(
+                `Black panel placed at (${rowIndex + i}, ${colIndex + j})`
+              );
+
               dispatch(
                 gridSlice.actions.flipCell({
                   row: rowIndex + i,
