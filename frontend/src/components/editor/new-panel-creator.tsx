@@ -3,7 +3,6 @@ import { Plus } from "lucide-react";
 import {
   Panel,
   PanelCellTypeKey,
-  CopyPanel,
 } from "@/types/panel";
 import { Button } from "@/components/ui/button";
 import { Add, Remove } from "@mui/icons-material";
@@ -11,12 +10,9 @@ import { Switch } from "@/components/ui/switch";
 
 import { createPanelSlice } from "../../store/slices/create-panel-slice";
 import { panelListSlice } from "../../store/slices/panel-list-slice";
-import { copyPanelListSlice } from "../../store/slices/copy-panel-list-slice";
-
 import { RootState } from "../../store";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { GridCell } from "@/types/grid";
 
 export const NewPanelCreator: React.FC = () => {
   const [isCut, setIsCut] = useState<boolean>(false);
@@ -26,43 +22,20 @@ export const NewPanelCreator: React.FC = () => {
     (state: RootState): PanelCellTypeKey[][] => state.createPanel.newPanelGrid
   );
 
-  /* Black / White → GridCell 変換（CopyPanel 用） */
-  const toGridCell = (cell: PanelCellTypeKey): GridCell => ({
-    type: cell === "Black" ? "Normal" : "Empty",
-    side: cell === "Black" ? "back" : "front",
-  });
 
-  /* 追加ボタン*/
-  const addPanel = (): void => {
-    // Black が 1 マスも無い場合は無視
-    const hasBlack = newPanelGrid.some(row => row.includes("Black"));
+
+  /* 追加ボタン */
+  const addPanel = () => {
+    const hasBlack = newPanelGrid.some((row) => row.includes("Black"));
     if (!hasBlack) return;
 
-    // 通常パネル
-    if (!isCut) {
-      const newPanel: Panel = {
-        id: `panel-${Date.now()}`,
-        cells: newPanelGrid,
-        type: "Normal",
-      };
-      dispatch(panelListSlice.actions.createPanel(newPanel));
-    }
+    const newPanel: Panel = {
+      id: `panel-${Date.now()}`,
+      cells: newPanelGrid,
+      type: isCut ? "Cut" : "Normal",
+    };
 
-    // 切り取りパネル
-    else {
-      const copyCells: GridCell[][] = newPanelGrid.map(row =>
-        row.map(toGridCell)
-      );
-
-      const newCopyPanel: CopyPanel = {
-        id: `copy-${Date.now()}`,
-        cells: copyCells,
-        type: "Paste",
-      };
-      dispatch(copyPanelListSlice.actions.createPanel(newCopyPanel));
-    }
-
-    /* 入力グリッドを初期化 */
+    dispatch(panelListSlice.actions.createPanel(newPanel));
     dispatch(createPanelSlice.actions.initPanelGrid());
   };
 
