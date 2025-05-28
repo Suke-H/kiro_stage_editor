@@ -1,45 +1,68 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { Panel } from "@/types/panel";
+import {
+  Panel,
+  PanelCellTypeKey,
+  CopyPanel,
+} from "@/types/panel";
 import { Button } from "@/components/ui/button";
 import { Add, Remove } from "@mui/icons-material";
 import { Switch } from "@/components/ui/switch";
 
 import { createPanelSlice } from "../../store/slices/create-panel-slice";
 import { panelListSlice } from "../../store/slices/panel-list-slice";
+import { copyPanelListSlice } from "../../store/slices/copy-panel-list-slice";
+
 import { RootState } from "../../store";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import { PanelCellTypeKey } from "@/types/panel";
+import { GridCell } from "@/types/grid";
 
 export const NewPanelCreator: React.FC = () => {
-  const [isCut, setIsCut] = useState(false);
+  const [isCut, setIsCut] = useState<boolean>(false);
   const dispatch = useDispatch();
-  const newPanelGrid: PanelCellTypeKey[][] = useSelector(
-    (state: RootState) => state.createPanel.newPanelGrid
-  );
-  // const store = useStore<RootState>();
 
-  const addPanel = () => {
-    // "Black" セルがひとつでもあるか
+  const newPanelGrid = useSelector(
+    (state: RootState): PanelCellTypeKey[][] => state.createPanel.newPanelGrid
+  );
+
+  /* Black / White → GridCell 変換（CopyPanel 用） */
+  const toGridCell = (cell: PanelCellTypeKey): GridCell => ({
+    type: cell === "Black" ? "Normal" : "Empty",
+    side: cell === "Black" ? "back" : "front",
+  });
+
+  /* 追加ボタン*/
+  const addPanel = (): void => {
+    // Black が 1 マスも無い場合は無視
     const hasBlack = newPanelGrid.some(row => row.includes("Black"));
     if (!hasBlack) return;
 
-    // // 切り取りモード
-    // if (isCut) {
-    //   dispatch(createPanelSlice.actions.transformCutPanel());
-    //   newPanelGrid = (store.getState() as RootState).createPanel.newPanelGrid;
-    // }
+    // 通常パネル
+    if (!isCut) {
+      const newPanel: Panel = {
+        id: `panel-${Date.now()}`,
+        cells: newPanelGrid,
+        type: "Normal",
+      };
+      dispatch(panelListSlice.actions.createPanel(newPanel));
+    }
 
-    // パネルを追加
-    const newPanel: Panel = {
-      id: `panel-${Date.now()}`,
-      cells: newPanelGrid,
-      type: isCut ? "Cut" : "Normal",
-    };
+    // 切り取りパネル
+    else {
+      const copyCells: GridCell[][] = newPanelGrid.map(row =>
+        row.map(toGridCell)
+      );
 
-    dispatch(panelListSlice.actions.createPanel(newPanel));
+      const newCopyPanel: CopyPanel = {
+        id: `copy-${Date.now()}`,
+        cells: copyCells,
+        type: "Paste",
+      };
+      dispatch(copyPanelListSlice.actions.createPanel(newCopyPanel));
+    }
+
+    /* 入力グリッドを初期化 */
     dispatch(createPanelSlice.actions.initPanelGrid());
   };
 
@@ -48,6 +71,7 @@ export const NewPanelCreator: React.FC = () => {
       <CardHeader>
         <CardTitle>パネル作成</CardTitle>
       </CardHeader>
+
       <CardContent>
         <div className="flex flex-col gap-4">
           {/* 行・列操作 */}

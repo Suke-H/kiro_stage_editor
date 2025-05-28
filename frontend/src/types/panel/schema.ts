@@ -1,5 +1,5 @@
 import { Vector } from '@/types/path';
-import { GridCellKey } from '@/types/grid';
+import { GridCell } from '@/types/grid';
 
 export type PanelCellTypeKey = "White" | "Black" | "Flag" | "Cut" | "CopyWhite" | "CopyBlack";
 
@@ -10,7 +10,7 @@ export interface Panel {
 }
 
 export type CopyPanel = Omit<Panel, "cells"> & {
-  cells: GridCellKey[][];
+  cells: GridCell[][];
 };
 
 export type PanelPlacement = {

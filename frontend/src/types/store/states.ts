@@ -1,5 +1,5 @@
 import { Grid } from "../grid";
-import { Panel } from "../panel";
+import { Panel, CopyPanel } from "../panel";
 import { GridCellKey } from "@/types/grid";
 import { PanelCellTypeKey } from "@/types/panel";
 import { NumberGrid } from "@/types/solution";
@@ -17,6 +17,11 @@ export interface CellTypeState {
 export interface PanelListState {
   panels: Panel[];
   removedPanels: { panel: Panel; index: number }[];
+}
+
+export interface CopyPanelListState {
+  panels: CopyPanel[];
+  removedPanels: { panel: CopyPanel; index: number }[];
 }
 
 export interface CreatePanelState {
