@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash2, Move } from "lucide-react";
+import { Trash2, Move, Scissors, Copy as CopyIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 
@@ -112,6 +112,16 @@ const renderList = (
 
         return (
           <div key={panelItem.id} className="flex flex-col items-center">
+            <div className="mb-1">
+              {/** 切り取りパネル→ハサミマーク */}
+                {!isCopy && panelObj.type === "Cut" && (
+                  <Scissors size={20} />
+                )}
+              {/** コピーパネル→コピーマーク */}
+              {isCopy && (
+                  <CopyIcon size={20} />
+                )}
+              </div>
             <div
               className="grid gap-1"
               style={{
