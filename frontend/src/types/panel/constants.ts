@@ -18,4 +18,17 @@ export const PANEL_CELL_TYPES: Record<PanelCellTypeKey, PanelCellInfo> = {
     code: "f",
     picture: "flag.png", 
   },
+  Cut: {
+    code: "c",
+    picture: "black.png",
+  },
+  CopyWhite: {
+    code: "cw",
+    picture: "white.png",
+  },
+  CopyBlack: {
+    code: "cb",
+    picture: "black.png",
+  },
+
 } as const;

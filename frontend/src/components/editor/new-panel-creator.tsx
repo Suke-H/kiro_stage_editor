@@ -1,37 +1,42 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { Panel } from "@/types/panel";
+import {
+  Panel,
+  PanelCellTypeKey,
+} from "@/types/panel";
 import { Button } from "@/components/ui/button";
 import { Add, Remove } from "@mui/icons-material";
+import { Switch } from "@/components/ui/switch";
 
 import { createPanelSlice } from "../../store/slices/create-panel-slice";
 import { panelListSlice } from "../../store/slices/panel-list-slice";
-import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
-
-import { PanelCellTypeKey } from "@/types/panel";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 export const NewPanelCreator: React.FC = () => {
+  const [isCut, setIsCut] = useState<boolean>(false);
   const dispatch = useDispatch();
-  const newPanelGrid: PanelCellTypeKey[][] = useSelector(
-    (state: RootState) => state.createPanel.newPanelGrid
+
+  const newPanelGrid = useSelector(
+    (state: RootState): PanelCellTypeKey[][] => state.createPanel.newPanelGrid
   );
 
-  const addPanel = () => {
-    const nonEmptyCells = newPanelGrid.some((row) =>
-      row.some((cell) => cell === "Black")
-    );
-    if (nonEmptyCells) {
-      const newPanel: Panel = {
-        id: `panel-${Date.now()}`,
-        cells: newPanelGrid,
-      };
 
-      // パネル追加
-      dispatch(panelListSlice.actions.createPanel(newPanel));
-      // グリッドは初期化させる
-      dispatch(createPanelSlice.actions.initPanelGrid());
-    }
+
+  /* 追加ボタン */
+  const addPanel = () => {
+    const hasBlack = newPanelGrid.some((row) => row.includes("Black"));
+    if (!hasBlack) return;
+
+    const newPanel: Panel = {
+      id: `panel-${Date.now()}`,
+      cells: newPanelGrid,
+      type: isCut ? "Cut" : "Normal",
+    };
+
+    dispatch(panelListSlice.actions.createPanel(newPanel));
+    dispatch(createPanelSlice.actions.initPanelGrid());
   };
 
   return (
@@ -39,6 +44,7 @@ export const NewPanelCreator: React.FC = () => {
       <CardHeader>
         <CardTitle>パネル作成</CardTitle>
       </CardHeader>
+
       <CardContent>
         <div className="flex flex-col gap-4">
           {/* 行・列操作 */}
@@ -85,12 +91,12 @@ export const NewPanelCreator: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* パネルプレビュー */}
         <div
           className="grid mt-4 mb-4 ml-1"
           style={{
-            gridTemplateColumns: `repeat(${
-              newPanelGrid[0]?.length ?? 0
-            }, 40px)`,
+            gridTemplateColumns: `repeat(${newPanelGrid[0]?.length ?? 0}, 40px)`,
             gap: "4px",
           }}
         >
@@ -99,7 +105,11 @@ export const NewPanelCreator: React.FC = () => {
               <div
                 key={`new-${rowIndex}-${colIndex}`}
                 className={`h-10 w-10 border ${
-                  cellType === "Black" ? "bg-gray-500" : "bg-white"
+                  cellType === "Black"
+                    ? "bg-gray-500"
+                    : cellType === "Cut"
+                    ? "bg-yellow-300"
+                    : "bg-white"
                 }`}
                 onClick={() =>
                   dispatch(
@@ -113,9 +123,16 @@ export const NewPanelCreator: React.FC = () => {
             ))
           )}
         </div>
+
         <Button onClick={addPanel} className="w-full flex items-center gap-2">
           <Plus size={16} /> パネル追加
         </Button>
+
+        {/* 切り取りモードトグル */}
+        <div className="flex items-center gap-2 mt-4">
+          <Switch checked={isCut} onCheckedChange={setIsCut} />
+          <span>{isCut ? "切り取りモードON" : "切り取りモードOFF"}</span>
+        </div>
       </CardContent>
     </Card>
   );
