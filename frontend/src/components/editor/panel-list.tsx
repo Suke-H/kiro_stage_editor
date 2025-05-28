@@ -10,10 +10,10 @@ import {
   PanelCellTypeKey,
   PANEL_CELL_TYPES,
 } from "@/types/panel";
-
 import {
+  GRID_CELL_TYPES,
   GridCell,
-  GridCellKey,
+  CellSideInfo,
 } from "@/types/grid";
 
 import { StudioMode, StudioModeInEditor } from "@/types/store";
@@ -24,88 +24,108 @@ import { studioModeInEditorSlice } from "../../store/slices/studio-mode-in-edito
 
 import { PlacementControllPart } from "./panel-list/placement-controll-part";
 
-/* CopyPanel -> Panel 変換（描画 & Placement 用） */
-const gridToPanelCell = (cell: GridCell): PanelCellTypeKey => {
-  switch (cell.type as GridCellKey) {
-    case "Normal":
-    case "Flip":
-    case "Crow":
-    case "Wolf":
-      return "Black";
-    case "Flag":
-      return "Flag";
-    default:
-      return "White";
-  }
-};
-const convertCopyToPanel = (cp: CopyPanel): Panel => ({
+/* ----- CopyPanel -> Panel 変換（配置用） ----- */
+const gridToPanelCell = (cell: GridCell): PanelCellTypeKey =>
+  cell.type === "Flag"
+    ? "Flag"
+    : cell.type === "Empty"
+    ? "White"
+    : "Black";
+
+const toPanel = (cp: CopyPanel): Panel => ({
   id: cp.id,
   type: cp.type,
   cells: cp.cells.map((row) => row.map(gridToPanelCell)),
 });
+/* ------------------------------------------- */
 
 export const PanelList: React.FC = () => {
   const dispatch = useDispatch();
-  const studioMode   = useSelector((s: RootState) => s.studioMode.studioMode);
-  const panels       = useSelector((s: RootState) => s.panelList.panels);
-  const copyPanels   = useSelector((s: RootState) => s.copyPanelList.panels);
-  const placement    = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
+  const studioMode = useSelector((s: RootState) => s.studioMode.studioMode);
+  const panels     = useSelector((s: RootState) => s.panelList.panels);
+  const copyPanels = useSelector((s: RootState) => s.copyPanelList.panels);
+  const placement  = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
 
-  /* パネル選択 */
+  /* -------- パネル選択 -------- */
   const selectPanel = (panel: Panel) => {
-    if (placement.panel === panel) {
+    if (placement.panel?.id === panel.id) {
       dispatch(panelPlacementSlice.actions.clearPanelSelection());
       return;
     }
-
-    /* 最初の Black をハイライト */
-    let highlight = { row: 0, col: 0 };
-    outer: for (let i = 0; i < panel.cells.length; i++) {
-      for (let j = 0; j < panel.cells[i].length; j++) {
+    /* ハイライト位置は最初の Black */
+    let hl = { row: 0, col: 0 };
+    outer: for (let i = 0; i < panel.cells.length; i++)
+      for (let j = 0; j < panel.cells[i].length; j++)
         if (panel.cells[i][j] === "Black") {
-          highlight = { row: i, col: j };
+          hl = { row: i, col: j };
           break outer;
         }
-      }
-    }
 
     dispatch(
       panelPlacementSlice.actions.selectPanelForPlacement({
         panel,
-        highlightedCell: highlight,
+        highlightedCell: hl,
       })
     );
 
-    if (studioMode === StudioMode.Editor) {
-      dispatch(
-        studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play)
-      );
-    }
+    if (studioMode === StudioMode.Editor)
+      dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
   };
 
-  /* 共通描画関数 */
-  const renderList = (
-    list: Panel[],
-    isCopy: boolean /* 削除 dispatch の切替 */
+  /* -------- Normal / Cut / Flag 用描画 -------- */
+  const renderPanelCell = (cell: PanelCellTypeKey) => {
+    const info = PANEL_CELL_TYPES[cell];
+    return (
+      <img src={`/cells/${info.picture}`} alt={info.code} className="w-full h-full object-contain" />
+    );
+  };
+
+  /* -------- CopyPanel 用描画 -------- */
+  const renderGridCell = (cell: GridCell) => {
+    const def = GRID_CELL_TYPES[cell.type];
+    const side: CellSideInfo | undefined = def[cell.side];
+    return (
+      <img
+        src={`/cells/${side?.picture}`}
+        alt={def.label}
+        className="w-full h-full object-contain"
+      />
+    );
+  };
+
+const renderList = (
+    basePanels: (Panel | CopyPanel)[],
+    isCopy: boolean
   ) => (
     <>
-      {list.map((p) => {
-        const selected = placement.panel === p;
+      {basePanels.map((panelItem) => {
+        // 描画・配置操作用に Panel 型へ
+        const panelObj: Panel = isCopy
+          ? toPanel(panelItem as CopyPanel)
+          : (panelItem as Panel);
+
+        const cellsMatrix = isCopy
+          ? (panelItem as CopyPanel).cells
+          : (panelItem as Panel).cells;
+
+        const selected = placement.panel?.id === panelItem.id;
+
         return (
-          <div key={p.id} className="flex flex-col items-center">
+          <div key={panelItem.id} className="flex flex-col items-center">
             <div
               className="grid gap-1"
               style={{
-                gridTemplateColumns: `repeat(${p.cells[0]?.length ?? 0}, 40px)`,
+                gridTemplateColumns: `repeat(${cellsMatrix[0].length}, 40px)`,
               }}
+              onClick={() => selectPanel(panelObj)}
             >
-              {p.cells.map((row, ri) =>
+              {cellsMatrix.map((row, ri) =>
                 row.map((cell, ci) => {
-                  const cellInfo = PANEL_CELL_TYPES[cell];
                   const highlight =
                     selected &&
                     placement.highlightedCell?.row === ri &&
                     placement.highlightedCell?.col === ci;
+
                   return (
                     <div
                       key={`${ri}-${ci}`}
@@ -113,18 +133,21 @@ export const PanelList: React.FC = () => {
                         highlight ? "ring-2 ring-red-500" : ""
                       }`}
                     >
-                      <img
-                        src={`/cells/${cellInfo.picture}`}
-                        alt={cellInfo.code}
-                        className="w-full h-full object-contain"
-                      />
+                      {isCopy
+                        ? renderGridCell(cell as GridCell)
+                        : renderPanelCell(cell as PanelCellTypeKey)}
                     </div>
                   );
                 })
               )}
             </div>
+
             <div className="flex gap-2">
-              <Button variant="ghost" size="icon" onClick={() => selectPanel(p)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => selectPanel(panelObj)}
+              >
                 <Move size={16} />
               </Button>
               {studioMode === StudioMode.Editor && (
@@ -134,8 +157,8 @@ export const PanelList: React.FC = () => {
                   onClick={() =>
                     dispatch(
                       isCopy
-                        ? copyPanelListSlice.actions.removePanel(p.id)
-                        : panelListSlice.actions.removePanel(p.id)
+                        ? copyPanelListSlice.actions.removePanel(panelItem.id)
+                        : panelListSlice.actions.removePanel(panelItem.id)
                     )
                   }
                 >
@@ -157,12 +180,14 @@ export const PanelList: React.FC = () => {
       <CardContent>
         <PlacementControllPart />
 
-        {/* panel-list（Normal / Cut / Flag） */}
-        <div className="flex flex-wrap gap-2 max-w-full">{renderList(panels, false)}</div>
+        {/* panel-list: Normal / Cut / Flag */}
+        <div className="flex flex-wrap gap-2 max-w-full">
+          {renderList(panels, false)}
+        </div>
 
-        {/* copy-panel-list（Paste 用） */}
+        {/* copy-panel-list: Paste 用 CopyPanel */}
         <div className="flex flex-wrap gap-2 max-w-full mt-4">
-          {renderList(copyPanels.map(convertCopyToPanel), true)}
+          {renderList(copyPanels, true)}
         </div>
       </CardContent>
     </Card>

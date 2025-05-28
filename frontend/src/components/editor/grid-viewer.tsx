@@ -1,3 +1,4 @@
+// components/GridViewer.tsx
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 
@@ -20,71 +21,63 @@ import {
   GRID_CELL_TYPES,
   CellSideInfo,
 } from "@/types/grid";
-
 import {
   Panel,
-  CopyPanel,
   PanelCellTypeKey,
+  CopyPanel,
 } from "@/types/panel";
-
 import { StudioMode } from "@/types/store";
+
 import { MatrixOperationPart } from "./grid/matrix-operation-part";
 import { StageDataIOPart } from "./grid/stage-data-io-part";
-
-// /* PanelCell -> GridCell 変換（Cut 用コピー生成） */
-// const panelCellToGrid = (cell: PanelCellTypeKey): GridCell => ({
-//   type: cell === "Black" ? "Normal" : "Empty",
-//   side: "neutral",
-// });
 
 export const GridViewer: React.FC = () => {
   const dispatch = useDispatch();
 
-  const studioMode   = useSelector((s: RootState) => s.studioMode.studioMode);
-  const grid: Grid   = useSelector((s: RootState) => s.grid.grid);
-  const selCell      = useSelector((s: RootState) => s.cellType.selectedCellType) as GridCellKey;
-  const placement    = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
-  const copyPanels   = useSelector((s: RootState) => s.copyPanelList.panels);
+  /* ========== state ========== */
+  const studioMode      = useSelector((s: RootState) => s.studioMode.studioMode);
+  const grid            = useSelector((s: RootState) => s.grid.grid) as Grid;
+  const selectedCellKey = useSelector((s: RootState) => s.cellType.selectedCellType) as GridCellKey;
+  const placementMode   = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
+  const copyPanels      = useSelector((s: RootState) => s.copyPanelList.panels);
 
-  /* クリック処理 */
-  const handleGridCellClick = (ri: number, ci: number) => {
-    const placing = placement.panel; // Panel | CopyPanel | null
+  /* ========== クリック ========== */
+  const handleGridCellClick = (rowIdx: number, colIdx: number): void => {
+    const placing = placementMode.panel;           // Panel | CopyPanel | null
 
-    /* セル個別配置 (Editor & 未選択) */
+    /* -------- 単セル配置モード -------- */
     if (studioMode === StudioMode.Editor && !placing) {
-      const def = GRID_CELL_TYPES[selCell];
-      if (selCell === "Flip") {
-        if (grid[ri][ci].type !== "Empty") {
-          dispatch(gridSlice.actions.flipCell({ row: ri, col: ci }));
+      const def = GRID_CELL_TYPES[selectedCellKey];
+      if (selectedCellKey === "Flip") {
+        if (grid[rowIdx][colIdx].type !== "Empty") {
+          dispatch(gridSlice.actions.flipCell({ row: rowIdx, col: colIdx }));
         }
       } else {
-        const side = "neutral" in def ? "neutral" : "front";
+        const side: "neutral" | "front" = "neutral" in def ? "neutral" : "front";
         dispatch(
           gridSlice.actions.placeCell({
-            row: ri,
-            col: ci,
-            cell: { type: selCell, side },
+            row: rowIdx,
+            col: colIdx,
+            cell: { type: selectedCellKey, side },
           })
         );
       }
       return;
     }
 
-    /* パネル未選択 */
+    /* -------- パネル未選択 -------- */
     if (!placing) return;
 
     const panelType = placing.type ?? "Normal";
     const rows = placing.cells.length;
     const cols = placing.cells[0].length;
 
-    /* ----- Paste 用 CopyPanel を取得 ----- */
-    const cp =
-      panelType === "Paste"
-        ? copyPanels.find((c) => c.id === placing.id)
-        : undefined;
+    /* -------- Paste 用 CopyPanel -------- */
+    const currentCopyPanel: CopyPanel | undefined =
+      panelType === "Paste" ? copyPanels.find((cp) => cp.id === placing.id) : undefined;
 
-    /* 範囲 & 空きチェック */
-    if (!canPlace(grid, ri, ci, placing, cp)) {
+    /* -------- 配置可否 -------- */
+    if (!canPlacePanel(grid, rowIdx, colIdx, placing, currentCopyPanel)) {
       dispatch(
         panelPlacementSlice.actions.selectPanelForPlacement({
           panel: null,
@@ -94,9 +87,10 @@ export const GridViewer: React.FC = () => {
       return;
     }
 
+    /* 履歴保存 */
     dispatch(gridSlice.actions.saveHistory());
 
-    /* Cut 時のコピー生成バッファ */
+    /* -------- Cut 用コピー配列初期化 -------- */
     let copyCells: GridCell[][] = [];
     if (panelType === "Cut") {
       copyCells = placing.cells.map((row) =>
@@ -104,62 +98,91 @@ export const GridViewer: React.FC = () => {
       );
     }
 
-    /* -------------------------------------------------- */
-    /* 各セルごと処理                                     */
-    /* -------------------------------------------------- */
+    /* -------- 各セル処理 -------- */
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
-        const r = ri + i;
-        const c = ci + j;
+        const r = rowIdx + i;
+        const c = colIdx + j;
 
         if (panelType === "Normal") {
           const t = placing.cells[i][j] as PanelCellTypeKey;
-          if (t === "Black") dispatch(gridSlice.actions.flipCell({ row: r, col: c }));
-          else if (t === "Flag")
-            dispatch(gridSlice.actions.placeCell({ row: r, col: c, cell: { type: "Flag", side: "neutral" } }));
-          else if (t === "Cut")
-            dispatch(gridSlice.actions.placeCell({ row: r, col: c, cell: { type: "Empty", side: "neutral" } }));
-        }
-
-        else if (panelType === "Flag") {
-          dispatch(gridSlice.actions.placeCell({ row: r, col: c, cell: { type: "Flag", side: "neutral" } }));
-        }
-
-        else if (panelType === "Cut") {
-          const t = placing.cells[i][j] as PanelCellTypeKey;
           if (t === "Black") {
-            copyCells[i][j] = grid[r][c];
-            dispatch(gridSlice.actions.placeCell({ row: r, col: c, cell: { type: "Empty", side: "neutral" } }));
+            dispatch(gridSlice.actions.flipCell({ row: r, col: c }));
+          } else if (t === "Flag") {
+            dispatch(
+              gridSlice.actions.placeCell({
+                row: r,
+                col: c,
+                cell: { type: "Flag", side: "neutral" },
+              })
+            );
+          } else if (t === "Cut") {
+            dispatch(
+              gridSlice.actions.placeCell({
+                row: r,
+                col: c,
+                cell: { type: "Empty", side: "neutral" },
+              })
+            );
           }
         }
 
-        else if (panelType === "Paste" && cp) {
-          const src = cp.cells[i][j];
+        else if (panelType === "Flag") {
+          dispatch(
+            gridSlice.actions.placeCell({
+              row: r,
+              col: c,
+              cell: { type: "Flag", side: "neutral" },
+            })
+          );
+        }
+
+        else if (panelType === "Cut") {
+          if (placing.cells[i][j] === "Black") {
+            copyCells[i][j] = { ...grid[r][c] };  // 完全コピー
+            dispatch(
+              gridSlice.actions.placeCell({
+                row: r,
+                col: c,
+                cell: { type: "Empty", side: "neutral" },
+              })
+            );
+          }
+        }
+
+        else if (panelType === "Paste" && currentCopyPanel) {
+          const src = currentCopyPanel.cells[i][j];
           if (src.type !== "Empty") {
-            dispatch(gridSlice.actions.placeCell({ row: r, col: c, cell: { type: src.type, side: src.side } }));
+            dispatch(
+              gridSlice.actions.placeCell({
+                row: r,
+                col: c,
+                cell: { type: src.type, side: src.side },
+              })
+            );
           }
         }
       }
     }
 
-    /* ----- 使用済みパネルをリストから削除 ----- */
-    if (panelType === "Paste" && cp) {
-      dispatch(copyPanelListSlice.actions.placePanel(cp));
+    /* -------- パネルリスト更新 -------- */
+    if (panelType === "Paste" && currentCopyPanel) {
+      dispatch(copyPanelListSlice.actions.placePanel(currentCopyPanel));
     } else {
       dispatch(panelListSlice.actions.placePanel(placing as Panel));
     }
 
-    /* ----- Cut → CopyPanel 作成 ----- */
+    /* -------- Cut → CopyPanel 作成 -------- */
     if (panelType === "Cut") {
-      const newCopy: CopyPanel = {
+      const newCopyPanel: CopyPanel = {
         id: `copy-${Date.now()}`,
         type: "Paste",
         cells: copyCells,
       };
-      dispatch(copyPanelListSlice.actions.createPanel(newCopy));
+      dispatch(copyPanelListSlice.actions.createPanel(newCopyPanel));
     }
 
-    /* 選択解除 */
+    /* -------- 選択解除 -------- */
     dispatch(
       panelPlacementSlice.actions.selectPanelForPlacement({
         panel: null,
@@ -168,44 +191,47 @@ export const GridViewer: React.FC = () => {
     );
   };
 
-  /* 配置可否 */
-  const canPlace = (
+  /* ========== 配置可能判定 ========== */
+  const canPlacePanel = (
     g: Grid,
-    ri: number,
-    ci: number,
+    r0: number,
+    c0: number,
     p: Panel | CopyPanel,
     cp?: CopyPanel
-  ) => {
+  ): boolean => {
     const rows = p.cells.length;
     const cols = p.cells[0].length;
 
-    if (ri + rows > g.length || ci + cols > g[0].length) return false;
+    if (r0 + rows > g.length || c0 + cols > g[0].length) return false;
 
     if (p.type === "Paste" && cp) {
-      for (let i = 0; i < rows; i++)
-        for (let j = 0; j < cols; j++)
-          if (
-            cp.cells[i][j].type !== "Empty" &&
-            g[ri + i][ci + j].type !== "Empty"
-          )
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const src = cp.cells[i][j];
+          if (src.type !== "Empty" && g[r0 + i][c0 + j].type !== "Empty") {
             return false;
+          }
+        }
+      }
       return true;
     }
 
-    for (let i = 0; i < rows; i++)
-      for (let j = 0; j < cols; j++)
-        if (
-          p.cells[i][j] === "Black" &&
-          g[ri + i][ci + j].type === "Empty"
-        )
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        const cellType = p.cells[i][j] as PanelCellTypeKey;
+        if (cellType === "Black" && g[r0 + i][c0 + j].type === "Empty") {
           return false;
+        }
+      }
+    }
     return true;
   };
 
-  /* セル描画 (変更なし) */
-  const renderCell = (cell: GridCell, r: number, c: number) => {
+  /* ========== セル描画 ========== */
+  const renderGridCell = (cell: GridCell, r: number, c: number) => {
     const def = GRID_CELL_TYPES[cell.type];
-    const side: CellSideInfo | undefined = def[cell.side];
+    const sideInfo: CellSideInfo | undefined = def[cell.side];
+
     return (
       <div
         key={`${r}-${c}`}
@@ -214,9 +240,9 @@ export const GridViewer: React.FC = () => {
         }`}
         onClick={() => handleGridCellClick(r, c)}
       >
-        {cell.type !== "Empty" && (
+        {cell.type !== "Empty" && sideInfo && (
           <img
-            src={`/cells/${side?.picture}`}
+            src={`/cells/${sideInfo.picture}`}
             alt={def.label}
             className="w-full h-full object-contain"
           />
@@ -225,6 +251,7 @@ export const GridViewer: React.FC = () => {
     );
   };
 
+  /* ========== JSX ========== */
   return (
     <Card className="w-fit bg-[#B3B9D1]">
       <CardHeader>
@@ -240,9 +267,13 @@ export const GridViewer: React.FC = () => {
               gap: "4px",
             }}
           >
-            {grid.map((row, ri) => row.map((cell, ci) => renderCell(cell, ri, ci)))}
+            {grid.map((row, ri) =>
+              row.map((cell, ci) => renderGridCell(cell, ri, ci))
+            )}
           </div>
+
           <div className="hidden lg:block w-20"></div>
+
           {studioMode === StudioMode.Editor && (
             <div className="flex flex-col gap-4 min-w-[200px] mt-8">
               <MatrixOperationPart />
