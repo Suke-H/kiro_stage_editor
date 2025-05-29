@@ -1,5 +1,5 @@
 import { PanelCellTypeKey, PANEL_CELL_TYPES } from "@/types/panel";
-import { GridCellKey, GRID_CELL_TYPES, CellSideInfo, CellDefinition } from "@/types/grid"
+import { GridCellKey, GRID_CELL_TYPES, CellSideInfo, CellDefinition } from "@/types/grid";
 import { Panel } from "@/types/panel";
 import { Grid, GridCell } from "@/types/grid";
 
@@ -16,7 +16,7 @@ const encodeStageToUrl = (grid: Grid, panels: Panel[]) => {
     .join("");
   const cellsEncoded = `h${cellsHeight}w${cellsWidth}g${cellsGrid}`;
 
-  // Panels のエンコード (unchanged)
+  // Panels のエンコード
   const panelsEncoded = panels
     .map((panel) => {
       const height = panel.cells.length;
@@ -25,7 +25,12 @@ const encodeStageToUrl = (grid: Grid, panels: Panel[]) => {
         .flat()
         .map((cell) => PANEL_CELL_TYPES[cell].code)
         .join("");
-      return `h${height}w${width}g${gridData}`;
+      // タイプに応じたプレフィックスを追加
+      let prefix = "";
+      if (panel.type === "Cut") prefix = "c-";
+      else if (panel.type === "Paste") prefix = "p-";
+      const panelStr = `h${height}w${width}g${gridData}`;
+      return `${prefix}${panelStr}`;
     })
     .join("_");
 
@@ -61,7 +66,6 @@ export const decodeStageFromUrl = (stageData: string) => {
   const decodeCellGrid = (gridString: string): GridCell[] => {
     const cells: GridCell[] = [];
     let i = 0;
-
     while (i < gridString.length) {
       const currentChar = gridString[i];
 
@@ -73,7 +77,6 @@ export const decodeStageFromUrl = (stageData: string) => {
 
       if (cellType) {
         let side: GridCell["side"] = "neutral";
-
         (
           Object.entries(GRID_CELL_TYPES[cellType]) as [
             keyof CellDefinition,
@@ -101,15 +104,13 @@ export const decodeStageFromUrl = (stageData: string) => {
     let i = 0;
     while (i < gridString.length) {
       const currentChar = gridString[i];
-
       const cellType =
         (Object.keys(PANEL_CELL_TYPES).find(
           (key) =>
             PANEL_CELL_TYPES[key as PanelCellTypeKey].code === currentChar
         ) as PanelCellTypeKey) || "Empty";
-
       cells.push(cellType);
-      i += 1; // 1文字分進める
+      i += 1;
     }
     return cells;
   };
@@ -122,7 +123,18 @@ export const decodeStageFromUrl = (stageData: string) => {
 
   // Panels のデコード
   const panelsRaw = params.get("panels") || "";
-  const panels = panelsRaw.split("_").map((panelStr, index) => {
+  const panels = panelsRaw.split("_").map((panelRaw, index) => {
+    // プレフィックスからタイプ判定
+    let panelStr = panelRaw;
+    let type: Panel["type"];
+    if (panelStr.startsWith("c-")) {
+      type = "Cut";
+      panelStr = panelStr.slice(2);
+    } else if (panelStr.startsWith("p-")) {
+      type = "Paste";
+      panelStr = panelStr.slice(2);
+    }
+
     const heightMatch = panelStr.match(/h(\d+)/);
     const widthMatch = panelStr.match(/w(\d+)/);
     const gridMatch = panelStr.match(/g(.+)/);
@@ -136,7 +148,7 @@ export const decodeStageFromUrl = (stageData: string) => {
       decodedPanelCells.slice(i * width, (i + 1) * width)
     );
 
-    return { id: `panel-${index}`, cells: panelCells };
+    return { id: `panel-${index}`, cells: panelCells, type };
   });
 
   return { cells, panels };
