@@ -12,6 +12,8 @@
       "@/types/*": ["./src/types/*"],
       "@/api/*": ["./src/api/*"],
       "@/hooks/*": ["./src/hooks/*"],
+      "@/store":["./src/store/index.ts"],
+      "@/store/*": ["./src/store/*"],
     }
   }
 }

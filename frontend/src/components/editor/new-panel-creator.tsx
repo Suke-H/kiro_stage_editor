@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Add, Remove } from "@mui/icons-material";
 import { Switch } from "@/components/ui/switch";
 
-import { createPanelSlice } from "../../store/slices/create-panel-slice";
-import { panelListSlice } from "../../store/slices/panel-list-slice";
-import { RootState } from "../../store";
+import { createPanelSlice } from "@/store/slices/create-panel-slice";
+import { panelListSlice } from "@/store/slices/panel-list-slice";
+import { RootState } from "@/store";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 

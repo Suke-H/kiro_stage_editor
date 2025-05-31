@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../store";
+import { RootState } from "@/store";
 
-import { gridSlice } from '../../../store/slices/grid-slice';
-import { panelListSlice } from '../../../store/slices/panel-list-slice';
+import { gridSlice } from '@/store/slices/grid-slice';
+import { panelListSlice } from '@/store/slices/panel-list-slice';
 
 import { Button } from "@/components/ui/button";
 import { Download, Upload, Link } from "lucide-react";

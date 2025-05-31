@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "@/store";
 
 import { Grid, GridCell } from "@/types/grid";
 import { NumberGrid } from "@/types/solution";

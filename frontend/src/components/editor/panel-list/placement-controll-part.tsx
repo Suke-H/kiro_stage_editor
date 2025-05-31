@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { panelPlacementSlice } from "../../../store/slices/panel-placement-slice";
-import { panelListSlice } from "../../../store/slices/panel-list-slice";
-import { gridSlice } from "../../../store/slices/grid-slice";
-import { RootState } from "../../../store";
+import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
+import { panelListSlice } from "@/store/slices/panel-list-slice";
+import { gridSlice } from "@/store/slices/grid-slice";
+import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 
 import { PlaySimulateAsync } from "@/api/play-simulate";

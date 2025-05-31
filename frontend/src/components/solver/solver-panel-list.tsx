@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RootState } from '../../store';
+import { RootState } from '@/store';
 import { PanelPlacement } from '@/types/panel';
 
 interface SolverPanelListProps {

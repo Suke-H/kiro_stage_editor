@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Move, Scissors, Copy as CopyIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "@/store";
 
 import {
   Panel,
@@ -17,10 +17,10 @@ import {
 } from "@/types/grid";
 
 import { StudioMode, StudioModeInEditor } from "@/types/store";
-import { panelListSlice } from "../../store/slices/panel-list-slice";
-import { copyPanelListSlice } from "../../store/slices/copy-panel-list-slice";
-import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
-import { studioModeInEditorSlice } from "../../store/slices/studio-mode-in-editor-slice";
+import { panelListSlice } from "@/store/slices/panel-list-slice";
+import { copyPanelListSlice } from "@/store/slices/copy-panel-list-slice";
+import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
+import { studioModeInEditorSlice } from "@/store/slices/studio-mode-in-editor-slice";
 
 import { PlacementControllPart } from "./panel-list/placement-controll-part";
 

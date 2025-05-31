@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { gridSlice } from "../store/slices/grid-slice";
-import { panelListSlice } from "../store/slices/panel-list-slice";
-import { panelPlacementSlice } from "../store/slices/panel-placement-slice";
-import { studioModeInEditorSlice } from "../store/slices/studio-mode-in-editor-slice";
-import { RootState } from "../store";
+import { gridSlice } from "@/store/slices/grid-slice";
+import { panelListSlice } from "@/store/slices/panel-list-slice";
+import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
+import { studioModeInEditorSlice } from "@/store/slices/studio-mode-in-editor-slice";
+import { RootState } from "@/store";
 import { StudioModeInEditor } from "@/types/store";
 
 import { CellTypeSelector } from "@/components/editor/cell-type-selector";
