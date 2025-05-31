@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-import { gridSlice } from "../store/slices/grid-slice";
-import { panelListSlice } from "../store/slices/panel-list-slice";
+import { gridSlice } from "@/store/slices/grid-slice";
+import { panelListSlice } from "@/store/slices/panel-list-slice";
 
 import { GridViewer } from "@/components/editor/grid-viewer";
 import { PanelList } from "@/components/editor/panel-list";

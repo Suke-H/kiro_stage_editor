@@ -32,6 +32,8 @@
       "@/types/*":["./types/*"],
       "@/api/*": ["./api/*"],
       "@/hooks/*": ["./hooks/*"],
+      "@/store": ["./store"],
+      "@/store/*": ["./store/*"],
     }
   },
   "include": ["src"]

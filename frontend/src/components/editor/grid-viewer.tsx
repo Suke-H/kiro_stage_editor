@@ -1,11 +1,11 @@
 // components/GridViewer.tsx
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { RootState } from "@/store";
 
-import { gridSlice } from "../../store/slices/grid-slice";
-import { panelListSlice } from "../../store/slices/panel-list-slice";
-import { copyPanelListSlice } from "../../store/slices/copy-panel-list-slice";
-import { panelPlacementSlice } from "../../store/slices/panel-placement-slice";
+import { gridSlice } from "@/store/slices/grid-slice";
+import { panelListSlice } from "@/store/slices/panel-list-slice";
+import { copyPanelListSlice } from "@/store/slices/copy-panel-list-slice";
+import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
 
 import {
   Card,

@@ -2,8 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../store";
-import { solutionActions } from "../store/slices/solution-slice";
+import { RootState } from "@/store";
+import { solutionActions } from "@/store/slices/solution-slice";
 import { SolverPanelList } from '@/components/solver/solver-panel-list';
 import { PlaySolveAsync } from "@/api/solve";
 

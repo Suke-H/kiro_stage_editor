@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StudioModeInEditor } from "@/types/store";
 import { GridCellKey, GRID_CELL_TYPES } from "@/types/grid/";
-import { cellTypeSlice } from "../../store/slices/cell-type-slice";
-import { studioModeInEditorSlice } from "../../store/slices/studio-mode-in-editor-slice";
-import { RootState } from "../../store";
+import { cellTypeSlice } from "@/store/slices/cell-type-slice";
+import { studioModeInEditorSlice } from "@/store/slices/studio-mode-in-editor-slice";
+import { RootState } from "@/store";
 // import { types } from "util";
 
 export const CellTypeSelector: React.FC = () => {

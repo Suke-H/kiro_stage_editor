@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { gridSlice } from "../../../store/slices/grid-slice";
+import { gridSlice } from "@/store/slices/grid-slice";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Add, Remove } from "@mui/icons-material";

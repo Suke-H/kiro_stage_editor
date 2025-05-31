@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 
-import { RootState } from "../store";
-import { gridSlice } from '../store/slices/grid-slice';
-import { panelListSlice } from '../store/slices/panel-list-slice';
-import { studioModeSlice }  from "../store/slices/studio-mode-slice";
+import { RootState } from "@/store";
+import { gridSlice } from '@/store/slices/grid-slice';
+import { panelListSlice } from '@/store/slices/panel-list-slice';
+import { studioModeSlice }  from "@/store/slices/studio-mode-slice";
 
 import { StudioMode } from "../types/store";
 
