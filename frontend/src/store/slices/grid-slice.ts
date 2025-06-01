@@ -106,24 +106,24 @@ export const gridSlice = createSlice({
     },
 
     /* フェーズ履歴の管理 */
+
+    // フェーズ履歴を初期化 
+    initPhaseHistory: (state) => {
+        state.phaseHistory = [state.grid.map((row) => row.map((cell) => ({ ...cell })))];
+    },
+
     savePhaseHistory: (state) => {
         state.phaseHistory.push(state.grid.map((row) => row.map((cell) => ({ ...cell }))));
     },
 
     // resetは最初の履歴は消さずに持っておく
     resetPhase: (state) => {
-        if (state.phaseHistory.length >= 1) {
+        if (state.phaseHistory.length >= 2) {
             state.grid = state.phaseHistory[0];
-            state.phaseHistory = [];
+            // 最初の履歴は消さない
+            state.phaseHistory = state.phaseHistory.slice(0, 1);
         }
     },
-
-    // clearは最初の履歴ふくめて完全に削除する
-    clearPhaseHistory: (state) => {
-        state.phaseHistory = [];
-    },
-
-
 
     // 足あとの設置
     placeFootprints: (state, action: PayloadAction<{path: Path}>) => {

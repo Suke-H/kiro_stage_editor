@@ -65,6 +65,7 @@ export const GridViewer: React.FC = () => {
 
       // 単セル配置実施後は、履歴を初期化
       dispatch(gridSlice.actions.initHistory());
+      dispatch(gridSlice.actions.initPhaseHistory());
       return;
     }
 
@@ -96,6 +97,7 @@ export const GridViewer: React.FC = () => {
     // 履歴が1つもない場合は、初期化
     if (gridHistory.length === 0) {
       dispatch(gridSlice.actions.initHistory());
+      dispatch(gridSlice.actions.initPhaseHistory());
     } else {
       dispatch(gridSlice.actions.saveHistory());
     }

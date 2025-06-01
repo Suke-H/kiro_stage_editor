@@ -19,6 +19,7 @@ const PlayPage: React.FC = () => {
     // dispatch(gridSlice.actions.clearHistory());
     // 履歴を初期化
     dispatch(gridSlice.actions.initHistory());
+    dispatch(gridSlice.actions.initPhaseHistory());
   }, [dispatch]);
 
   return (

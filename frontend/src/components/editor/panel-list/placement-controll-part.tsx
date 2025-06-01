@@ -47,7 +47,9 @@ export const PlacementControllPart: React.FC = () => {
 
     // グリッドとパネル配置履歴をリセット
     dispatch(panelListSlice.actions.reset());
-    dispatch(gridSlice.actions.reset());
+    // グリッドの状態を初期化
+    dispatch(gridSlice.actions.initHistory());
+    // dispatch(gridSlice.actions.reset());
 
     // パネル配置モードの終了
     dispatch(
@@ -74,6 +76,9 @@ export const PlacementControllPart: React.FC = () => {
 
       // テスト
       dispatch(gridSlice.actions.savePhaseHistory());
+      // グリッド配置履歴は初期化する
+      dispatch(gridSlice.actions.initHistory());
+      dispatch(panelListSlice.actions.reset());
   };
     
 

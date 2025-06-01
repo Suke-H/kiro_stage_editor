@@ -27,6 +27,7 @@ const EditorPage: React.FC = () => {
     dispatch(panelListSlice.actions.reset());
     // 履歴を初期化
     dispatch(gridSlice.actions.initHistory());
+    dispatch(gridSlice.actions.initPhaseHistory());
 
     // 「Editor内スタジオモード」をEditorに変更
     dispatch(
@@ -39,6 +40,7 @@ const EditorPage: React.FC = () => {
     if (studioModeInEditor === StudioModeInEditor.Editor) {
       // グリッド履歴を初期化
       dispatch(gridSlice.actions.initHistory());
+      dispatch(gridSlice.actions.initPhaseHistory());
       // パネル配置リセット
       dispatch(panelListSlice.actions.reset());
       dispatch(panelPlacementSlice.actions.clearPanelSelection());
