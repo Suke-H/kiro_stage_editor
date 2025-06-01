@@ -25,9 +25,8 @@ const EditorPage: React.FC = () => {
   useEffect(() => {
     dispatch(gridSlice.actions.reset());
     dispatch(panelListSlice.actions.reset());
-
-    // 最後に履歴を完全クリア
-    dispatch(gridSlice.actions.clearHistory());
+    // 履歴を初期化
+    dispatch(gridSlice.actions.initHistory());
 
     // 「Editor内スタジオモード」をEditorに変更
     dispatch(
@@ -38,8 +37,8 @@ const EditorPage: React.FC = () => {
   // 「Editor内スタジオモード」を監視して、Editorに変わった時、履歴をクリア
   useEffect(() => {
     if (studioModeInEditor === StudioModeInEditor.Editor) {
-      // グリッド状態を元に戻すことなく、履歴クリアする
-      dispatch(gridSlice.actions.clearHistory());
+      // グリッド履歴を初期化
+      dispatch(gridSlice.actions.initHistory());
       // パネル配置リセット
       dispatch(panelListSlice.actions.reset());
       dispatch(panelPlacementSlice.actions.clearPanelSelection());

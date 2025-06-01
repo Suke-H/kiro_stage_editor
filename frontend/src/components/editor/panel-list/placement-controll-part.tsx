@@ -14,6 +14,7 @@ import { toast } from "sonner";
 export const PlacementControllPart: React.FC = () => {
   const dispatch = useDispatch();
   const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
+  const phaseHistory = useSelector((state: RootState) => state.grid.phaseHistory);
   const grid = useSelector((state: RootState) => state.grid.grid);
 
   // const { toast } = useToast();
@@ -39,19 +40,40 @@ export const PlacementControllPart: React.FC = () => {
     );
   };
 
+  // 「フェーズリセット」メソッド
+  const resetPhase = () => {
+    // フェーズ履歴をリセット
+    dispatch(gridSlice.actions.resetPhase());
+
+    // グリッドとパネル配置履歴をリセット
+    dispatch(panelListSlice.actions.reset());
+    dispatch(gridSlice.actions.reset());
+
+    // パネル配置モードの終了
+    dispatch(
+      panelPlacementSlice.actions.selectPanelForPlacement({
+        panel: null,
+        highlightedCell: null,
+      })
+    );
+  };
+
   // 「再生」メソッド
   const playSimulation = async () => {
-      const _pathResult = await PlaySimulateAsync(grid);
+      // const _pathResult = await PlaySimulateAsync(grid);
 
-      // 対応するResultMessageをポップアップ
-      if (_pathResult.result === Result.HasClearPath)
-          toast.success(resultMessages[_pathResult.result]) ;
-      else
-          toast.info(resultMessages[_pathResult.result]) ;
+      // // 対応するResultMessageをポップアップ
+      // if (_pathResult.result === Result.HasClearPath)
+      //     toast.success(resultMessages[_pathResult.result]) ;
+      // else
+      //     toast.info(resultMessages[_pathResult.result]) ;
       
-      // クリアした場合、足あと配置
-      if (_pathResult.result === Result.HasClearPath)
-        dispatch(gridSlice.actions.placeFootprints(_pathResult));
+      // // クリアした場合、足あと配置
+      // if (_pathResult.result === Result.HasClearPath)
+      //   dispatch(gridSlice.actions.placeFootprints(_pathResult));
+
+      // テスト
+      dispatch(gridSlice.actions.savePhaseHistory());
   };
     
 
@@ -59,7 +81,7 @@ export const PlacementControllPart: React.FC = () => {
     <div className="flex gap-2 mb-10">
       <Button
         onClick={undoLastPlacement}
-        disabled={gridHistory.length < 1}
+        disabled={gridHistory.length < 2}
         className="flex items-center gap-2 w-20 text-left"              
 
       >
@@ -67,11 +89,19 @@ export const PlacementControllPart: React.FC = () => {
       </Button>
       <Button
         onClick={resetPanelPlacement}
-        disabled={gridHistory.length < 1}
+        disabled={gridHistory.length < 2}
         variant="secondary"
         className="flex items-center gap-2 w-20 text-left"      
       >
         リセット
+      </Button>
+      <Button
+        onClick={resetPhase}
+        disabled={phaseHistory.length < 2}
+        variant="secondary"
+        className="flex items-center gap-2 w-20 text-left"      
+      >
+        ⌛リセット
       </Button>
       <Button
         onClick={playSimulation}

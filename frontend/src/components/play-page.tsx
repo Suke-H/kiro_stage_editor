@@ -16,7 +16,9 @@ const PlayPage: React.FC = () => {
     dispatch(panelListSlice.actions.reset());
 
     // 最後に履歴を完全クリア
-    dispatch(gridSlice.actions.clearHistory());
+    // dispatch(gridSlice.actions.clearHistory());
+    // 履歴を初期化
+    dispatch(gridSlice.actions.initHistory());
   }, [dispatch]);
 
   return (
