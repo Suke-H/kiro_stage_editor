@@ -195,6 +195,16 @@ def create_rest_transition_grid(grid: Grid, start: Tuple[int, int], rest_positio
         if (x, y) in crow_positions:
             new_grid_data[y][x].type = GridCellKey.Empty
     
+    # Rest到達時：Normalパネルのfront/back状態をフェーズ履歴末尾からリセット
+    if phase_history and len(phase_history) > 0:
+        latest_grid = phase_history[-1]
+        for y in range(len(new_grid_data)):
+            for x in range(len(new_grid_data[y])):
+                if (new_grid_data[y][x].type == GridCellKey.Normal and 
+                    latest_grid.root[y][x].type == GridCellKey.Normal):
+                    # フェーズ履歴末尾からNormalパネルのside状態を復元
+                    new_grid_data[y][x].side = latest_grid.root[y][x].side
+    
     # 到達した Rest を新しい Start に置換
     rx, ry = rest_position
     new_grid_data[ry][rx] = GridCell(type=GridCellKey.Start, side=Side.neutral)
