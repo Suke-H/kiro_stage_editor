@@ -345,17 +345,23 @@ export function findPath(grid: Grid, phaseHistory?: Grid[]): PathResult {
   let status: Result;
   
   // 判定とステータス設定
-  if (best.kind === 0 && best.crowCount === totalCrows) {
-    // 本物ゴール到達 & 全カラス通過
-    status = Result.HasClearPath;
-    nextGrid = createFootprintGrid(grid, best.path, phaseHistory);
+  if (best.kind === 0) {
+    // 本物ゴール到達
+    if (totalCrows === 0 || best.crowCount === totalCrows) {
+      // カラスがないか、全カラス通過済み
+      status = Result.HasClearPath;
+      nextGrid = createFootprintGrid(grid, best.path, phaseHistory);
+    } else {
+      // 本物ゴールだが全カラス未通過
+      status = Result.HasFailPath;
+    }
   } else if (best.kind === 2) {
     // Rest到達時の特別処理
     status = Result.HasRestPath;
     const restPosition = best.path[best.path.length - 1];
     nextGrid = createRestTransitionGrid(grid, start, restPosition, crowPositions, best.path, phaseHistory);
   } else {
-    // その他（失敗）
+    // ダミーゴール到達（失敗）
     status = Result.HasFailPath;
   }
   

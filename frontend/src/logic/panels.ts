@@ -38,8 +38,8 @@ function canPlaceSingle(grid: Grid, placement: PanelPlacement): boolean {
       const targetY = topLeftY + dy;
       const targetCell = grid[targetY][targetX];
       
-      // Normal以外には配置不可
-      if (targetCell.type !== 'Normal') {
+      // Normal(front)以外には配置不可
+      if (targetCell.type !== 'Normal' || targetCell.side !== 'front') {
         return false;
       }
     }
