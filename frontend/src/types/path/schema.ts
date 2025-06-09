@@ -6,6 +6,7 @@ export enum Result {
   NoPath = "NoPath",
   HasClearPath = "HasClearPath",
   HasFailPath = "HasFailPath",
+  HasRestPath = "HasRestPath",
 }
 
 export const resultMessages: Record<Result, string> = {
@@ -14,6 +15,7 @@ export const resultMessages: Record<Result, string> = {
   [Result.NoPath]: "経路がありませんでした",
   [Result.HasClearPath]: "ゴールできました！🎉",
   [Result.HasFailPath]: "間違った道でした...😢",
+  [Result.HasRestPath]: "休憩地点に着きました！",
 };
 
 export type Vector = {

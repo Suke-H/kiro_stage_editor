@@ -25,7 +25,7 @@ def grid_from(lines: List[str]) -> Grid:
             cell_type, side = CHARMAP[ch]
             row.append(GridCell(type=cell_type, side=side))
         rows.append(row)
-    return Grid(root=rows)
+    return Grid(rows)
 
 def dump_path_log(
     lines: List[str],

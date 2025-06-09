@@ -5,6 +5,7 @@ import { gridSlice } from "@/store/slices/grid-slice";
 import { studioModeInEditorSlice } from "@/store/slices/studio-mode-in-editor-slice";
 import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
 
 import { PlaySimulateAsync } from "@/api/play-simulate";
 import { Result, resultMessages } from "@/types/path";
@@ -18,6 +19,9 @@ export const PlacementControllPart: React.FC = () => {
   const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
   const phaseHistory = useSelector((state: RootState) => state.grid.phaseHistory);
   const grid = useSelector((state: RootState) => state.grid.grid);
+  
+  // クリア状態を管理するローカルstate
+  const [isCleared, setIsCleared] = useState<boolean>(false);
 
   // const { toast } = useToast();
   
@@ -25,6 +29,7 @@ export const PlacementControllPart: React.FC = () => {
   const undoLastPlacement = () => {
     dispatch(panelListSlice.actions.undo());
     dispatch(gridSlice.actions.undo());
+    setIsCleared(false);
   };
 
   // 「リセット」メソッド
@@ -40,6 +45,7 @@ export const PlacementControllPart: React.FC = () => {
         highlightedCell: null,
       })
     );
+    setIsCleared(false);
   };
 
   // 「フェーズリセット」メソッド
@@ -60,6 +66,7 @@ export const PlacementControllPart: React.FC = () => {
         highlightedCell: null,
       })
     );
+    setIsCleared(false);
   };
 
   // 「再生」メソッド
@@ -67,7 +74,7 @@ export const PlacementControllPart: React.FC = () => {
       // StudioModeInEditorをPlayに切り替え
       dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
 
-      const _pathResult = await PlaySimulateAsync(grid);
+      const _pathResult = await PlaySimulateAsync(grid, phaseHistory);
 
       // 対応するResultMessageをポップアップ
       if (_pathResult.result === Result.HasClearPath)
@@ -75,9 +82,13 @@ export const PlacementControllPart: React.FC = () => {
       else
           toast.info(resultMessages[_pathResult.result]) ;
       
-      // クリアした場合、足あと配置
-      if (_pathResult.result === Result.HasClearPath){
-          // dispatch(gridSlice.actions.placeFootprints(_pathResult));
+      // クリアした場合は再生ボタンをdisable
+      if (_pathResult.result === Result.HasClearPath) {
+          setIsCleared(true);
+      }
+      
+      // クリアした場合、または休憩地点に着いた場合
+      if (_pathResult.result === Result.HasClearPath || _pathResult.result === Result.HasRestPath){
           // nullじゃない場合のみ配置
           if (_pathResult.nextGrid !== null)
               dispatch(gridSlice.actions.loadGrid(_pathResult.nextGrid));
@@ -126,6 +137,7 @@ export const PlacementControllPart: React.FC = () => {
       </Button>
       <Button
         onClick={playSimulation}
+        disabled={isCleared}
         variant="destructive"
         className="flex items-center gap-2 w-20 text-left"      
       >

@@ -2,73 +2,105 @@
 
 必ず日本語で回答してください。
 Pythonの実行・ライブラリ追加等はすべてpoetryコマンドを使用してください。
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、Claude Code (claude.ai/code) がこのリポジトリでコードを操作する際のガイドラインを提供します。
 
-## Project Overview
-This is a web-based stage editor for the puzzle game "Kiro" (帰路), which allows creating and editing game stages without Unity dependency. The project consists of a React/TypeScript frontend with Redux state management and a Python FastAPI backend for puzzle logic.
+## プロジェクト概要
+パズルゲーム「Kiro」（帰路）のWebベースステージエディタで、Unityに依存せずにゲームステージの作成・編集が可能です。本プロジェクトはReduxによる状態管理を持つReact/TypeScriptフロントエンドと、パズルロジック用のPython FastAPIバックエンドで構成されています。
 
-## Development Commands
+## 開発コマンド
 
-### Frontend (React/TypeScript/Vite)
+### フロントエンド (React/TypeScript/Vite)
 ```bash
 cd frontend
-npm run dev        # Start development server
-npm run build      # Build for production (includes TypeScript compilation)
-npm run lint       # Run ESLint
-npm run preview    # Preview production build
+npm run dev        # 開発サーバー起動
+npm run build      # 本番用ビルド（TypeScriptコンパイル含む）
+npm run lint       # ESLint実行
+npm run preview    # 本番ビルドのプレビュー
 ```
 
-### Backend (Python/FastAPI)
+### バックエンド (Python/FastAPI)
 ```bash
 cd backend
-poetry install            # Install dependencies  
-poetry run uvicorn main:app --reload  # Start development server
-poetry run pytest        # Run all tests
-poetry run pytest tests/test_find_path.py  # Run specific test file
+poetry install            # 依存関係のインストール
+poetry run uvicorn main:app --reload  # 開発サーバー起動
+poetry run pytest        # 全テスト実行
+poetry run pytest tests/test_find_path.py  # 特定のテストファイル実行
+
+# モデル自動生成（JSONスキーマからPydantic v2モデルを生成）
+poetry run datamodel-codegen --input ../frontend/src/schemas/grid.json --input-file-type jsonschema --output-model-type pydantic_v2.BaseModel --output models/grid.py
+poetry run datamodel-codegen --input ../frontend/src/schemas/path.json --input-file-type jsonschema --output-model-type pydantic_v2.BaseModel --output models/path.py
+poetry run datamodel-codegen --input ../frontend/src/schemas/panel.json --input-file-type jsonschema --output-model-type pydantic_v2.BaseModel --output models/panel.py
+poetry run datamodel-codegen --input ../frontend/src/schemas/panel-placement.json --input-file-type jsonschema --output-model-type pydantic_v2.BaseModel --output models/panel_placement.py
 ```
 
-### Full Stack Development
+### フルスタック開発
 ```bash
-./start.sh  # Start both frontend and backend (production setup with nginx)
+./start.sh  # フロントエンドとバックエンドの両方を起動（nginx付き本番セットアップ）
 ```
 
-## Architecture
+## Git操作
 
-### Frontend State Management (Redux)
-The application uses Redux Toolkit with the following main slices:
-- `grid-slice`: Game grid state and cell management
-- `panel-list-slice`: Panel creation and management
-- `panel-placement-slice`: Panel positioning logic
-- `studio-mode-slice`: Application mode switching (Editor/Play/Solver)
-- `solution-slice`: Puzzle solution tracking
+Claude Codeが使用するGitコマンド：
 
-All slices are located in `frontend/src/store/slices/` and configured in `frontend/src/store/index.ts`.
+```bash
+# 必ずプロジェクトのルートディレクトリで実行
+git add .               # 全変更をステージング  
+git commit -m "絵文字 feat: #<issueno> 修正内容"  # コミット作成
+```
 
-### Backend API Structure
-FastAPI application with modular router structure:
-- `routers/health.py`: Health check endpoint
-- `routers/judge.py`: Game logic validation
-- `routers/solver.py`: Puzzle solving algorithms
-- `logic/`: Core puzzle algorithms (pathfinding, panel placement)
-- `models/`: Pydantic data models (auto-generated from JSON schemas)
 
-### Data Models & Schema Synchronization
-Both frontend and backend share identical data structures through JSON schemas located in `frontend/src/schemas/`. Python models in `backend/models/` are auto-generated from these schemas using datamodel-code-generator.
+### コミットメッセージフォーマット
+```
+絵文字 <type>: #<issue番号> <修正内容>
+```
 
-### Game Modes
-The application supports three modes:
-1. **Editor Mode**: Create/edit grids and panels, export/import YAML
-2. **Play Mode**: Interactive puzzle solving with undo/reset
-3. **Solver Mode**: Automated puzzle solving (planned feature)
+例：
+- `✨ feat: #123 新機能の実装`
+- `🐛 fix: #456 バグ修正`
+- `♻️ refactor: #789 コードリファクタリング`
+- `📝 docs: #012 ドキュメント更新`
+- `🧪 test: #345 テスト追加`
 
-### Core Game Concepts
-- **Grid**: 2D game board with cells of different types (Start, Goal, DummyGoal, Crow, Wolf, etc.)
-- **Panels**: Moveable pieces placed on the grid
-- **Phases**: Game state progression system for tracking moves
-- **Path Finding**: Algorithm for validating puzzle solutions considering game rules
+**重要：Generated withコメントやCo-Authored-Byは追加しない**
 
-### Testing
-Backend tests are located in `backend/tests/` with comprehensive path-finding test cases. Test results are logged to `backend/path_logs/` with timestamps for debugging complex scenarios.
 
-### Deployment
-The project is containerized with Docker and deployed on Google Cloud Run. Configuration includes nginx reverse proxy setup in `nginx/default.conf`.
+## アーキテクチャ
+
+### フロントエンド状態管理（Redux）
+アプリケーションはRedux Toolkitを使用し、以下の主要スライスで構成されています：
+- `grid-slice`: ゲームグリッドの状態とセル管理
+- `panel-list-slice`: パネルの作成と管理
+- `panel-placement-slice`: パネル配置ロジック
+- `studio-mode-slice`: アプリケーションモード切り替え（Editor/Play/Solver）
+- `solution-slice`: パズル解答の追跡
+
+全スライスは `frontend/src/store/slices/` に配置され、`frontend/src/store/index.ts` で設定されています。
+
+### バックエンドAPI構造
+モジュラーなルーター構造を持つFastAPIアプリケーション：
+- `routers/health.py`: ヘルスチェックエンドポイント
+- `routers/judge.py`: ゲームロジック検証
+- `routers/solver.py`: パズル解法アルゴリズム
+- `logic/`: コアパズルアルゴリズム（経路探索、パネル配置）
+- `models/`: Pydanticデータモデル（JSONスキーマから自動生成）
+
+### データモデルとスキーマ同期
+フロントエンドとバックエンドは `frontend/src/schemas/` にあるJSONスキーマを通じて同一のデータ構造を共有します。`backend/models/` のPythonモデルはdatamodel-code-generatorを使用してこれらのスキーマから自動生成されます。
+
+### ゲームモード
+アプリケーションは3つのモードをサポートします：
+1. **エディターモード**: グリッドとパネルの作成・編集、YAML出力・入力
+2. **プレイモード**: アンドゥ・リセット機能付きのインタラクティブなパズル解法
+3. **ソルバーモード**: 自動パズル解法（予定機能）
+
+### ゲームのコア概念
+- **グリッド**: 様々なタイプのセル（Start、Goal、DummyGoal、Crow、Wolfなど）を持つ2Dゲームボード
+- **パネル**: グリッド上に配置可能な移動可能なピース
+- **フェーズ**: 手の進行を追跡するゲーム状態システム
+- **経路探索**: ゲームルールを考慮したパズル解答の検証アルゴリズム
+
+### テスト
+バックエンドのテストは `backend/tests/` にあり、包括的な経路探索テストケースを含みます。テスト結果は複雑なシナリオのデバッグのため、タイムスタンプ付きで `backend/path_logs/` に記録されます。
+
+### デプロイメント
+プロジェクトはDockerでコンテナ化され、Google Cloud Runにデプロイされます。設定には `nginx/default.conf` のnginxリバースプロキシセットアップが含まれます。
