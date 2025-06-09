@@ -1,3 +1,5 @@
+import { Grid } from "../grid/schema";
+
 export enum Result {
   NoStart = "NoStart",
   NoGoal = "NoGoal",
@@ -24,4 +26,5 @@ export type Path = Vector[];
 export interface PathResult{
   result: Result;
   path: Path;
+  nextGrid: Grid | null;
 }

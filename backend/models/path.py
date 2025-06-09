@@ -9,6 +9,7 @@ from typing import List
 
 from pydantic import BaseModel, ConfigDict, RootModel
 
+from models.grid import Grid
 
 class Result(Enum):
     NoStart = 'NoStart'
@@ -16,7 +17,6 @@ class Result(Enum):
     NoPath = 'NoPath'
     HasClearPath = 'HasClearPath'
     HasFailPath = 'HasFailPath'
-
 
 class Vector(BaseModel):
     model_config = ConfigDict(
@@ -28,14 +28,13 @@ class Vector(BaseModel):
 class Path(RootModel[List[Vector]]):
     root: List[Vector]
 
-
 class PathResult(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
     path: Path
     result: Result
-
+    nextGrid: Grid | None
 
 class Model(RootModel[PathResult]):
     root: PathResult

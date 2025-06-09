@@ -62,23 +62,34 @@ export const PlacementControllPart: React.FC = () => {
 
   // 「再生」メソッド
   const playSimulation = async () => {
-      // const _pathResult = await PlaySimulateAsync(grid);
+      const _pathResult = await PlaySimulateAsync(grid);
 
-      // // 対応するResultMessageをポップアップ
-      // if (_pathResult.result === Result.HasClearPath)
-      //     toast.success(resultMessages[_pathResult.result]) ;
-      // else
-      //     toast.info(resultMessages[_pathResult.result]) ;
+      // 対応するResultMessageをポップアップ
+      if (_pathResult.result === Result.HasClearPath)
+          toast.success(resultMessages[_pathResult.result]) ;
+      else
+          toast.info(resultMessages[_pathResult.result]) ;
       
-      // // クリアした場合、足あと配置
-      // if (_pathResult.result === Result.HasClearPath)
-      //   dispatch(gridSlice.actions.placeFootprints(_pathResult));
+      // クリアした場合、足あと配置
+      if (_pathResult.result === Result.HasClearPath){
+          // dispatch(gridSlice.actions.placeFootprints(_pathResult));
+          // nullじゃない場合のみ配置
+          if (_pathResult.nextGrid !== null)
+              dispatch(gridSlice.actions.loadGrid(_pathResult.nextGrid));
 
-      // テスト
-      dispatch(gridSlice.actions.savePhaseHistory());
-      // グリッド配置履歴は初期化する
-      dispatch(gridSlice.actions.initHistory());
-      dispatch(panelListSlice.actions.reset());
+          // フェーズ履歴を保存
+          dispatch(gridSlice.actions.savePhaseHistory());
+
+          // 配置履歴は初期化する
+          dispatch(gridSlice.actions.initHistory());
+          dispatch(panelListSlice.actions.reset());
+      }
+
+      // // テスト
+      // dispatch(gridSlice.actions.savePhaseHistory());
+      // // グリッド配置履歴は初期化する
+      // dispatch(gridSlice.actions.initHistory());
+      // dispatch(panelListSlice.actions.reset());
   };
     
 

@@ -112,6 +112,7 @@ export const gridSlice = createSlice({
         state.phaseHistory = [state.grid.map((row) => row.map((cell) => ({ ...cell })))];
     },
 
+    // 現在のグリッドをフェーズ履歴に追加
     savePhaseHistory: (state) => {
         state.phaseHistory.push(state.grid.map((row) => row.map((cell) => ({ ...cell }))));
     },

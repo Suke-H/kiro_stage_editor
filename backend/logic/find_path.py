@@ -105,22 +105,18 @@ def find_path(grid: Grid) -> PathResult:
     # Start が無ければ即終了
     start = find_single(grid, GridCellKey.Start)
     if start is None:
-        return PathResult(result=Result.NoStart, path=Path(root=[]))
+        return PathResult(result=Result.NoStart, path=Path(root=[]), nextGrid=None)
 
     # Goal / DummyGoal を検出
     goal_real = find_single(grid, GridCellKey.Goal)
-    # goal_dummy = find_single(grid, GridCellKey.DummyGoal)
     dummy_goals = find_all(grid, GridCellKey.DummyGoal)
 
     # Goal が無ければ即終了
     if goal_real is None:
-        return PathResult(result=Result.NoGoal, path=Path(root=[]))
+        return PathResult(result=Result.NoGoal, path=Path(root=[]), nextGrid=None)
 
     # 最短経路群を取得
     real_paths: List[List[Tuple[int, int]]] = _bfs_all_shortest_paths(grid, start, goal_real)
-    # dummy_paths: List[List[Tuple[int, int]]] = (
-    #     _bfs_all_shortest_paths(grid, start, goal_dummy) if goal_dummy else []
-    # )
 
     # すべての DummyGoal に対して最短経路を取得
     dummy_paths: List[List[Tuple[int, int]]] = []
@@ -135,7 +131,7 @@ def find_path(grid: Grid) -> PathResult:
         all_candidates.append({"path": p, "is_real": False, "crow_cnt": 0})
 
     if not all_candidates:
-        return PathResult(result=Result.NoPath, path=Path(root=[]))
+        return PathResult(result=Result.NoPath, path=Path(root=[]), nextGrid=None)
 
     # ステージ内の全カラス位置
     crow_positions: Set[Tuple[int, int]] = {
@@ -162,7 +158,7 @@ def find_path(grid: Grid) -> PathResult:
     best = all_candidates[0]
     vectors = [Vector(x=x, y=y) for x, y in best["path"]]
 
-    # 新クリア判定：本物ゴール＆全カラス通過
+    # クリア判定：本物ゴール＆全カラス通過
     if best["is_real"] and best["crow_cnt"] == total_crows:
         status = Result.HasClearPath
     else:
