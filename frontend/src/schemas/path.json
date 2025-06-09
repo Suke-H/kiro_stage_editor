@@ -33,7 +33,8 @@
         "NoGoal",
         "NoPath",
         "HasClearPath",
-        "HasFailPath"
+        "HasFailPath",
+        "HasRestPath"
       ],
       "type": "string"
     },

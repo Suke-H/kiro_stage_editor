@@ -25,6 +25,12 @@ poetry install            # 依存関係のインストール
 poetry run uvicorn main:app --reload  # 開発サーバー起動
 poetry run pytest        # 全テスト実行
 poetry run pytest tests/test_find_path.py  # 特定のテストファイル実行
+
+# モデル自動生成（JSONスキーマからPydantic v2モデルを生成）
+poetry run datamodel-codegen --input ../frontend/src/schemas/grid.json --input-file-type jsonschema --output-model-type pydantic_v2.BaseModel --output models/grid.py
+poetry run datamodel-codegen --input ../frontend/src/schemas/path.json --input-file-type jsonschema --output-model-type pydantic_v2.BaseModel --output models/path.py
+poetry run datamodel-codegen --input ../frontend/src/schemas/panel.json --input-file-type jsonschema --output-model-type pydantic_v2.BaseModel --output models/panel.py
+poetry run datamodel-codegen --input ../frontend/src/schemas/panel-placement.json --input-file-type jsonschema --output-model-type pydantic_v2.BaseModel --output models/panel_placement.py
 ```
 
 ### フルスタック開発
