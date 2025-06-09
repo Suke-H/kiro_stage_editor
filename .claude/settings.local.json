@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(poetry run:*)"
+      "Bash(poetry run:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

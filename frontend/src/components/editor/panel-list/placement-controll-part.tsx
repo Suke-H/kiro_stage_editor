@@ -2,11 +2,13 @@ import { Button } from "@/components/ui/button";
 import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
 import { panelListSlice } from "@/store/slices/panel-list-slice";
 import { gridSlice } from "@/store/slices/grid-slice";
+import { studioModeInEditorSlice } from "@/store/slices/studio-mode-in-editor-slice";
 import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 
 import { PlaySimulateAsync } from "@/api/play-simulate";
 import { Result, resultMessages } from "@/types/path";
+import { StudioModeInEditor } from "@/types/store";
 
 // import { useToast } from "@/hooks/use-toast"
 import { toast } from "sonner";
@@ -62,6 +64,9 @@ export const PlacementControllPart: React.FC = () => {
 
   // 「再生」メソッド
   const playSimulation = async () => {
+      // StudioModeInEditorをPlayに切り替え
+      dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
+
       const _pathResult = await PlaySimulateAsync(grid);
 
       // 対応するResultMessageをポップアップ

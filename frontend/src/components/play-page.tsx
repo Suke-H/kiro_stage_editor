@@ -13,6 +13,7 @@ const PlayPage: React.FC = () => {
 
   useEffect(() => {
     dispatch(gridSlice.actions.reset());
+    dispatch(gridSlice.actions.resetPhase());
     dispatch(panelListSlice.actions.reset());
 
     // 最後に履歴を完全クリア

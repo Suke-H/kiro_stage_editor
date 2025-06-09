@@ -24,7 +24,9 @@ const EditorPage: React.FC = () => {
   // Play->Editor移行時に、Playモード時のパネル配置をリセット
   useEffect(() => {
     dispatch(gridSlice.actions.reset());
+    dispatch(gridSlice.actions.resetPhase());
     dispatch(panelListSlice.actions.reset());
+    dispatch(panelPlacementSlice.actions.clearPanelSelection());
     // 履歴を初期化
     dispatch(gridSlice.actions.initHistory());
     dispatch(gridSlice.actions.initPhaseHistory());
@@ -38,12 +40,13 @@ const EditorPage: React.FC = () => {
   // 「Editor内スタジオモード」を監視して、Editorに変わった時、履歴をクリア
   useEffect(() => {
     if (studioModeInEditor === StudioModeInEditor.Editor) {
-      // グリッド履歴を初期化
+      console.log("Editor内スタジオモードがEditorに変更されました。");
+      // // グリッド履歴を初期化
+      dispatch(gridSlice.actions.resetPhase());
       dispatch(gridSlice.actions.initHistory());
       dispatch(gridSlice.actions.initPhaseHistory());
-      // パネル配置リセット
+      // // パネル配置リセット
       dispatch(panelListSlice.actions.reset());
-      dispatch(panelPlacementSlice.actions.clearPanelSelection());
     }
   }, [studioModeInEditor, dispatch]);
 
