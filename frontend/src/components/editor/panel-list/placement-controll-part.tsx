@@ -75,9 +75,8 @@ export const PlacementControllPart: React.FC = () => {
       else
           toast.info(resultMessages[_pathResult.result]) ;
       
-      // クリアした場合、足あと配置
-      if (_pathResult.result === Result.HasClearPath){
-          // dispatch(gridSlice.actions.placeFootprints(_pathResult));
+      // クリアした場合、または休憩地点に着いた場合
+      if (_pathResult.result === Result.HasClearPath || _pathResult.result === Result.HasRestPath){
           // nullじゃない場合のみ配置
           if (_pathResult.nextGrid !== null)
               dispatch(gridSlice.actions.loadGrid(_pathResult.nextGrid));

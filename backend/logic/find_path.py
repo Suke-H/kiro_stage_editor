@@ -133,6 +133,38 @@ def create_footprint_grid(grid: Grid, path: List[Tuple[int, int]]) -> Grid:
     return Grid(new_grid_data)
 
 
+def create_rest_transition_grid(grid: Grid, start: Tuple[int, int], rest_position: Tuple[int, int], crow_positions: Set[Tuple[int, int]], path: List[Tuple[int, int]]) -> Grid:
+    """
+    Rest到達時の次状態グリッドを作成する
+    """
+    # 盤面を深コピーして書き換え
+    new_grid_data = deepcopy(grid.root)
+    
+    # 現在のStartの位置を確認
+    sx, sy = start
+    current_start_cell = new_grid_data[sy][sx]
+    
+    # 1. 初回Rest到達（StartからRest）の場合：StartをNormal:frontに
+    # 2. Rest間移動（StartがもともとRest）の場合：StartをRestに戻す
+    if current_start_cell.type == GridCellKey.Start:
+        # 初回Rest到達：StartをNormal:frontに変更
+        new_grid_data[sy][sx] = GridCell(type=GridCellKey.Normal, side=Side.front)
+    else:
+        # Rest間移動時：前のRest（現在のStart）をRestに戻す
+        new_grid_data[sy][sx] = GridCell(type=GridCellKey.Rest, side=Side.neutral)
+    
+    # 通過した Crow を消去
+    for x, y in path:
+        if (x, y) in crow_positions:
+            new_grid_data[y][x].type = GridCellKey.Empty
+    
+    # 到達した Rest を新しい Start に置換
+    rx, ry = rest_position
+    new_grid_data[ry][rx] = GridCell(type=GridCellKey.Start, side=Side.neutral)
+    
+    return Grid(new_grid_data)
+
+
 def find_path(grid: Grid) -> PathResult:
     """
     優先度: 最短経路 → 本物ゴール優先 → 通過カラス数多い順
@@ -213,19 +245,8 @@ def find_path(grid: Grid) -> PathResult:
     elif best["kind"] == 2:
         # Rest 到達時の特別処理
         status = Result.HasRestPath
-        # 盤面を深コピーして書き換え
-        new_grid_data = deepcopy(grid.root)
-        # もとの Start を消去
-        sx, sy = start
-        new_grid_data[sy][sx].type = GridCellKey.Empty
-        # 通過した Crow を消去
-        for x, y in best["path"]:
-            if (x, y) in crow_positions:
-                new_grid_data[y][x].type = GridCellKey.Empty
-        # 到達した Rest を新しい Start に置換
-        rx, ry = best["path"][-1]
-        new_grid_data[ry][rx].type = GridCellKey.Start
-        next_grid = Grid(new_grid_data)
+        rest_position = best["path"][-1]
+        next_grid = create_rest_transition_grid(grid, start, rest_position, crow_positions, best["path"])
     else:
         status = Result.HasFailPath
 
