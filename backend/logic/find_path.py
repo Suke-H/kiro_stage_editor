@@ -101,10 +101,29 @@ def _bfs_all_shortest_paths(
 
 def create_footprint_grid(grid: Grid, path: List[Tuple[int, int]]) -> Grid:
     """
-    パスに基づいて足あとを描画したグリッドを作成する
+    パスに基づいて足あとを描画したグリッドを作成する（クリア時用）
+    ゴール地点にキャラクター（Start）を配置し、スタート地点を適切に変更する
     """
     # 元のグリッドをディープコピー
     new_grid_data = copy.deepcopy(grid.root)
+    
+    # スタート地点の処理
+    start_x, start_y = path[0]
+    current_start_cell = new_grid_data[start_y][start_x]
+    
+    # 元々Restだった位置かどうかを判定
+    # グリッド全体でRestの位置を確認し、現在のStart位置がRest位置にあるかチェック
+    rest_positions = find_all(grid, GridCellKey.Rest)
+    is_start_on_rest = (start_x, start_y) in rest_positions
+    
+    # 1. Start->Goalの場合: StartをNormal:frontに変える
+    # 2. Rest(今はStart)->Goalの場合: Restに戻す
+    if is_start_on_rest:
+        # Rest経由でのクリア：元のRest（現在のStart）をRestに戻す
+        new_grid_data[start_y][start_x] = GridCell(type=GridCellKey.Rest, side=Side.neutral)
+    else:
+        # 初回クリア：StartをNormal:frontに変更
+        new_grid_data[start_y][start_x] = GridCell(type=GridCellKey.Normal, side=Side.front)
     
     # ループ：先頭(0)と末尾(len(path)-1)を除外
     for i in range(1, len(path) - 1):
@@ -129,6 +148,13 @@ def create_footprint_grid(grid: Grid, path: List[Tuple[int, int]]) -> Grid:
                 type=footprint_type,
                 side=Side.neutral
             )
+    
+    # ゴール地点（パスの最後）にキャラクター（Start）を配置
+    goal_x, goal_y = path[-1]
+    new_grid_data[goal_y][goal_x] = GridCell(
+        type=GridCellKey.Start,
+        side=Side.neutral
+    )
     
     return Grid(new_grid_data)
 
