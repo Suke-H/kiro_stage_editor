@@ -7,7 +7,7 @@ import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 
-import { PlaySimulateAsync } from "@/api/play-simulate";
+import { findPath } from "@/logic";
 import { Result, resultMessages } from "@/types/path";
 import { StudioModeInEditor } from "@/types/store";
 
@@ -74,7 +74,7 @@ export const PlacementControllPart: React.FC = () => {
       // StudioModeInEditorをPlayに切り替え
       dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
 
-      const _pathResult = await PlaySimulateAsync(grid, phaseHistory);
+      const _pathResult = findPath(grid, phaseHistory);
 
       // 対応するResultMessageをポップアップ
       if (_pathResult.result === Result.HasClearPath)

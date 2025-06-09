@@ -18,6 +18,26 @@ npm run lint       # ESLint実行
 npm run preview    # 本番ビルドのプレビュー
 ```
 
+**重要: TypeScript Path Mapping設定**
+新しいパスエイリアスを追加する場合は、以下の2つのファイルを必ず更新してください：
+- `frontend/tsconfig.app.json` - アプリケーション用の設定
+- `frontend/tsconfig.json` - プロジェクト全体の設定
+
+例: `@/logic`エイリアスの追加
+```json
+// tsconfig.app.json
+"paths": {
+  "@/logic": ["./logic"],
+  "@/logic/*": ["./logic/*"]
+}
+
+// tsconfig.json  
+"paths": {
+  "@/logic": ["./src/logic"],
+  "@/logic/*": ["./src/logic/*"]
+}
+```
+
 ### バックエンド (Python/FastAPI)
 ```bash
 cd backend
