@@ -99,7 +99,7 @@ def _bfs_all_shortest_paths(
     return paths
 
 
-def create_footprint_grid(grid: Grid, path: List[Tuple[int, int]]) -> Grid:
+def create_footprint_grid(grid: Grid, path: List[Tuple[int, int]], phase_history: List[Grid] | None = None) -> Grid:
     """
     パスに基づいて足あとを描画したグリッドを作成する（クリア時用）
     ゴール地点にキャラクター（Start）を配置し、スタート地点を適切に変更する
@@ -109,16 +109,19 @@ def create_footprint_grid(grid: Grid, path: List[Tuple[int, int]]) -> Grid:
     
     # スタート地点の処理
     start_x, start_y = path[0]
-    current_start_cell = new_grid_data[start_y][start_x]
     
-    # 元々Restだった位置かどうかを判定
-    # グリッド全体でRestの位置を確認し、現在のStart位置がRest位置にあるかチェック
-    rest_positions = find_all(grid, GridCellKey.Rest)
-    is_start_on_rest = (start_x, start_y) in rest_positions
+    # フェーズ履歴から元の状態を判定
+    is_start_originally_rest = False
+    if phase_history and len(phase_history) >= 2:
+        # 1つ前のフェーズから元の状態を確認（配列の末尾-1）
+        previous_grid = phase_history[-2]
+        if start_y < len(previous_grid.root) and start_x < len(previous_grid.root[start_y]):
+            original_cell = previous_grid.root[start_y][start_x]
+            is_start_originally_rest = (original_cell.type == GridCellKey.Rest)
     
     # 1. Start->Goalの場合: StartをNormal:frontに変える
     # 2. Rest(今はStart)->Goalの場合: Restに戻す
-    if is_start_on_rest:
+    if is_start_originally_rest:
         # Rest経由でのクリア：元のRest（現在のStart）をRestに戻す
         new_grid_data[start_y][start_x] = GridCell(type=GridCellKey.Rest, side=Side.neutral)
     else:
@@ -159,7 +162,7 @@ def create_footprint_grid(grid: Grid, path: List[Tuple[int, int]]) -> Grid:
     return Grid(new_grid_data)
 
 
-def create_rest_transition_grid(grid: Grid, start: Tuple[int, int], rest_position: Tuple[int, int], crow_positions: Set[Tuple[int, int]], path: List[Tuple[int, int]]) -> Grid:
+def create_rest_transition_grid(grid: Grid, start: Tuple[int, int], rest_position: Tuple[int, int], crow_positions: Set[Tuple[int, int]], path: List[Tuple[int, int]], phase_history: List[Grid] | None = None) -> Grid:
     """
     Rest到達時の次状態グリッドを作成する
     """
@@ -168,16 +171,24 @@ def create_rest_transition_grid(grid: Grid, start: Tuple[int, int], rest_positio
     
     # 現在のStartの位置を確認
     sx, sy = start
-    current_start_cell = new_grid_data[sy][sx]
+    
+    # フェーズ履歴から元の状態を判定
+    is_start_originally_rest = False
+    if phase_history and len(phase_history) >= 2:
+        # 1つ前のフェーズから元の状態を確認（配列の末尾-1）
+        previous_grid = phase_history[-2]
+        if sy < len(previous_grid.root) and sx < len(previous_grid.root[sy]):
+            original_cell = previous_grid.root[sy][sx]
+            is_start_originally_rest = (original_cell.type == GridCellKey.Rest)
     
     # 1. 初回Rest到達（StartからRest）の場合：StartをNormal:frontに
     # 2. Rest間移動（StartがもともとRest）の場合：StartをRestに戻す
-    if current_start_cell.type == GridCellKey.Start:
-        # 初回Rest到達：StartをNormal:frontに変更
-        new_grid_data[sy][sx] = GridCell(type=GridCellKey.Normal, side=Side.front)
-    else:
+    if is_start_originally_rest:
         # Rest間移動時：前のRest（現在のStart）をRestに戻す
         new_grid_data[sy][sx] = GridCell(type=GridCellKey.Rest, side=Side.neutral)
+    else:
+        # 初回Rest到達：StartをNormal:frontに変更
+        new_grid_data[sy][sx] = GridCell(type=GridCellKey.Normal, side=Side.front)
     
     # 通過した Crow を消去
     for x, y in path:
@@ -191,7 +202,7 @@ def create_rest_transition_grid(grid: Grid, start: Tuple[int, int], rest_positio
     return Grid(new_grid_data)
 
 
-def find_path(grid: Grid) -> PathResult:
+def find_path(grid: Grid, phase_history: List[Grid] | None = None) -> PathResult:
     """
     優先度: 最短経路 → 本物ゴール優先 → 通過カラス数多い順
     クリア条件: 本物ゴールに到達かつステージ内の全カラスを通過
@@ -267,12 +278,12 @@ def find_path(grid: Grid) -> PathResult:
     if best["kind"] == 0 and best["crow_cnt"] == total_crows:
         status = Result.HasClearPath
         # クリア時に足あとを描画したnextGridを作成
-        next_grid = create_footprint_grid(grid, best["path"])
+        next_grid = create_footprint_grid(grid, best["path"], phase_history)
     elif best["kind"] == 2:
         # Rest 到達時の特別処理
         status = Result.HasRestPath
         rest_position = best["path"][-1]
-        next_grid = create_rest_transition_grid(grid, start, rest_position, crow_positions, best["path"])
+        next_grid = create_rest_transition_grid(grid, start, rest_position, crow_positions, best["path"], phase_history)
     else:
         status = Result.HasFailPath
 

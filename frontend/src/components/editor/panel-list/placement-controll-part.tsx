@@ -74,7 +74,7 @@ export const PlacementControllPart: React.FC = () => {
       // StudioModeInEditorをPlayに切り替え
       dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
 
-      const _pathResult = await PlaySimulateAsync(grid);
+      const _pathResult = await PlaySimulateAsync(grid, phaseHistory);
 
       // 対応するResultMessageをポップアップ
       if (_pathResult.result === Result.HasClearPath)

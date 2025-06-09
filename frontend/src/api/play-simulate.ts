@@ -2,15 +2,23 @@
 import { Grid } from '@/types/grid';
 import { PathResult } from '@/types/path';
 
+interface JudgeRequest {
+  grid: Grid;
+  phaseHistory?: Grid[];
+}
 
-
-export const PlaySimulateAsync = async (grid: Grid): Promise<PathResult> => {
+export const PlaySimulateAsync = async (grid: Grid, phaseHistory?: Grid[]): Promise<PathResult> => {
   try {
-    // Gridを引数にしてAPIを呼び出す
+    // GridとphaseHistoryを引数にしてAPIを呼び出す
+    const requestBody: JudgeRequest = {
+      grid,
+      phaseHistory
+    };
+    
     const response = await fetch('/api/judge', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json',},
-      body: JSON.stringify(grid),
+      body: JSON.stringify(requestBody),
     });
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

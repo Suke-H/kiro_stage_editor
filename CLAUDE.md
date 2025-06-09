@@ -43,6 +43,7 @@ poetry run datamodel-codegen --input ../frontend/src/schemas/panel-placement.jso
 Claude Codeが使用するGitコマンド：
 
 ```bash
+# 必ずプロジェクトのルートディレクトリに移動してからgit操作を行う
 git add .               # 全変更をステージング  
 git commit -m "絵文字 feat: #<issueno> 修正内容"  # コミット作成
 ```
