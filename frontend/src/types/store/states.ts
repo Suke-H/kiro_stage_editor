@@ -8,6 +8,7 @@ import { PanelPlacement } from "@/types/panel-placement";
 export interface GridState {
   grid: Grid;
   gridHistory: Grid[];
+  phaseHistory: Grid[];
 }
 
 export interface CellTypeState {

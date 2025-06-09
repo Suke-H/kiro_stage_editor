@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from collections import deque
 from typing import Dict, List, Set, Tuple
+import copy
 
-from models.grid import Grid, GridCellKey, Side
+from models.grid import Grid, GridCell, GridCellKey, Side
 from models.path import Path, PathResult, Result, Vector
 
 DIRECTIONS: List[Tuple[int, int]] = [(-1, 0), (1, 0), (0, -1), (0, 1)]
@@ -97,6 +98,40 @@ def _bfs_all_shortest_paths(
     return paths
 
 
+def create_footprint_grid(grid: Grid, path: List[Tuple[int, int]]) -> Grid:
+    """
+    パスに基づいて足あとを描画したグリッドを作成する
+    """
+    # 元のグリッドをディープコピー
+    new_grid = Grid(root=copy.deepcopy(grid.root))
+    
+    # ループ：先頭(0)と末尾(len(path)-1)を除外
+    for i in range(1, len(path) - 1):
+        prev_x, prev_y = path[i - 1]
+        curr_x, curr_y = path[i]
+        
+        dx = curr_x - prev_x
+        dy = curr_y - prev_y
+
+        footprint_type = None
+        if dx == 1 and dy == 0:
+            footprint_type = GridCellKey.FootRight
+        elif dx == -1 and dy == 0:
+            footprint_type = GridCellKey.FootLeft
+        elif dx == 0 and dy == 1:
+            footprint_type = GridCellKey.FootDown
+        elif dx == 0 and dy == -1:
+            footprint_type = GridCellKey.FootUp
+
+        if footprint_type:
+            new_grid.root[curr_y][curr_x] = GridCell(
+                type=footprint_type,
+                side=Side.neutral
+            )
+    
+    return new_grid
+
+
 def find_path(grid: Grid) -> PathResult:
     """
     優先度: 最短経路 → 本物ゴール優先 → 通過カラス数多い順
@@ -105,22 +140,18 @@ def find_path(grid: Grid) -> PathResult:
     # Start が無ければ即終了
     start = find_single(grid, GridCellKey.Start)
     if start is None:
-        return PathResult(result=Result.NoStart, path=Path(root=[]))
+        return PathResult(result=Result.NoStart, path=Path(root=[]), nextGrid=None)
 
     # Goal / DummyGoal を検出
     goal_real = find_single(grid, GridCellKey.Goal)
-    # goal_dummy = find_single(grid, GridCellKey.DummyGoal)
     dummy_goals = find_all(grid, GridCellKey.DummyGoal)
 
     # Goal が無ければ即終了
     if goal_real is None:
-        return PathResult(result=Result.NoGoal, path=Path(root=[]))
+        return PathResult(result=Result.NoGoal, path=Path(root=[]), nextGrid=None)
 
     # 最短経路群を取得
     real_paths: List[List[Tuple[int, int]]] = _bfs_all_shortest_paths(grid, start, goal_real)
-    # dummy_paths: List[List[Tuple[int, int]]] = (
-    #     _bfs_all_shortest_paths(grid, start, goal_dummy) if goal_dummy else []
-    # )
 
     # すべての DummyGoal に対して最短経路を取得
     dummy_paths: List[List[Tuple[int, int]]] = []
@@ -135,7 +166,7 @@ def find_path(grid: Grid) -> PathResult:
         all_candidates.append({"path": p, "is_real": False, "crow_cnt": 0})
 
     if not all_candidates:
-        return PathResult(result=Result.NoPath, path=Path(root=[]))
+        return PathResult(result=Result.NoPath, path=Path(root=[]), nextGrid=None)
 
     # ステージ内の全カラス位置
     crow_positions: Set[Tuple[int, int]] = {
@@ -162,11 +193,14 @@ def find_path(grid: Grid) -> PathResult:
     best = all_candidates[0]
     vectors = [Vector(x=x, y=y) for x, y in best["path"]]
 
-    # 新クリア判定：本物ゴール＆全カラス通過
+    # クリア判定：本物ゴール＆全カラス通過
     if best["is_real"] and best["crow_cnt"] == total_crows:
         status = Result.HasClearPath
+        # クリア時に足あとを描画したnextGridを作成
+        next_grid = create_footprint_grid(grid, best["path"])
     else:
         status = Result.HasFailPath
+        next_grid = None
 
-    return PathResult(path=Path(root=vectors), result=status)
+    return PathResult(path=Path(root=vectors), result=status, nextGrid=next_grid)
 

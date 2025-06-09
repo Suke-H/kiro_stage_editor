@@ -12,6 +12,7 @@ const initialState: GridState = {
         [{ type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }, { type: 'Normal', side: 'front' }],
     ],
     gridHistory: [],
+    phaseHistory: [],
 }
 
 export const gridSlice = createSlice({
@@ -76,30 +77,54 @@ export const gridSlice = createSlice({
         state.grid[row][col].side = state.grid[row][col].side === 'front' ? 'back' : 'front';
     },
 
+    /* 配置履歴の管理 */
+
+    // 履歴を今のグリッドで初期化
+    initHistory: (state) => {
+        state.gridHistory = [state.grid.map((row) => row.map((cell) => ({ ...cell })))];
+    },
+
+    // 現在のグリッドを履歴に追加
     saveHistory: (state) => {
         state.gridHistory.push(state.grid.map((row) => row.map((cell) => ({ ...cell }))));
     },
 
     // undo, resetは最初の履歴は消さずに持っておく
     undo: (state) => {
-        if (state.gridHistory.length >= 1) {
+        if (state.gridHistory.length >= 2) {
             state.grid = state.gridHistory[state.gridHistory.length - 1];
             state.gridHistory.pop();
         }
     },
 
     reset: (state) => {
-        if (state.gridHistory.length >= 1) {
+        if (state.gridHistory.length >= 2) {
             state.grid = state.gridHistory[0];
-            state.gridHistory = [];
+            // 最初の履歴は消さない
+            state.gridHistory = state.gridHistory.slice(0, 1);
         }
     },
 
-    // clearは最初の履歴ふくめて完全に削除する
-    clearHistory: (state) => {
-        state.gridHistory = [];
+    /* フェーズ履歴の管理 */
+
+    // フェーズ履歴を初期化 
+    initPhaseHistory: (state) => {
+        state.phaseHistory = [state.grid.map((row) => row.map((cell) => ({ ...cell })))];
     },
 
+    // 現在のグリッドをフェーズ履歴に追加
+    savePhaseHistory: (state) => {
+        state.phaseHistory.push(state.grid.map((row) => row.map((cell) => ({ ...cell }))));
+    },
+
+    // resetは最初の履歴は消さずに持っておく
+    resetPhase: (state) => {
+        if (state.phaseHistory.length >= 2) {
+            state.grid = state.phaseHistory[0];
+            // 最初の履歴は消さない
+            state.phaseHistory = state.phaseHistory.slice(0, 1);
+        }
+    },
 
     // 足あとの設置
     placeFootprints: (state, action: PayloadAction<{path: Path}>) => {

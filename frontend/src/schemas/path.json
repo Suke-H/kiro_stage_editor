@@ -16,6 +16,9 @@
         },
         "result": {
           "$ref": "#/definitions/Result"
+        },
+        "nextGrid": {
+          "$ref": "grid.json#/definitions/Grid"
         }
       },
       "required": [

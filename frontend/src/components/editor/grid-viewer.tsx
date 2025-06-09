@@ -37,15 +37,15 @@ export const GridViewer: React.FC = () => {
   /* ========== state ========== */
   const studioMode      = useSelector((s: RootState) => s.studioMode.studioMode);
   const grid            = useSelector((s: RootState) => s.grid.grid) as Grid;
+  const gridHistory     = useSelector((s: RootState) => s.grid.gridHistory);
   const selectedCellKey = useSelector((s: RootState) => s.cellType.selectedCellType) as GridCellKey;
   const placementMode   = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
   const copyPanels      = useSelector((s: RootState) => s.copyPanelList.panels);
 
-  /* ========== クリック ========== */
   const handleGridCellClick = (rowIdx: number, colIdx: number): void => {
     const placing = placementMode.panel;           // Panel | CopyPanel | null
 
-    /* -------- 単セル配置モード -------- */
+    /* 単セル配置モード */
     if (studioMode === StudioMode.Editor && !placing) {
       const def = GRID_CELL_TYPES[selectedCellKey];
       if (selectedCellKey === "Flip") {
@@ -62,21 +62,27 @@ export const GridViewer: React.FC = () => {
           })
         );
       }
+
+      // 単セル配置実施後は、履歴を初期化
+      dispatch(gridSlice.actions.initHistory());
+      dispatch(gridSlice.actions.initPhaseHistory());
       return;
     }
 
-    /* -------- パネル未選択 -------- */
+    /* パネル配置モード */
+
+    // パネル未選択の場合、何もしない
     if (!placing) return;
 
+    // 選択したパネルの情報取得
     const panelType = placing.type ?? "Normal";
     const rows = placing.cells.length;
     const cols = placing.cells[0].length;
-
-    /* -------- Paste 用 CopyPanel -------- */
+    // コピーパネル
     const currentCopyPanel: CopyPanel | undefined =
       panelType === "Paste" ? copyPanels.find((cp) => cp.id === placing.id) : undefined;
 
-    /* -------- 配置可否 -------- */
+    // 配置可能判定
     if (!canPlacePanel(grid, rowIdx, colIdx, placing, currentCopyPanel)) {
       dispatch(
         panelPlacementSlice.actions.selectPanelForPlacement({
@@ -87,10 +93,16 @@ export const GridViewer: React.FC = () => {
       return;
     }
 
-    /* 履歴保存 */
-    dispatch(gridSlice.actions.saveHistory());
+    // パネル操作の前に、履歴保存
+    // 履歴が1つもない場合は、初期化
+    if (gridHistory.length === 0) {
+      dispatch(gridSlice.actions.initHistory());
+      dispatch(gridSlice.actions.initPhaseHistory());
+    } else {
+      dispatch(gridSlice.actions.saveHistory());
+    }
 
-    /* -------- Cut 用コピー配列初期化 -------- */
+    // Cut 用コピー配列初期化
     let copyCells: GridCell[][] = [];
     if (panelType === "Cut") {
       copyCells = placing.cells.map((row) =>
@@ -98,7 +110,7 @@ export const GridViewer: React.FC = () => {
       );
     }
 
-    /* -------- 各セル処理 -------- */
+    // パネル配置実行
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
         const r = rowIdx + i;
@@ -165,14 +177,14 @@ export const GridViewer: React.FC = () => {
       }
     }
 
-    /* -------- パネルリスト更新 -------- */
+    // パネルリストの更新
     if (panelType === "Paste" && currentCopyPanel) {
       dispatch(copyPanelListSlice.actions.placePanel(currentCopyPanel));
     } else {
       dispatch(panelListSlice.actions.placePanel(placing as Panel));
     }
 
-    /* -------- Cut → CopyPanel 作成 -------- */
+    // Cut パネルの場合、コピーパネルを作成
     if (panelType === "Cut") {
       const newCopyPanel: CopyPanel = {
         id: `copy-${Date.now()}`,
@@ -182,7 +194,7 @@ export const GridViewer: React.FC = () => {
       dispatch(copyPanelListSlice.actions.createPanel(newCopyPanel));
     }
 
-    /* -------- 選択解除 -------- */
+    // パネル選択を解除
     dispatch(
       panelPlacementSlice.actions.selectPanelForPlacement({
         panel: null,
@@ -191,7 +203,7 @@ export const GridViewer: React.FC = () => {
     );
   };
 
-  /* ========== 配置可能判定 ========== */
+  /* 配置可能判定 */
   const canPlacePanel = (
     g: Grid,
     r0: number,
@@ -227,7 +239,6 @@ export const GridViewer: React.FC = () => {
     return true;
   };
 
-  /* ========== セル描画 ========== */
   const renderGridCell = (cell: GridCell, r: number, c: number) => {
     const def = GRID_CELL_TYPES[cell.type];
     const sideInfo: CellSideInfo | undefined = def[cell.side];
@@ -251,7 +262,6 @@ export const GridViewer: React.FC = () => {
     );
   };
 
-  /* ========== JSX ========== */
   return (
     <Card className="w-fit bg-[#B3B9D1]">
       <CardHeader>

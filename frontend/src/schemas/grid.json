@@ -45,7 +45,12 @@
         "Warp",
         "ArrowUpDown",
         "ArrowRightLeft",
-        "Rest"
+        "Rest",
+        "FootUp",
+        "FootRight",
+        "FootDown",
+        "FootLeft",
+        "Flag"
       ],
       "type": "string"
     }
