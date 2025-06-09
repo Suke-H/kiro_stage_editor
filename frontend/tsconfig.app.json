@@ -34,6 +34,8 @@
       "@/hooks/*": ["./hooks/*"],
       "@/store": ["./store"],
       "@/store/*": ["./store/*"],
+      "@/logic": ["./logic"],
+      "@/logic/*": ["./logic/*"]
     }
   },
   "include": ["src"]

@@ -14,6 +14,8 @@
       "@/hooks/*": ["./src/hooks/*"],
       "@/store":["./src/store/index.ts"],
       "@/store/*": ["./src/store/*"],
+      "@/logic": ["./src/logic"],
+      "@/logic/*": ["./src/logic/*"]
     }
   }
 }

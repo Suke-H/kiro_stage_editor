@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import { solutionActions } from "@/store/slices/solution-slice";
 import { SolverPanelList } from '@/components/solver/solver-panel-list';
-import { PlaySolveAsync } from "@/api/solve";
+import { solvePuzzle } from "@/logic";
 
 import { GridViewer } from "@/components/editor/grid-viewer";
 import { PanelList } from "@/components/editor/panel-list";
@@ -19,7 +19,7 @@ const SolverPage: React.FC = () => {
   const solutions = useSelector((s: RootState) => s.solution.solutions);
 
   const solve = async () => {
-    const res = await PlaySolveAsync(grid, panels);
+    const res = solvePuzzle(grid, panels);
     dispatch(solutionActions.setSolutions(res.solutions));
     dispatch(
       solutionActions.buildNumberGrids({
