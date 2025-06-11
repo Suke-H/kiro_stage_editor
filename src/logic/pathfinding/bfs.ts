@@ -1,12 +1,6 @@
 import { Grid } from '@/types/grid';
 import { inBounds, isPassable, pointEquals, Point } from '../utils';
-
-const DIRECTIONS: Point[] = [
-  { x: -1, y: 0 }, // left
-  { x: 1, y: 0 },  // right
-  { x: 0, y: -1 }, // up
-  { x: 0, y: 1 },  // down
-];
+import { DIRECTIONS } from './types';
 
 /**
  * BFS実装用のキュー
