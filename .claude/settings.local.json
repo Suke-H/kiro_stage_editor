@@ -3,7 +3,8 @@
     "allow": [
       "Bash(poetry run:*)",
       "Bash(git add:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": []
   }
