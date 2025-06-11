@@ -62,7 +62,7 @@ const createCandidates = (
 /**
  * グリッド内の全カラス位置を収集
  */
-const collectCrowPositions = (grid: Grid): Set<string> => {
+const searchCrowPositions = (grid: Grid): Set<string> => {
   const crowPositions = new Set<string>();
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
@@ -99,7 +99,7 @@ export const findPath = (grid: Grid, phaseHistory?: Grid[]): PathResult => {
     return { result: Result.NoPath, path: [], nextGrid: null };
   
   // 4. カラス位置の収集
-  const crowPositions = collectCrowPositions(grid);
+  const crowPositions = searchCrowPositions(grid);
   const totalCrows = crowPositions.size;
   
   // 5. 候補の処理とソート
