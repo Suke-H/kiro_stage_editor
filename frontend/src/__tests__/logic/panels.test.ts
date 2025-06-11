@@ -143,7 +143,7 @@ describe('パネル配置ロジック', () => {
         point: { x: 0, y: 0 }
       }
       
-      const [resultGrid, success] = placePanels(grid, [placement])
+      const [, success] = placePanels(grid, [placement])
       expect(success).toBe(false) // Start(neutral)には配置不可
     })
   })
