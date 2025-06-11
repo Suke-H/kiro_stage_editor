@@ -8,7 +8,7 @@ import { placePanels } from './panels';
 /**
  * 1枚のパネルの全配置パターンを列挙
  */
-function enumerateSinglePanel(grid: Grid, panel: Panel): PanelPlacement[] {
+const enumerateSinglePanel = (grid: Grid, panel: Panel): PanelPlacement[] => {
   const gridRows = grid.length;
   const gridCols = grid[0].length;
   
@@ -51,7 +51,7 @@ function enumerateSinglePanel(grid: Grid, panel: Panel): PanelPlacement[] {
   }
   
   return placements;
-}
+};
 
 /**
  * 組み合わせ生成器（Pythonのitertools.productの代替）
@@ -73,10 +73,10 @@ function* cartesianProduct<T>(...arrays: T[][]): Generator<T[]> {
 /**
  * クリア可能な最初の配置を探索
  */
-export function solveSingle(
+export const solveSingle = (
   initialGrid: Grid,
   panels: Panel[]
-): PanelPlacement[] | null {
+): PanelPlacement[] | null => {
   // 各パネルの全配置パターン
   const allOptions: PanelPlacement[][] = panels.map(panel => 
     enumerateSinglePanel(initialGrid, panel)
@@ -105,11 +105,11 @@ export function solveSingle(
 /**
  * クリア可能な全配置を探索
  */
-export function solveAll(
+export const solveAll = (
   initialGrid: Grid,
   panels: Panel[],
   allowSkip: boolean = true
-): PanelPlacement[][] {
+): PanelPlacement[][] => {
   // 各パネルの全配置パターン
   let allOptions: (PanelPlacement | null)[][] = panels.map(panel => 
     enumerateSinglePanel(initialGrid, panel)
@@ -149,7 +149,7 @@ export interface SolveResponse {
   solutions: PanelPlacement[][];
 }
 
-export function solvePuzzle(grid: Grid, panels: Panel[]): SolveResponse {
+export const solvePuzzle = (grid: Grid, panels: Panel[]): SolveResponse => {
   const solutions = solveAll(grid, panels, true);
   return { solutions };
 }

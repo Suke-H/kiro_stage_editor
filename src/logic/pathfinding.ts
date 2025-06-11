@@ -31,7 +31,7 @@ class Queue<T> {
 /**
  * start→goalへの全最短経路を取得
  */
-function bfsAllShortestPaths(grid: Grid, start: Point, goal: Point): Point[][] {
+const bfsAllShortestPaths = (grid: Grid, start: Point, goal: Point): Point[][] => {
   const dist = new Map<string, number>();
   const parents = new Map<string, Point[]>();
   
@@ -96,7 +96,7 @@ function bfsAllShortestPaths(grid: Grid, start: Point, goal: Point): Point[][] {
   // 経路再構築
   const paths: Point[][] = [];
   
-  function buildPaths(current: Point, path: Point[]): void {
+  const buildPaths = (current: Point, path: Point[]): void => {
     if (pointEquals(current, start)) {
       paths.push([...path, current].reverse());
       return;
@@ -108,16 +108,16 @@ function bfsAllShortestPaths(grid: Grid, start: Point, goal: Point): Point[][] {
     for (const parent of parentList) {
       buildPaths(parent, [...path, current]);
     }
-  }
+  };
   
   buildPaths(goal, []);
   return paths;
-}
+};
 
 /**
  * クリア時の足跡描画グリッド作成
  */
-function createFootprintGrid(grid: Grid, path: Point[], phaseHistory?: Grid[]): Grid {
+const createFootprintGrid = (grid: Grid, path: Point[], phaseHistory?: Grid[]): Grid => {
   const newGrid = deepCopyGrid(grid);
   
   // スタート地点の処理
@@ -171,19 +171,19 @@ function createFootprintGrid(grid: Grid, path: Point[], phaseHistory?: Grid[]): 
   newGrid[goal.y][goal.x] = { type: 'Start', side: 'neutral' };
   
   return newGrid;
-}
+};
 
 /**
  * Rest到達時の次状態グリッド作成
  */
-function createRestTransitionGrid(
+const createRestTransitionGrid = (
   grid: Grid, 
   start: Point, 
   restPosition: Point, 
   crowPositions: Set<string>, 
   path: Point[], 
   phaseHistory?: Grid[]
-): Grid {
+): Grid => {
   const newGrid = deepCopyGrid(grid);
   
   // フェーズ履歴から元の状態を判定
@@ -231,14 +231,14 @@ function createRestTransitionGrid(
   newGrid[restPosition.y][restPosition.x] = { type: 'Start', side: 'neutral' };
   
   return newGrid;
-}
+};
 
 /**
  * パズル経路探索メイン関数
  * 優先度: 最短経路 → 本物ゴール優先 → 通過カラス数多い順
  * クリア条件: 本物ゴールに到達かつステージ内の全カラスを通過
  */
-export function findPath(grid: Grid, phaseHistory?: Grid[]): PathResult {
+export const findPath = (grid: Grid, phaseHistory?: Grid[]): PathResult => {
   // Start が無ければ即終了
   const start = findSingle(grid, 'Start');
   if (!start) {

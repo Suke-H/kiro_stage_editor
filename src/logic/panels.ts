@@ -6,7 +6,7 @@ import { deepCopyGrid } from './utils';
  * 単一パネル配置可能性判定
  * パネルの黒セルはNormal(front)のセルにのみ配置可能
  */
-function canPlaceSingle(grid: Grid, placement: PanelPlacement): boolean {
+const canPlaceSingle = (grid: Grid, placement: PanelPlacement): boolean => {
   const panel = placement.panel;
   const highlight = placement.highlight;
   const point = placement.point;
@@ -46,7 +46,7 @@ function canPlaceSingle(grid: Grid, placement: PanelPlacement): boolean {
   }
   
   return true;
-}
+};
 
 /**
  * パネル配置実行
@@ -55,11 +55,11 @@ function canPlaceSingle(grid: Grid, placement: PanelPlacement): boolean {
  * @param mutate trueなら元グリッドを変更、falseならコピーを返す
  * @returns [変更後グリッド, 全配置成功フラグ]
  */
-export function placePanels(
+export const placePanels = (
   original: Grid,
   placements: PanelPlacement[],
   mutate: boolean = false
-): [Grid, boolean] {
+): [Grid, boolean] => {
   const grid = mutate ? original : deepCopyGrid(original);
   
   for (const placement of placements) {

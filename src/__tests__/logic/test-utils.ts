@@ -15,7 +15,7 @@ export const CHARMAP: Record<string, { type: string; side: string }> = {
 /**
  * 文字列配列からGridを生成（Python版のgrid_fromと同等）
  */
-export function gridFrom(lines: string[]): Grid {
+export const gridFrom = (lines: string[]): Grid => {
   const rows: GridCell[][] = [];
   for (const line of lines) {
     const row: GridCell[] = [];
