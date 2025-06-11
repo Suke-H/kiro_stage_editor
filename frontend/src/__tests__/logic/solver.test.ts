@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { solveSingle, solveAll, solvePuzzle } from '@/logic/solver'
 import { Panel } from '@/types/panel'
-import { Result } from '@/types/path'
 import { gridFrom } from './test-utils'
 
 describe('パズルソルバー', () => {
