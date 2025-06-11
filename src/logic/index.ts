@@ -1,5 +1,5 @@
 // ロジック関数のエクスポート
-export { findPath } from './pathfinding';
+export { findPath, bfsAllShortestPaths, createFootprintGrid, createRestTransitionGrid } from './pathfinding';
 export { placePanels } from './panels';
 export { solveSingle, solveAll, solvePuzzle } from './solver';
 export type { SolveResponse } from './solver';
