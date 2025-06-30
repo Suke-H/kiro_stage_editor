@@ -125,7 +125,7 @@ const renderList = (
             <div
               className="grid gap-1"
               style={{
-                gridTemplateColumns: `repeat(${cellsMatrix[0].length}, 40px)`,
+                gridTemplateColumns: `repeat(${cellsMatrix[0]?.length || 1}, 40px)`,
               }}
               onClick={() => selectPanel(panelObj)}
             >

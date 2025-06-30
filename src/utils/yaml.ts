@@ -13,7 +13,8 @@ interface CellYamlData {
 }
 
 interface PanelYamlData {
-  Coordinates: { X: number; Y: number }[];
+  Type: string;
+  Coordinates?: { X: number; Y: number }[];
 }
 
 const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
@@ -28,15 +29,27 @@ export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
     row.map((cell) => transformCellToYamlFormat(cell))
   );
 
-  const panelCoordinates = panels.map((panel) => ({
-    Coordinates: panel.cells
-      .flatMap((row, y) =>
-        row
-          .map((cell, x) => (cell === "Black" ? { X: x, Y: y } : null))
-          .filter((coord) => coord !== null)
-      )
-      .flat(),
-  }));
+  const panelCoordinates = panels.map((panel) => {
+    const baseData = {
+      Type: panel.type || "Normal"
+    };
+    
+    // Flagパネル以外の場合のみCoordinatesを追加
+    if (panel.type !== "Flag") {
+      return {
+        ...baseData,
+        Coordinates: panel.cells
+          .flatMap((row, y) =>
+            row
+              .map((cell, x) => (cell === "Black" || cell === "Cut") ? { X: x, Y: y } : null)
+              .filter((coord) => coord !== null)
+          )
+          .flat()
+      };
+    }
+    
+    return baseData;
+  });
 
   const yamlStageData = {
     Height: grid.length,
@@ -78,17 +91,35 @@ export const importStageFromYaml = async (
         // パネル変換とトリム
         const panels: Panel[] = Panels.map(
           (panel: PanelYamlData, index: number) => {
-            const panelGrid: PanelCellTypeKey[][] = Array.from(
-              { length: Height },
-              () => Array.from({ length: Width }, () => "White")
-            );
-            panel.Coordinates.forEach(({ X, Y }) => {
-              panelGrid[Y][X] = "Black";
-            });
-            return {
-              id: `panel-${index}`,
-              cells: panelGrid,
-            };
+            if (panel.Type === "Flag") {
+              // Flagパネルの場合は1x1のFlagセルを作成
+              return {
+                id: `panel-${index}`,
+                cells: [["Flag"]],
+                type: "Flag",
+              };
+            } else {
+              // 通常のパネル処理
+              const panelGrid: PanelCellTypeKey[][] = Array.from(
+                { length: Height },
+                () => Array.from({ length: Width }, () => "White")
+              );
+              panel.Coordinates?.forEach(({ X, Y }) => {
+                // パネルタイプに応じてセルタイプを決定
+                switch (panel.Type) {
+                  case "Cut":
+                    panelGrid[Y][X] = "Cut";
+                    break;
+                  default:
+                    panelGrid[Y][X] = "Black";
+                }
+              });
+              return {
+                id: `panel-${index}`,
+                cells: panelGrid,
+                type: (panel.Type as Panel["type"]) || "Normal",
+              };
+            }
           }
         );
 
@@ -109,6 +140,9 @@ export const importStageFromYaml = async (
 const trimPanels = (panels: Panel[]): Panel[] => panels.map(trimPanelCells);
 
 const trimPanelCells = (panel: Panel): Panel => {
+
+  console.log("Trimming panel:", panel);
+
   // "Black"セルの座標を取得
   const coordinates = panel.cells.flatMap((row, rowIndex) =>
     row
@@ -120,7 +154,7 @@ const trimPanelCells = (panel: Panel): Panel => {
 
   if (coordinates.length === 0) {
     // セルがない場合、空のパネルとして返す
-    return { id: panel.id, cells: [] };
+    return { id: panel.id, cells: [], type: panel.type || "Normal" };
   }
 
   // x, yの最小値と最大値を計算
@@ -137,5 +171,6 @@ const trimPanelCells = (panel: Panel): Panel => {
   return {
     id: panel.id,
     cells: trimmedCells,
+    type: panel.type || "Normal",
   };
 };
