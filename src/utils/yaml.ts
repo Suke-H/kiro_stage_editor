@@ -13,6 +13,7 @@ interface CellYamlData {
 }
 
 interface PanelYamlData {
+  Type: string;
   Coordinates: { X: number; Y: number }[];
 }
 
@@ -29,6 +30,7 @@ export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
   );
 
   const panelCoordinates = panels.map((panel) => ({
+    Type: panel.type || "Normal",
     Coordinates: panel.cells
       .flatMap((row, y) =>
         row
@@ -88,6 +90,7 @@ export const importStageFromYaml = async (
             return {
               id: `panel-${index}`,
               cells: panelGrid,
+              type: (panel.Type as Panel["type"]) || "Normal",
             };
           }
         );
@@ -109,6 +112,9 @@ export const importStageFromYaml = async (
 const trimPanels = (panels: Panel[]): Panel[] => panels.map(trimPanelCells);
 
 const trimPanelCells = (panel: Panel): Panel => {
+
+  console.log("Trimming panel:", panel);
+
   // "Black"セルの座標を取得
   const coordinates = panel.cells.flatMap((row, rowIndex) =>
     row
@@ -120,7 +126,7 @@ const trimPanelCells = (panel: Panel): Panel => {
 
   if (coordinates.length === 0) {
     // セルがない場合、空のパネルとして返す
-    return { id: panel.id, cells: [] };
+    return { id: panel.id, cells: [], type: panel.type || "Normal" };
   }
 
   // x, yの最小値と最大値を計算
@@ -137,5 +143,6 @@ const trimPanelCells = (panel: Panel): Panel => {
   return {
     id: panel.id,
     cells: trimmedCells,
+    type: panel.type || "Normal",
   };
 };
