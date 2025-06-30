@@ -14,7 +14,7 @@ interface CellYamlData {
 
 interface PanelYamlData {
   Type: string;
-  Coordinates: { X: number; Y: number }[];
+  Coordinates?: { X: number; Y: number }[];
 }
 
 const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
@@ -29,16 +29,27 @@ export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
     row.map((cell) => transformCellToYamlFormat(cell))
   );
 
-  const panelCoordinates = panels.map((panel) => ({
-    Type: panel.type || "Normal",
-    Coordinates: panel.cells
-      .flatMap((row, y) =>
-        row
-          .map((cell, x) => (cell === "Black" ? { X: x, Y: y } : null))
-          .filter((coord) => coord !== null)
-      )
-      .flat(),
-  }));
+  const panelCoordinates = panels.map((panel) => {
+    const baseData = {
+      Type: panel.type || "Normal"
+    };
+    
+    // Flagパネル以外の場合のみCoordinatesを追加
+    if (panel.type !== "Flag") {
+      return {
+        ...baseData,
+        Coordinates: panel.cells
+          .flatMap((row, y) =>
+            row
+              .map((cell, x) => (cell === "Black" || cell === "Cut") ? { X: x, Y: y } : null)
+              .filter((coord) => coord !== null)
+          )
+          .flat()
+      };
+    }
+    
+    return baseData;
+  });
 
   const yamlStageData = {
     Height: grid.length,
@@ -80,18 +91,35 @@ export const importStageFromYaml = async (
         // パネル変換とトリム
         const panels: Panel[] = Panels.map(
           (panel: PanelYamlData, index: number) => {
-            const panelGrid: PanelCellTypeKey[][] = Array.from(
-              { length: Height },
-              () => Array.from({ length: Width }, () => "White")
-            );
-            panel.Coordinates.forEach(({ X, Y }) => {
-              panelGrid[Y][X] = "Black";
-            });
-            return {
-              id: `panel-${index}`,
-              cells: panelGrid,
-              type: (panel.Type as Panel["type"]) || "Normal",
-            };
+            if (panel.Type === "Flag") {
+              // Flagパネルの場合は1x1のFlagセルを作成
+              return {
+                id: `panel-${index}`,
+                cells: [["Flag"]],
+                type: "Flag",
+              };
+            } else {
+              // 通常のパネル処理
+              const panelGrid: PanelCellTypeKey[][] = Array.from(
+                { length: Height },
+                () => Array.from({ length: Width }, () => "White")
+              );
+              panel.Coordinates?.forEach(({ X, Y }) => {
+                // パネルタイプに応じてセルタイプを決定
+                switch (panel.Type) {
+                  case "Cut":
+                    panelGrid[Y][X] = "Cut";
+                    break;
+                  default:
+                    panelGrid[Y][X] = "Black";
+                }
+              });
+              return {
+                id: `panel-${index}`,
+                cells: panelGrid,
+                type: (panel.Type as Panel["type"]) || "Normal",
+              };
+            }
           }
         );
 

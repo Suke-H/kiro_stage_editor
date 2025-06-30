@@ -19,23 +19,6 @@ const PuzzleStudio: React.FC = () => {
   const dispatch = useDispatch();
   const studioMode = useSelector((state: RootState) => state.studioMode.studioMode);
 
-  // FastAPIの疎通確認
-  useEffect(() => {
-    const checkApiConnection = async () => {
-      try {
-        const response = await fetch('/api/health');
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log('API疎通確認成功:', data);
-      } catch (error) {
-        console.error('API疎通確認エラー:', error);
-      }
-    };
-    checkApiConnection();
-  }, []);
-
   // URLからステージをロード & studioMode の設定
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
