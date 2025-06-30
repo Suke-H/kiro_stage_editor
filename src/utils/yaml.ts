@@ -25,7 +25,8 @@ const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
 };
 
 export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
-  const cells = grid.map((row) =>
+  // Y軸を反転してYAMLに出力（上下逆さま）
+  const cells = [...grid].reverse().map((row) =>
     row.map((cell) => transformCellToYamlFormat(cell))
   );
 
@@ -80,8 +81,8 @@ export const importStageFromYaml = async (
         const yamlData = parse(e.target?.result as string);
         const { Height, Width, Cells, Panels } = yamlData;
 
-        // グリッド変換
-        const grid: Grid = Cells.map((row: CellYamlData[]) =>
+        // グリッド変換（Y軸を反転して読み込み）
+        const grid: Grid = [...Cells].reverse().map((row: CellYamlData[]) =>
           row.map((cell: CellYamlData) => ({
             type: cell.Type as GridCellKey,
             side: uncapitalize(cell.CellSide) as GridCell["side"],
