@@ -24,9 +24,50 @@ const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
   };
 };
 
+// Empty削除関数：外側の余分なEmptyセルを削除
+const removeExtraEmptyCells = (grid: Grid): Grid => {
+  if (grid.length === 0 || grid[0].length === 0) return grid;
+  
+  let minRow = 0;
+  let maxRow = grid.length - 1;
+  let minCol = 0;
+  let maxCol = grid[0].length - 1;
+  
+  // 上から削除可能な行を見つける
+  while (minRow <= maxRow && grid[minRow].every(cell => cell.type === "Empty")) {
+    minRow++;
+  }
+  
+  // 下から削除可能な行を見つける
+  while (maxRow >= minRow && grid[maxRow].every(cell => cell.type === "Empty")) {
+    maxRow--;
+  }
+  
+  // 左から削除可能な列を見つける
+  while (minCol <= maxCol && grid.slice(minRow, maxRow + 1).every(row => row[minCol].type === "Empty")) {
+    minCol++;
+  }
+  
+  // 右から削除可能な列を見つける
+  while (maxCol >= minCol && grid.slice(minRow, maxRow + 1).every(row => row[maxCol].type === "Empty")) {
+    maxCol--;
+  }
+  
+  // すべてがEmptyの場合は1x1のEmptyグリッドを返す
+  if (minRow > maxRow || minCol > maxCol) {
+    return [[{ type: "Empty", side: "neutral" }]];
+  }
+  
+  // トリムされたグリッドを作成
+  return grid.slice(minRow, maxRow + 1).map(row => row.slice(minCol, maxCol + 1));
+};
+
 export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
+  // Empty削除処理を適用
+  const trimmedGrid = removeExtraEmptyCells(grid);
+  
   // Y軸を反転してYAMLに出力（上下逆さま）
-  const cells = [...grid].reverse().map((row) =>
+  const cells = [...trimmedGrid].reverse().map((row) =>
     row.map((cell) => transformCellToYamlFormat(cell))
   );
 
@@ -53,8 +94,8 @@ export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
   });
 
   const yamlStageData = {
-    Height: grid.length,
-    Width: grid[0].length,
+    Height: trimmedGrid.length,
+    Width: trimmedGrid[0].length,
     Cells: cells,
     Panels: panelCoordinates,
   };
