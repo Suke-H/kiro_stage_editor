@@ -83,7 +83,7 @@ export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
         Coordinates: panel.cells
           .flatMap((row, y) =>
             row
-              .map((cell, x) => (cell === "Black" || cell === "Cut") ? { X: x, Y: y } : null)
+              .map((cell, x) => (cell === "Black" || cell === "Cut") ? { X: x, Y: panel.cells.length - 1 - y } : null)
               .filter((coord) => coord !== null)
           )
           .flat()
@@ -148,12 +148,13 @@ export const importStageFromYaml = async (
               );
               panel.Coordinates?.forEach(({ X, Y }) => {
                 // パネルタイプに応じてセルタイプを決定
+                const reversedY = Height - 1 - Y;
                 switch (panel.Type) {
                   case "Cut":
-                    panelGrid[Y][X] = "Cut";
+                    panelGrid[reversedY][X] = "Cut";
                     break;
                   default:
-                    panelGrid[Y][X] = "Black";
+                    panelGrid[reversedY][X] = "Black";
                 }
               });
               return {
