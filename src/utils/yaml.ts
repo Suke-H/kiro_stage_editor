@@ -76,21 +76,25 @@ export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
       Type: panel.type || "Normal"
     };
     
-    // Flagパネル以外の場合のみCoordinatesを追加
-    if (panel.type !== "Flag") {
+    // Flagパネルの場合は固定座標（X: 0, Y: 0）を追加
+    if (panel.type === "Flag") {
       return {
         ...baseData,
-        Coordinates: panel.cells
-          .flatMap((row, y) =>
-            row
-              .map((cell, x) => (cell === "Black" || cell === "Cut") ? { X: x, Y: panel.cells.length - 1 - y } : null)
-              .filter((coord) => coord !== null)
-          )
-          .flat()
+        Coordinates: [{ X: 0, Y: 0 }]
       };
     }
     
-    return baseData;
+    // Flag以外のパネルは通常の座標処理
+    return {
+      ...baseData,
+      Coordinates: panel.cells
+        .flatMap((row, y) =>
+          row
+            .map((cell, x) => (cell === "Black" || cell === "Cut") ? { X: x, Y: panel.cells.length - 1 - y } : null)
+            .filter((coord) => coord !== null)
+        )
+        .flat()
+    };
   });
 
   const yamlStageData = {

@@ -126,7 +126,7 @@ export const decodeStageFromUrl = (stageData: string) => {
   const panels = panelsRaw.split("_").map((panelRaw, index) => {
     // プレフィックスからタイプ判定
     let panelStr = panelRaw;
-    let type: Panel["type"];
+    let type: Panel["type"] = "Normal"; // デフォルト値を設定
     if (panelStr.startsWith("c-")) {
       type = "Cut";
       panelStr = panelStr.slice(2);
@@ -147,6 +147,11 @@ export const decodeStageFromUrl = (stageData: string) => {
     const panelCells = Array.from({ length: height }, (_, i) =>
       decodedPanelCells.slice(i * width, (i + 1) * width)
     );
+
+    // Flagセルが含まれている場合はFlagタイプに設定
+    if (decodedPanelCells.includes("Flag")) {
+      type = "Flag";
+    }
 
     return { id: `panel-${index}`, cells: panelCells, type };
   });
