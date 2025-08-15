@@ -2,12 +2,12 @@ import { Grid } from '@/types/grid';
 import { deepCopyGrid, Point } from '../utils';
 
 /**
- * Rest到達時の次状態グリッド作成
+ * Flag到達時の次状態グリッド作成
  */
-export const createRestTransitionGrid = (
+export const createFlagTransitionGrid = (
   grid: Grid, 
   start: Point, 
-  restPosition: Point, 
+  flagPosition: Point, 
   crowPositions: Set<string>, 
   path: Point[], 
   phaseHistory?: Grid[]
@@ -15,22 +15,22 @@ export const createRestTransitionGrid = (
   const newGrid = deepCopyGrid(grid);
   
   // フェーズ履歴から元の状態を判定
-  let isStartOriginallyRest = false;
+  let isStartOriginallyFlag = false;
   if (phaseHistory && phaseHistory.length >= 2) {
     const previousGrid = phaseHistory[phaseHistory.length - 2];
     if (start.y < previousGrid.length && start.x < previousGrid[start.y].length) {
-      // 元々RestだったマスをRestに戻す
+      // 元々FlagだったマスをFlagに戻す
       const originalCell = previousGrid[start.y][start.x];
-      isStartOriginallyRest = originalCell.type === 'Rest';
+      isStartOriginallyFlag = originalCell.type === 'Flag';
     }
   }
   
   // スタート地点の状態変更
-  if (isStartOriginallyRest) {
-    // Rest間移動時：前のRest（現在のStart）をRestに戻す
-    newGrid[start.y][start.x] = { type: 'Rest', side: 'neutral' };
+  if (isStartOriginallyFlag) {
+    // Flag間移動時：前のFlag（現在のStart）をFlagに戻す
+    newGrid[start.y][start.x] = { type: 'Flag', side: 'neutral' };
   } else {
-    // 初回Rest到達：StartをNormal:frontに変更
+    // 初回Flag到達：StartをNormal:frontに変更
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };
   }
   
@@ -42,7 +42,7 @@ export const createRestTransitionGrid = (
     }
   }
   
-  // Rest到達時：Normalパネルのfront/back状態をフェーズ履歴末尾からリセット
+  // Flag到達時：Normalパネルのfront/back状態をフェーズ履歴末尾からリセット
   if (phaseHistory && phaseHistory.length > 0) {
     const latestGrid = phaseHistory[phaseHistory.length - 1];
     for (let y = 0; y < newGrid.length; y++) {
@@ -56,8 +56,8 @@ export const createRestTransitionGrid = (
     }
   }
   
-  // 到達したRestを新しいStartに置換
-  newGrid[restPosition.y][restPosition.x] = { type: 'Start', side: 'neutral' };
+  // 到達したFlagを新しいStartに置換
+  newGrid[flagPosition.y][flagPosition.x] = { type: 'Start', side: 'neutral' };
   
   return newGrid;
 };

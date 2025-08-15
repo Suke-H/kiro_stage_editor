@@ -2,6 +2,7 @@ import { Grid, GridCellKey } from '@/types/grid';
 import { PathResult, Result, Vector } from '@/types/path';
 import { Point, deepCopyGrid } from '../utils';
 import { createRestTransitionGrid } from './rest-transition';
+import { createFlagTransitionGrid } from './flag-transition';
 import { Candidate } from './types';
 
 /**
@@ -15,11 +16,13 @@ const createFootprintGrid = (grid: Grid, path: Point[], phaseHistory?: Grid[]): 
   
   // フェーズ履歴から元の状態を判定
   let isStartOriginallyRest = false;
+  let isStartOriginallyFlag = false;
   if (phaseHistory && phaseHistory.length >= 2) {
     const previousGrid = phaseHistory[phaseHistory.length - 2];
     if (start.y < previousGrid.length && start.x < previousGrid[start.y].length) {
       const originalCell = previousGrid[start.y][start.x];
       isStartOriginallyRest = originalCell.type === 'Rest';
+      isStartOriginallyFlag = originalCell.type === 'Flag';
     }
   }
   
@@ -27,6 +30,9 @@ const createFootprintGrid = (grid: Grid, path: Point[], phaseHistory?: Grid[]): 
   if (isStartOriginallyRest) {
     // Rest経由でのクリア：元のRest（現在のStart）をRestに戻す
     newGrid[start.y][start.x] = { type: 'Rest', side: 'neutral' };
+  } else if (isStartOriginallyFlag) {
+    // Flag経由でのクリア：元のFlag（現在のStart）をFlagに戻す
+    newGrid[start.y][start.x] = { type: 'Flag', side: 'neutral' };
   } else {
     // 初回クリア：StartをNormal:frontに変更
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };
@@ -96,6 +102,11 @@ export const determineResult = (
     status = Result.HasRestPath;
     const restPosition = best.path[best.path.length - 1];
     nextGrid = createRestTransitionGrid(grid, start, restPosition, crowPositions, best.path, phaseHistory);
+  } else if (best.kind === 3) {
+    // Flag到達時の特別処理
+    status = Result.HasFlagPath;
+    const flagPosition = best.path[best.path.length - 1];
+    nextGrid = createFlagTransitionGrid(grid, start, flagPosition, crowPositions, best.path, phaseHistory);
   } else {
     // ダミーゴール到達（失敗）
     status = Result.HasFailPath;

@@ -7,16 +7,18 @@ import { rankCandidates } from './candidate-ranking';
 import { determineResult } from './result-determination';
 
 /**
- * 全ての目標地点（Goal/DummyGoal/Rest）への経路を収集
+ * 全ての目標地点（Goal/DummyGoal/Rest/Flag）への経路を収集
  */
 const findAllPaths = (grid: Grid, start: Point): {
   realPaths: Point[][];
   dummyPaths: Point[][];
   restPaths: Point[][];
+  flagPaths: Point[][];
 } => {
   const goalReal = findSingle(grid, 'Goal');
   const dummyGoals = findAll(grid, 'DummyGoal');
   const restPositions = findAll(grid, 'Rest');
+  const flagPositions = findAll(grid, 'Flag');
   
   // 最短経路群を取得
   const realPaths = goalReal ? bfsAllShortestPaths(grid, start, goalReal) : [];
@@ -33,7 +35,13 @@ const findAllPaths = (grid: Grid, start: Point): {
     restPaths.push(...bfsAllShortestPaths(grid, start, rest));
   }
   
-  return { realPaths, dummyPaths, restPaths };
+  // すべてのFlagに対して最短経路を取得
+  const flagPaths: Point[][] = [];
+  for (const flag of flagPositions) {
+    flagPaths.push(...bfsAllShortestPaths(grid, start, flag));
+  }
+  
+  return { realPaths, dummyPaths, restPaths, flagPaths };
 };
 
 /**
@@ -42,7 +50,8 @@ const findAllPaths = (grid: Grid, start: Point): {
 const createCandidates = (
   realPaths: Point[][],
   dummyPaths: Point[][],
-  restPaths: Point[][]
+  restPaths: Point[][],
+  flagPaths: Point[][]
 ): Candidate[] => {
   const allCandidates: Candidate[] = [];
   
@@ -54,6 +63,9 @@ const createCandidates = (
   }
   for (const path of restPaths) {
     allCandidates.push({ path, kind: 2, crowCount: 0 });
+  }
+  for (const path of flagPaths) {
+    allCandidates.push({ path, kind: 3, crowCount: 0 });
   }
   
   return allCandidates;
@@ -91,10 +103,10 @@ export const findPath = (grid: Grid, phaseHistory?: Grid[]): PathResult => {
     return { result: Result.NoGoal, path: [], nextGrid: null};
 
   // 2. 全経路の収集
-  const { realPaths, dummyPaths, restPaths } = findAllPaths(grid, start);
+  const { realPaths, dummyPaths, restPaths, flagPaths } = findAllPaths(grid, start);
   
   // 3. 候補リストの作成
-  const allCandidates = createCandidates(realPaths, dummyPaths, restPaths);
+  const allCandidates = createCandidates(realPaths, dummyPaths, restPaths, flagPaths);
   if (allCandidates.length === 0)
     return { result: Result.NoPath, path: [], nextGrid: null };
   

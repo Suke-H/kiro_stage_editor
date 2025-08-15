@@ -7,6 +7,7 @@ export enum Result {
   HasClearPath = "HasClearPath",
   HasFailPath = "HasFailPath",
   HasRestPath = "HasRestPath",
+  HasFlagPath = "HasFlagPath",
 }
 
 export const resultMessages: Record<Result, string> = {
@@ -16,6 +17,7 @@ export const resultMessages: Record<Result, string> = {
   [Result.HasClearPath]: "ゴールできました！🎉",
   [Result.HasFailPath]: "間違った道でした...😢",
   [Result.HasRestPath]: "休憩地点に着きました！",
+  [Result.HasFlagPath]: "旗に到達しました！",
 };
 
 export type Vector = {
