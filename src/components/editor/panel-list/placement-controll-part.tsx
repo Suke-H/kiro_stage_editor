@@ -88,7 +88,9 @@ export const PlacementControllPart: React.FC = () => {
       }
       
       // クリアした場合、または休憩地点に着いた場合、または旗に到達した場合
-      if (_pathResult.result === Result.HasClearPath || _pathResult.result === Result.HasRestPath || _pathResult.result === Result.HasFlagPath){
+      if (_pathResult.result === Result.HasClearPath
+        || _pathResult.result === Result.HasRestPath 
+        || _pathResult.result === Result.HasFlagPath){
           // nullじゃない場合のみ配置
           if (_pathResult.nextGrid !== null)
               dispatch(gridSlice.actions.loadGrid(_pathResult.nextGrid));
@@ -96,9 +98,11 @@ export const PlacementControllPart: React.FC = () => {
           // フェーズ履歴を保存
           dispatch(gridSlice.actions.savePhaseHistory());
 
-          // 配置履歴は初期化する
-          dispatch(gridSlice.actions.initHistory());
-          dispatch(panelListSlice.actions.reset());
+          // Flag以外の場合は配置履歴を初期化する
+          if (_pathResult.result !== Result.HasFlagPath) {
+              dispatch(gridSlice.actions.initHistory());
+              dispatch(panelListSlice.actions.reset());
+          }
       }
 
       // // テスト

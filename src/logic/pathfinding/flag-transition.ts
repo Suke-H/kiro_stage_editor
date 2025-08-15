@@ -42,19 +42,8 @@ export const createFlagTransitionGrid = (
     }
   }
   
-  // Flag到達時：Normalパネルのfront/back状態をフェーズ履歴末尾からリセット
-  if (phaseHistory && phaseHistory.length > 0) {
-    const latestGrid = phaseHistory[phaseHistory.length - 1];
-    for (let y = 0; y < newGrid.length; y++) {
-      for (let x = 0; x < newGrid[y].length; x++) {
-        if (newGrid[y][x].type === 'Normal' && 
-            latestGrid[y][x].type === 'Normal') {
-          // フェーズ履歴末尾からNormalパネルのside状態を復元
-          newGrid[y][x].side = latestGrid[y][x].side;
-        }
-      }
-    }
-  }
+  // Flag到達時：Normalパネルの状態はそのまま保持（Restと違いリセットしない）
+  // パネルの反転状態を維持する
   
   // 到達したFlagを新しいStartに置換
   newGrid[flagPosition.y][flagPosition.x] = { type: 'Start', side: 'neutral' };
