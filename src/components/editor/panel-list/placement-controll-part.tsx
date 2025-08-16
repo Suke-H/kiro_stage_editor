@@ -7,7 +7,7 @@ import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 
-import { findPath } from "@/logic";
+import { evaluateAllPaths, createCombinedNextGrid } from "@/logic";
 import { Result, resultMessages } from "@/types/path";
 import { StudioModeInEditor } from "@/types/store";
 
@@ -74,23 +74,38 @@ export const PlacementControllPart: React.FC = () => {
       // StudioModeInEditorをPlayに切り替え
       dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
 
-      const _pathResult = findPath(grid, phaseHistory);
+      const { startResult, wolfResults, finalResult } = evaluateAllPaths(grid, phaseHistory);
+      
+      // nextGridを決定（nullの場合は元のgridを使用）
+      const nextGrid = startResult.nextGrid !== null ? startResult.nextGrid : grid;
+      
+      // Wolf移動を統合
+      const combinedNextGrid = createCombinedNextGrid(startResult, wolfResults, nextGrid);
+      
+      // UI処理用にcombinedNextGridを持つPathResultを作成
+      const _pathResult = { 
+          ...startResult, 
+          nextGrid: combinedNextGrid
+      };
 
       // 対応するResultMessageをポップアップ
-      if (_pathResult.result === Result.HasClearPath)
-          toast.success(resultMessages[_pathResult.result]) ;
+      if (finalResult === Result.WolfReachedGoal)
+          toast.error(resultMessages[finalResult]);
+      else if (_pathResult.result === Result.HasClearPath)
+          toast.success(resultMessages[_pathResult.result]);
       else
-          toast.info(resultMessages[_pathResult.result]) ;
+          toast.info(resultMessages[_pathResult.result]);
       
-      // クリアした場合は再生ボタンをdisable
-      if (_pathResult.result === Result.HasClearPath) {
+      // クリアした場合またはWolf失敗の場合は再生ボタンをdisable
+      if (_pathResult.result === Result.HasClearPath || finalResult === Result.WolfReachedGoal) {
           setIsCleared(true);
       }
       
-      // クリアした場合、または休憩地点に着いた場合、または旗に到達した場合
+      // クリアした場合、または休憩地点に着いた場合、または旗に到達した場合、またはWolf失敗の場合
       if (_pathResult.result === Result.HasClearPath
         || _pathResult.result === Result.HasRestPath 
-        || _pathResult.result === Result.HasFlagPath){
+        || _pathResult.result === Result.HasFlagPath
+        || finalResult === Result.WolfReachedGoal){
           // nullじゃない場合のみ配置
           if (_pathResult.nextGrid !== null)
               dispatch(gridSlice.actions.loadGrid(_pathResult.nextGrid));
