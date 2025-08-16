@@ -7,7 +7,7 @@ import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 
-import { findPath } from "@/logic";
+import { evaluateAllPaths } from "@/logic";
 import { Result, resultMessages } from "@/types/path";
 import { StudioModeInEditor } from "@/types/store";
 
@@ -74,16 +74,20 @@ export const PlacementControllPart: React.FC = () => {
       // StudioModeInEditorをPlayに切り替え
       dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
 
-      const _pathResult = findPath(grid, phaseHistory);
+      const { startResult, wolfResults, finalResult } = evaluateAllPaths(grid, phaseHistory);
+      const _pathResult = startResult; // UI処理用にstartResultを使用
+      console.log(wolfResults);
 
       // 対応するResultMessageをポップアップ
-      if (_pathResult.result === Result.HasClearPath)
-          toast.success(resultMessages[_pathResult.result]) ;
+      if (finalResult === Result.WolfReachedGoal)
+          toast.error(resultMessages[finalResult]);
+      else if (_pathResult.result === Result.HasClearPath)
+          toast.success(resultMessages[_pathResult.result]);
       else
-          toast.info(resultMessages[_pathResult.result]) ;
+          toast.info(resultMessages[_pathResult.result]);
       
-      // クリアした場合は再生ボタンをdisable
-      if (_pathResult.result === Result.HasClearPath) {
+      // クリアした場合またはWolf失敗の場合は再生ボタンをdisable
+      if (_pathResult.result === Result.HasClearPath || finalResult === Result.WolfReachedGoal) {
           setIsCleared(true);
       }
       

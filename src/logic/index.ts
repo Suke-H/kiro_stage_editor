@@ -1,5 +1,6 @@
 // ロジック関数のエクスポート
 export { findPath, bfsAllShortestPaths, createRestTransitionGrid } from './pathfinding';
+export { evaluateAllPaths } from './pathfinding/wolf-evaluation';
 export { placePanels } from './panels';
 export { solveSingle, solveAll, solvePuzzle } from './solver';
 export type { SolveResponse } from './solver';
