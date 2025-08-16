@@ -7,7 +7,7 @@ import { RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 
-import { evaluateAllPaths } from "@/logic";
+import { evaluateAllPaths, createCombinedNextGrid } from "@/logic";
 import { Result, resultMessages } from "@/types/path";
 import { StudioModeInEditor } from "@/types/store";
 
@@ -75,8 +75,18 @@ export const PlacementControllPart: React.FC = () => {
       dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
 
       const { startResult, wolfResults, finalResult } = evaluateAllPaths(grid, phaseHistory);
-      const _pathResult = startResult; // UI処理用にstartResultを使用
-      console.log(wolfResults);
+      
+      // nextGridを決定（nullの場合は元のgridを使用）
+      const nextGrid = startResult.nextGrid !== null ? startResult.nextGrid : grid;
+      
+      // Wolf移動を統合
+      const combinedNextGrid = createCombinedNextGrid(startResult, wolfResults, nextGrid);
+      
+      // UI処理用にcombinedNextGridを持つPathResultを作成
+      const _pathResult = { 
+          ...startResult, 
+          nextGrid: combinedNextGrid
+      };
 
       // 対応するResultMessageをポップアップ
       if (finalResult === Result.WolfReachedGoal)
