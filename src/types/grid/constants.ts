@@ -43,7 +43,7 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
   },
   Crow: {
     label: "カラス",
-    color: "bg-yellow-500",
+    color: "bg-black",
     front: { code: "c", picture: "crow.png" },
     back: { code: "C", picture: "black.png" },
   },
@@ -52,23 +52,11 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
     color: "bg-gray-500",
     neutral: { code: "o", picture: "wolf.png" },
   },
-  Warp: {
-    label: "ワープ",
+  Trauma: {
+    label: "トラウマ",
     color: "bg-purple-500",
     front: { code: "t", picture: "warp-white.png" },
     back: { code: "T", picture: "warp-black.png" },
-  },
-  ArrowUpDown: {
-    label: "矢印↑↓",
-    color: "bg-white",
-    front: { code: "au", picture: "arrow-up.png" },
-    back: { code: "ad", picture: "arrow-down.png" },
-  },
-  ArrowRightLeft: {
-    label: "矢印→←",
-    color: "bg-white",
-    front: { code: "ar", picture: "arrow-right.png" },
-    back: { code: "al", picture: "arrow-left.png" },
   },
   Rest: {
     label: "休憩",
