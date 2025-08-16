@@ -19,7 +19,6 @@ export const createRestTransitionGrid = (
   if (phaseHistory && phaseHistory.length >= 2) {
     const previousGrid = phaseHistory[phaseHistory.length - 2];
     if (start.y < previousGrid.length && start.x < previousGrid[start.y].length) {
-      // 元々RestだったマスをRestに戻す
       const originalCell = previousGrid[start.y][start.x];
       isStartOriginallyRest = originalCell.type === 'Rest';
     }

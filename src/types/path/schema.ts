@@ -17,7 +17,7 @@ export const resultMessages: Record<Result, string> = {
   [Result.HasClearPath]: "ゴールできました！🎉",
   [Result.HasFailPath]: "間違った道でした...😢",
   [Result.HasRestPath]: "休憩地点に着きました！",
-  [Result.HasFlagPath]: "旗に到達しました！",
+  [Result.HasFlagPath]: "旗に到達しました！（続けて再生をおしてね！）",
 };
 
 export type Vector = {
