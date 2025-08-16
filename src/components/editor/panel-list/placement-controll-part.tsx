@@ -101,10 +101,11 @@ export const PlacementControllPart: React.FC = () => {
           setIsCleared(true);
       }
       
-      // クリアした場合、または休憩地点に着いた場合、または旗に到達した場合
+      // クリアした場合、または休憩地点に着いた場合、または旗に到達した場合、またはWolf失敗の場合
       if (_pathResult.result === Result.HasClearPath
         || _pathResult.result === Result.HasRestPath 
-        || _pathResult.result === Result.HasFlagPath){
+        || _pathResult.result === Result.HasFlagPath
+        || finalResult === Result.WolfReachedGoal){
           // nullじゃない場合のみ配置
           if (_pathResult.nextGrid !== null)
               dispatch(gridSlice.actions.loadGrid(_pathResult.nextGrid));
