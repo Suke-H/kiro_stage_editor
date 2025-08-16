@@ -1,6 +1,4 @@
-import { Grid } from '@/types/grid';
 import { PathResult, Result } from '@/types/path';
-import { Point } from '../../utils';
 import { Candidate } from '../types';
 
 /**
@@ -8,9 +6,7 @@ import { Candidate } from '../types';
  * オオカミがゴールに到達した場合は既存のResult値を使用（失敗判定は上位で処理）
  */
 export const determineWolfResult = (
-  best: Candidate,
-  grid: Grid,
-  wolfPosition: Point
+  best: Candidate
 ): PathResult => {
   // オオカミが本物ゴールに到達した場合
   if (best.kind === 0) {

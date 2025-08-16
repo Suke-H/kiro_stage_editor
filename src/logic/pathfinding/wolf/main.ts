@@ -70,5 +70,5 @@ export const findWolfPath = (grid: Grid, wolfPosition: Point): PathResult => {
   
   // 5. 最終結果の判定
   const best = sortedCandidates[0];
-  return determineWolfResult(best, grid, wolfPosition);
+  return determineWolfResult(best);
 };
