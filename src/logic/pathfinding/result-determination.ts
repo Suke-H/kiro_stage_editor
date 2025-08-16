@@ -2,6 +2,7 @@ import { Grid, GridCellKey } from '@/types/grid';
 import { PathResult, Result, Vector } from '@/types/path';
 import { Point, deepCopyGrid } from '../utils';
 import { createRestTransitionGrid } from './rest-transition';
+import { createFlagTransitionGrid } from './flag-transition';
 import { Candidate } from './types';
 
 /**
@@ -96,6 +97,11 @@ export const determineResult = (
     status = Result.HasRestPath;
     const restPosition = best.path[best.path.length - 1];
     nextGrid = createRestTransitionGrid(grid, start, restPosition, crowPositions, best.path, phaseHistory);
+  } else if (best.kind === 3) {
+    // Flag到達時の特別処理
+    status = Result.HasFlagPath;
+    const flagPosition = best.path[best.path.length - 1];
+    nextGrid = createFlagTransitionGrid(grid, start, flagPosition, crowPositions, best.path);
   } else {
     // ダミーゴール到達（失敗）
     status = Result.HasFailPath;
