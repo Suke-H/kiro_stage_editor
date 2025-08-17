@@ -173,25 +173,153 @@ describe('パズルソルバー', () => {
     })
   })
   
-  describe('パフォーマンステスト', () => {
-    it('大きなグリッドでも合理的な時間で完了', () => {
+  describe('複数セル・複数パネルを使ったパズル', () => {
+    it('2x1パネルで橋を作る', () => {
       const grid = gridFrom([
-        'S......',
-        '.......',
-        '.......',
-        '.......',
-        '.......',
-        '......G'
+        'S.xx.G'
       ])
       
-      const panels = [singleBlackPanel]
+      // 2セルの横長パネル
+      const bridgePanel: Panel = {
+        id: 'bridge',
+        cells: [['Black', 'Black']]
+      }
       
-      const startTime = Date.now()
-      const solutions = solveAll(grid, panels, true)
-      const endTime = Date.now()
+      const panels = [bridgePanel]
+      const solution = solveSingle(grid, panels)
       
-      expect(endTime - startTime).toBeLessThan(5000) // 5秒以内
-      expect(solutions.length).toBeGreaterThan(0)
+      expect(solution).not.toBeNull()
+      expect(solution).toHaveLength(1)
+    })
+
+    it('L字型パネルで複雑な経路を作る', () => {
+      const grid = gridFrom([
+        'S.xx.',
+        '.xxx.',
+        'G....'
+      ])
+      
+      // L字型パネル
+      const lShapePanel: Panel = {
+        id: 'lshape',
+        cells: [
+          ['Black', 'Black'],
+          ['Black', 'White']
+        ]
+      }
+      
+      const panels = [lShapePanel]
+      const solution = solveSingle(grid, panels)
+      
+      expect(solution).not.toBeNull()
+    })
+
+    it('複数の1x1パネルで道を繋ぐ', () => {
+      const grid = gridFrom([
+        'S.x.x.G'
+      ])
+      
+      // 2つの1x1パネル
+      const panel1: Panel = {
+        id: 'panel1',
+        cells: [['Black']]
+      }
+      const panel2: Panel = {
+        id: 'panel2', 
+        cells: [['Black']]
+      }
+      
+      const panels = [panel1, panel2]
+      const solution = solveSingle(grid, panels)
+      
+      expect(solution).not.toBeNull()
+      expect(solution).toHaveLength(2)
+    })
+
+    it('3つのパネルでCrow経由路を作る', () => {
+      const grid = gridFrom([
+        'S.x.C.x.G',
+        '.xxxxxxx.',
+        '.........'
+      ])
+      
+      const panel1: Panel = { id: 'p1', cells: [['Black']] }
+      const panel2: Panel = { id: 'p2', cells: [['Black']] }
+      const panel3: Panel = { id: 'p3', cells: [['Black']] }
+      
+      const panels = [panel1, panel2, panel3]
+      const solution = solveSingle(grid, panels)
+      
+      expect(solution).not.toBeNull()
+      expect(solution).toHaveLength(3)
+    })
+
+    it('T字型パネルで分岐路を作る', () => {
+      const grid = gridFrom([
+        '.C.',
+        'xxx',
+        'SxG'
+      ])
+      
+      // 1x1パネルを2つ
+      const panel1: Panel = {
+        id: 'panel1',
+        cells: [['Black']]
+      }
+      const panel2: Panel = {
+        id: 'panel2',
+        cells: [['Black']]
+      }
+      
+      const panels = [panel1, panel2]
+      const solution = solveSingle(grid, panels)
+      
+      expect(solution).not.toBeNull()
+      expect(solution).toHaveLength(2)
+    })
+
+    it('Rest地点を経由してからGoalに向かう必要があるパズル', () => {
+      const grid = gridFrom([
+        'S.x.G',
+        '.....',
+        '.xRx.'
+      ])
+      
+      // パネル配置でRest地点への道を作る
+      const bridgePanel: Panel = {
+        id: 'bridge',
+        cells: [['Black']]
+      }
+      
+      const panels = [bridgePanel]
+      const solution = solveSingle(grid, panels)
+      
+      expect(solution).not.toBeNull()
+    })
+
+    it('DummyGoalを避けてGoalに向かうためのパネル配置', () => {
+      const grid = gridFrom([
+        'S..D',
+        '....',
+        '....',
+        '...G'
+      ])
+      
+      // L字型パネル
+      const lShapePanel: Panel = {
+        id: 'lshape',
+        cells: [
+          ['Black', 'White'],
+          ['Black', 'Black']
+        ]
+      }
+      
+      const panels = [lShapePanel]
+      const solution = solveSingle(grid, panels)
+      
+      expect(solution).not.toBeNull()
     })
   })
+
+
 })

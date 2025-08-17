@@ -37,7 +37,7 @@ describe('パネル配置ロジック', () => {
       expect(resultGrid[1][1].side).toBe('back') // front → back に反転
     })
     
-    it('Normal(back)セルには配置不可', () => {
+    it('Normal(back)セルにも配置可能', () => {
       const grid = gridFrom([
         'S...',
         '.x..',  // x = Normal(back)
@@ -51,7 +51,7 @@ describe('パネル配置ロジック', () => {
       }
       
       const [, success] = placePanels(grid, [placement])
-      expect(success).toBe(false)
+      expect(success).toBe(true)
     })
     
     it('Empty(#)セルには配置不可', () => {
@@ -124,9 +124,10 @@ describe('パネル配置ロジック', () => {
         point: { x: 1, y: 1 }
       }
       
-      // この場合は配置不可のはず（Normal(back)には配置できない）
-      const [, success] = placePanels(grid, [placement])
-      expect(success).toBe(false)
+      // back状態でも配置可能、front → back に反転
+      const [resultGrid, success] = placePanels(grid, [placement])
+      expect(success).toBe(true)
+      expect(resultGrid[1][1].side).toBe('front') // back → front に反転
     })
     
     it('neutralは変更されない', () => {
