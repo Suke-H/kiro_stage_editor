@@ -72,8 +72,6 @@ const exploreStep = (
   availablePanels: Panel[],
   allowSkip: boolean
 ): StepResult[] => {
-  // console.log('=== exploreStep開始 ===');
-  // console.log('availablePanels:', availablePanels.map(p => `${p.id}(${p.type || 'Normal'})`));
 
   const results: StepResult[] = [];
 
@@ -86,7 +84,6 @@ const exploreStep = (
 
   for (const combo of cartesianProduct(...panelChoices)) {
     const placements = combo.filter((p): p is PanelPlacement => p !== null);
-    // console.log('試行中のplacements:', placements.map(p => `${p.panel.id}(${p.panel.type || 'Normal'})@highlight(${p.highlight.x},${p.highlight.y})->point(${p.point.x},${p.point.y})`));
 
     // 配置適用
     const [gridAfter, isValid] = placePanels(currentGrid, placements, false);
@@ -100,8 +97,6 @@ const exploreStep = (
       currentGrid,
     ]);
     const pathResult = { ...startResult, result: finalResult };
-
-    // console.log('  -> pathResult:', finalResult, 'nextGrid有無:', !!pathResult.nextGrid);
 
     results.push({ pathResult, placements });
   }

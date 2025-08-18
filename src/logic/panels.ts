@@ -75,6 +75,36 @@ export const canPlaceSinglePanel = (grid: Grid, placement: PanelPlacement): bool
 };
 
 /**
+ * 単一パネルの配置処理を実行
+ */
+const applyPanelPlacement = (grid: Grid, placement: PanelPlacement): void => {
+  const { panel, highlight, point } = placement;
+  const topLeftX = point.x - highlight.x;
+  const topLeftY = point.y - highlight.y;
+  
+  for (let dy = 0; dy < panel.cells.length; dy++) {
+    for (let dx = 0; dx < panel.cells[0].length; dx++) {
+      const cell = panel.cells[dy][dx];
+      if (cell !== 'Black' && cell !== 'Flag') {
+        continue;
+      }
+      
+      const targetX = topLeftX + dx;
+      const targetY = topLeftY + dy;
+      const targetCell = grid[targetY][targetX];
+      
+      if (cell === 'Black') {
+        // 黒セル：front<->backを反転
+        targetCell.side = targetCell.side === 'front' ? 'back' : 'front';
+      } else if (cell === 'Flag') {
+        // Flagセル：セルタイプをFlagに変更
+        targetCell.type = 'Flag';
+      }
+    }
+  }
+};
+
+/**
  * パネル配置実行
  * @param original 元のグリッド
  * @param placements 配置するパネルリスト
@@ -88,46 +118,17 @@ export const placePanels = (
 ): [Grid, boolean] => {
   const grid = mutate ? original : deepCopyGrid(original);
   
+  // 事前チェック：全配置が可能か確認
   for (const placement of placements) {
-    // 配置可能性チェック
     if (!canPlaceSinglePanel(grid, placement)) {
       return [grid, false];
     }
-    
-    const panel = placement.panel;
-    const highlight = placement.highlight;
-    const point = placement.point;
-    
-    const topLeftX = point.x - highlight.x;
-    const topLeftY = point.y - highlight.y;
-    
-    // パネルセルの配置処理
-    for (let dy = 0; dy < panel.cells.length; dy++) {
-      for (let dx = 0; dx < panel.cells[0].length; dx++) {
-        const cell = panel.cells[dy][dx];
-        if (cell !== 'Black' && cell !== 'Flag') {
-          continue;
-        }
-        
-        const targetX = topLeftX + dx;
-        const targetY = topLeftY + dy;
-        const targetCell = grid[targetY][targetX];
-        
-        if (cell === 'Black') {
-          // 黒セル：front<->backを反転
-          if (targetCell.side === 'front') {
-            targetCell.side = 'back';
-          } else if (targetCell.side === 'back') {
-            targetCell.side = 'front';
-          }
-        } else if (cell === 'Flag') {
-          // Flagセル：セルタイプをFlagに変更
-          targetCell.type = 'Flag';
-        }
-      }
-    }
   }
   
-  // 全配置成功
+  // 配置実行
+  for (const placement of placements) {
+    applyPanelPlacement(grid, placement);
+  }
+  
   return [grid, true];
 }
