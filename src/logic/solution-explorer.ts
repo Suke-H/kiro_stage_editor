@@ -61,6 +61,9 @@ const exploreStep = (
   availablePanels: Panel[],
   allowSkip: boolean
 ): StepResult[] => {
+  console.log('=== exploreStep開始 ===');
+  console.log('availablePanels:', availablePanels.map(p => `${p.id}(${p.type || 'Normal'})`));
+  
   const results: StepResult[] = [];
 
   // 各パネルの配置選択肢を列挙（allowSkip時は「置かない」選択肢も追加）
@@ -69,14 +72,20 @@ const exploreStep = (
 
   for (const combo of cartesianProduct(...panelChoices)) {
     const placements = combo.filter((p): p is PanelPlacement => p !== null);
+    console.log('試行中のplacements:', placements.map(p => `${p.panel.id}(${p.panel.type || 'Normal'})@(${p.point.x},${p.point.y})`));
 
     // 配置適用
     const [gridAfter, isValid] = placePanels(currentGrid, placements, false);
-    if (!isValid) continue;
+    if (!isValid) {
+      console.log('  -> 配置無効');
+      continue;
+    }
 
     // Rest + Wolf 対応のため evaluateAllPaths を使用
     const { startResult, finalResult } = evaluateAllPaths(gridAfter, [currentGrid]);
     const pathResult = { ...startResult, result: finalResult };
+    
+    console.log('  -> pathResult:', finalResult, 'nextGrid有無:', !!pathResult.nextGrid);
 
     results.push({ pathResult, placements });
   }
@@ -130,17 +139,31 @@ const handleResult = (
       }
         
       case Result.HasFlagPath: {
+        console.log('🚩 HasFlagPath検出！');
+        console.log('  placements:', result.placements.map(p => `${p.panel.id}@(${p.point.x},${p.point.y})`));
+        
         const nextGrid = result.pathResult.nextGrid;
+        console.log('  nextGrid有無:', !!nextGrid);
+        
         if (nextGrid) {
+          console.log('  nextGrid:', JSON.stringify(nextGrid));
+          console.log('  現在のphaseHistory長:', current.phaseHistory.length);
+          
           const usedPanelIds = new Set(
             current.placementHistory.flat().concat(result.placements).map(p => p.panel.id)
           );
+          console.log('  使用済みパネルID:', Array.from(usedPanelIds));
+          console.log('  残りパネル:', allPanels.filter(p => !usedPanelIds.has(p.id)).map(p => p.id));
+          
           newPuzzleSetGroup.push({
             grid: nextGrid,
             phaseHistory: current.phaseHistory,
             placementHistory: current.placementHistory,
             availablePanels: allPanels.filter(p => !usedPanelIds.has(p.id))
           });
+          console.log('  -> 新しいPuzzleSet追加');
+        } else {
+          console.log('  -> nextGridがnullのためスキップ');
         }
         break;
       }
@@ -159,26 +182,26 @@ export const enumerateSinglePanel = (grid: Grid, panel: Panel): PanelPlacement[]
   const gridRows = grid.length;
   const gridCols = grid[0].length;
 
-  // パネル内の最初の黒セル
-  let firstBlackX = -1;
-  let firstBlackY = -1;
+  // パネル内の最初の配置対象セル（BlackまたはFlag）
+  let firstTargetX = -1;
+  let firstTargetY = -1;
   outerLoop: for (let y = 0; y < panel.cells.length; y++) {
     for (let x = 0; x < panel.cells[y].length; x++) {
-      if (panel.cells[y][x] === 'Black') {
-        firstBlackX = x;
-        firstBlackY = y;
+      if (panel.cells[y][x] === 'Black' || panel.cells[y][x] === 'Flag') {
+        firstTargetX = x;
+        firstTargetY = y;
         break outerLoop;
       }
     }
   }
-  if (firstBlackX === -1) return [];
+  if (firstTargetX === -1) return [];
 
   const placements: PanelPlacement[] = [];
   for (let gy = 0; gy < gridRows; gy++) {
     for (let gx = 0; gx < gridCols; gx++) {
       const placement: PanelPlacement = {
         panel,
-        highlight: { x: firstBlackX, y: firstBlackY },
+        highlight: { x: firstTargetX, y: firstTargetY },
         point: { x: gx, y: gy }
       };
       const [, canPlace] = placePanels(grid, [placement], false);

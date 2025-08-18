@@ -1,0 +1,46 @@
+
+> kiro-stage-editor@0.0.0 test
+> vitest src/__tests__/logic/solver.flag.test.ts
+
+
+1m46m RUN 49m22m 36mv3.2.3 39m90mC:/Users/suke0/Desktop/craft/Code/2024/10-/1215_kiro_stage_editor39m
+
+90mstdout2m | src/__tests__/logic/solver.flag.test.ts2m > 22m2mFlag版ソルバー2m > 22m2m基本的なFlagパズルを解く
+22m39m=== exploreStep開始 ===
+availablePanels: [ 32m'panel-0(Normal)'39m, 32m'panel-1(Flag)'39m ]
+試行中のplacements: []
+  -> pathResult: HasFailPath nextGrid有無: 33mfalse39m
+試行中のplacements: [ 32m'panel-0(Normal)@(1,0)'39m ]
+  -> pathResult: HasFailPath nextGrid有無: 33mfalse39m
+試行中のplacements: [ 32m'panel-0(Normal)@(2,0)'39m ]
+  -> pathResult: HasFailPath nextGrid有無: 33mfalse39m
+試行中のplacements: [ 32m'panel-0(Normal)@(2,1)'39m ]
+  -> pathResult: NoPath nextGrid有無: 33mfalse39m
+Flag解の数: 0
+
+ 31m❯39m src/__tests__/logic/solver.flag.test.ts 2m(22m2m3 tests22m2m | 22m31m1 failed39m2m)22m32m 212mms22m39m
+31m   31m×31m Flag版ソルバー2m > 22m基本的なFlagパズルを解く39m32m 192mms22m39m
+31m     → expected 0 to be greater than 039m
+   32m✓39m Flag版ソルバー2m > 22m複数Flag地点があるパズルを解く32m 02mms22m39m
+   32m✓39m Flag版ソルバー2m > 22mFlag + Rest混在パズルを解く32m 02mms22m39m
+
+31m⎯⎯⎯⎯⎯⎯⎯39m1m41m Failed Tests 1 49m22m31m⎯⎯⎯⎯⎯⎯⎯39m
+
+41m1m FAIL 22m49m src/__tests__/logic/solver.flag.test.ts2m > 22mFlag版ソルバー2m > 22m基本的なFlagパズルを解く
+31m1mAssertionError22m: expected 0 to be greater than 039m
+36m 2m❯22m src/__tests__/logic/solver.flag.test.ts:2m30:3222m39m
+    90m 28| 39m      })
+    90m 29| 39m      
+    90m 30| 39m      34mexpect39m(solutions33m.39mlength)33m.39m34mtoBeGreaterThan39m(34m039m)
+    90m   | 39m                               31m^39m
+    90m 31| 39m      
+    90m 32| 39m      90m// Flagパズルの特徴：フェーズ履歴は増えない（旗地点は記録されない）39m
+
+31m2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯22m39m
+
+
+2m Test Files 22m 1m31m1 failed39m22m90m (1)39m
+2m      Tests 22m 1m31m1 failed39m22m2m | 22m1m32m2 passed39m22m90m (3)39m
+2m   Start at 22m 22:52:55
+2m   Duration 22m 4.57s2m (transform 189ms, setup 578ms, collect 628ms, tests 21ms, environment 1.46s, prepare 207ms)22m
+

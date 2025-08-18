@@ -1,10 +1,36 @@
-import { Grid } from '@/types/grid';
+import { Grid, GridCell } from '@/types/grid';
+import { Panel } from '@/types/panel/schema';
 import { PanelPlacement } from '@/types/panel-placement';
 import { deepCopyGrid } from './utils';
 
 /**
+ * パネルタイプに応じた配置制約チェック
+ */
+const canPlaceOnCell = (panel: Panel, targetCell: GridCell): boolean => {
+  const panelType = panel.type || 'Normal';
+  
+  switch (panelType) {
+    case 'Normal':
+      // 通常パネル：Normal(front)にのみ配置可能
+      return targetCell.type === 'Normal';
+    case 'Flag':
+      // Flagパネル：Normal(front)にのみ配置可能
+      return targetCell.type === 'Normal' && targetCell.side === 'front';
+    case 'Cut':
+      // Cutパネル：適切な配置制約を実装（仕様に応じて）
+      return targetCell.type === 'Normal';
+    case 'Paste':
+      // Pasteパネル：適切な配置制約を実装（仕様に応じて）
+      return targetCell.type === 'Normal';
+    default:
+      // デフォルト：Normal以外には配置不可
+      return targetCell.type === 'Normal';
+  }
+};
+
+/**
  * 単一パネル配置可能性判定
- * パネルの黒セルはNormal(front)のセルにのみ配置可能
+ * パネルの黒セルはパネルタイプに応じた制約に従って配置される
  */
 const canPlaceSingle = (grid: Grid, placement: PanelPlacement): boolean => {
   const panel = placement.panel;
@@ -38,8 +64,8 @@ const canPlaceSingle = (grid: Grid, placement: PanelPlacement): boolean => {
       const targetY = topLeftY + dy;
       const targetCell = grid[targetY][targetX];
       
-      // Normal以外には配置不可
-      if (targetCell.type !== 'Normal') {
+      // パネルタイプに応じた配置制約チェック
+      if (!canPlaceOnCell(panel, targetCell)) {
         return false;
       }
     }
