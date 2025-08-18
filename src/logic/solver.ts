@@ -71,44 +71,13 @@ function* cartesianProduct<T>(...arrays: T[][]): Generator<T[]> {
 }
 
 /**
- * クリア可能な最初の配置を探索
+ * パズル解法の共通処理
  */
-export const solveSingle = (
-  initialGrid: Grid,
-  panels: Panel[]
-): PanelPlacement[] | null => {
-  // 各パネルの全配置パターン
-  const allOptions: PanelPlacement[][] = panels.map(panel => 
-    enumerateSinglePanel(initialGrid, panel)
-  );
-  
-  // 直積を回して最初にクリアになるものを返す
-  for (const combination of cartesianProduct(...allOptions)) {
-    const placements = combination as PanelPlacement[];
-    
-    // 配置適用＆有効判定
-    const [gridAfter, isValid] = placePanels(initialGrid, placements, false);
-    if (!isValid) {
-      continue;
-    }
-    
-    // パス探索
-    const pathResult = findPath(gridAfter);
-    if (pathResult.result === Result.HasClearPath) {
-      return placements;
-    }
-  }
-  
-  return null;
-}
-
-/**
- * クリア可能な全配置を探索
- */
-export const solveAll = (
+const solveCore = (
   initialGrid: Grid,
   panels: Panel[],
-  allowSkip: boolean = true
+  allowSkip: boolean,
+  findAll: boolean
 ): PanelPlacement[][] => {
   // 各パネルの全配置パターン
   let allOptions: (PanelPlacement | null)[][] = panels.map(panel => 
@@ -136,11 +105,38 @@ export const solveAll = (
     const pathResult = findPath(gridAfter);
     if (pathResult.result === Result.HasClearPath) {
       solutions.push(placements);
+      // 最初の解のみが欲しい場合は早期リターン
+      if (!findAll) {
+        break;
+      }
     }
   }
   
   return solutions;
-}
+};
+
+/**
+ * クリア可能な最初の配置を探索
+ */
+export const solveSingle = (
+  initialGrid: Grid,
+  panels: Panel[],
+  allowSkip: boolean = true
+): PanelPlacement[] | null => {
+  const solutions = solveCore(initialGrid, panels, allowSkip, false);
+  return solutions.length > 0 ? solutions[0] : null;
+};
+
+/**
+ * クリア可能な全配置を探索
+ */
+export const solveAll = (
+  initialGrid: Grid,
+  panels: Panel[],
+  allowSkip: boolean = true
+): PanelPlacement[][] => {
+  return solveCore(initialGrid, panels, allowSkip, true);
+};
 
 /**
  * APIレスポンス形式でのソルバー
