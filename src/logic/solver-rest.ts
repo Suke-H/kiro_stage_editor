@@ -70,23 +70,18 @@ function* cartesianProduct<T>(...arrays: T[][]): Generator<T[]> {
  */
 export const solveAllWithRest = (
   initialGrid: Grid,
-  panels: Panel[],
-  allowSkip: boolean = true,
-  maxDepth: number = 5
+  panels: Panel[]
 ): PhasedSolution[] => {
   const solutions: PhasedSolution[] = [];
 
   dfs(
     initialGrid,
     [initialGrid],
-    0,
     [],
     solutions,
     enumerateSinglePanel,
     cartesianProduct,
-    panels,
-    allowSkip,
-    maxDepth
+    panels
   );
 
   return solutions;

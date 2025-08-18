@@ -7,30 +7,31 @@ import { findPath } from './pathfinding';
 import { placePanels } from './panels';
 
 /**
+ * 無限ループ検知：今のグリッドが過去のフェーズ履歴に存在するかチェック
+ */
+const detectInfiniteLoop = (currentGrid: Grid, phaseHistory: Grid[]): boolean => {
+  return phaseHistory.some(prevGrid =>
+    JSON.stringify(prevGrid) === JSON.stringify(currentGrid)
+  );
+};
+
+/**
  * Rest対応の深度優先探索
  */
 export const dfs = (
   currentGrid: Grid,
   phaseHistory: Grid[],
-  depth: number,
   placementHistory: PanelPlacement[][],
   solutions: PhasedSolution[],
   enumerateSinglePanel: (grid: Grid, panel: Panel) => PanelPlacement[],
   cartesianProduct: <T>(...arrays: T[][]) => Generator<T[]>,
-  panels: Panel[],
-  allowSkip: boolean,
-  maxDepth: number
+  panels: Panel[]
 ): void => {
-  if (depth > maxDepth) return;
 
-  // 各パネルの配置パターン
-  let allOptions: (PanelPlacement | null)[][] = panels.map(panel => 
-    enumerateSinglePanel(currentGrid, panel)
+  // 各パネルの配置パターン（デフォルトでallowSkip）
+  const allOptions: (PanelPlacement | null)[][] = panels.map(panel => 
+    [null, ...enumerateSinglePanel(currentGrid, panel)]
   );
-  
-  if (allowSkip) {
-    allOptions = allOptions.map(options => [null, ...options]);
-  }
 
   for (const combination of cartesianProduct(...allOptions)) {
     const placements = combination.filter((pl): pl is PanelPlacement => pl !== null);
@@ -49,24 +50,18 @@ export const dfs = (
     if (pathResult.result === Result.HasRestPath) {
       const nextGrid = pathResult.nextGrid!;
 
-      const isLoop = phaseHistory.some(prevGrid =>
-        JSON.stringify(prevGrid) === JSON.stringify(nextGrid)
-      );
-
-      if (!isLoop) {
-        dfs(
-          nextGrid,
-          [...phaseHistory, nextGrid],
-          depth + 1,
-          [...placementHistory, placements],
-          solutions,
+      // 無限ループ検知
+      if (detectInfiniteLoop(nextGrid, phaseHistory)) continue;
+      
+      dfs(
+        nextGrid,
+        [...phaseHistory, nextGrid],
+        [...placementHistory, placements],
+        solutions,
           enumerateSinglePanel,
           cartesianProduct,
-          panels,
-          allowSkip,
-          maxDepth
+          panels
         );
       }
     }
-  }
 };
