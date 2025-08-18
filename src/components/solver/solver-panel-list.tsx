@@ -10,7 +10,6 @@ interface SolverPanelListProps {
 export const SolverPanelList: React.FC<SolverPanelListProps> = ({ solutionIndex }) => {
   // 指定のnumberGridのインデックスに対応するパネル配置を取得
   const solutions = useSelector((state: RootState) => state.solution.solutions);
-  const numberGrids = useSelector((state: RootState) => state.solution.numberGrids);
   
   // globalIndexからPanelPlacement[]を取得
   const getPlacements = (globalIndex: number): PanelPlacement[] => {
