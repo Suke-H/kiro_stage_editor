@@ -32,7 +32,7 @@ const canPlaceOnCell = (panel: Panel, targetCell: GridCell): boolean => {
  * 単一パネル配置可能性判定
  * パネルの黒セルはパネルタイプに応じた制約に従って配置される
  */
-const canPlaceSingle = (grid: Grid, placement: PanelPlacement): boolean => {
+export const canPlaceSinglePanel = (grid: Grid, placement: PanelPlacement): boolean => {
   const panel = placement.panel;
   const highlight = placement.highlight;
   const point = placement.point;
@@ -90,7 +90,7 @@ export const placePanels = (
   
   for (const placement of placements) {
     // 配置可能性チェック
-    if (!canPlaceSingle(grid, placement)) {
+    if (!canPlaceSinglePanel(grid, placement)) {
       return [grid, false];
     }
     
