@@ -1,9 +1,10 @@
 import { Grid } from '@/types/grid';
 import { Panel } from '@/types/panel';
-import { PanelPlacement } from '@/types/panel-placement';
+import { PanelPlacement, PhasedSolution } from '@/types/panel-placement';
 import { Result } from '@/types/path';
 import { findPath } from './pathfinding';
 import { placePanels } from './panels';
+import { solveAllWithRest } from './solver-rest';
 
 /**
  * 1枚のパネルの全配置パターンを列挙
@@ -142,10 +143,23 @@ export const solveAll = (
  * APIレスポンス形式でのソルバー
  */
 export interface SolveResponse {
-  solutions: PanelPlacement[][];
+  solutions: PhasedSolution[];
 }
 
 export const solvePuzzle = (grid: Grid, panels: Panel[]): SolveResponse => {
-  const solutions = solveAll(grid, panels, true);
-  return { solutions };
+  // Restマスの存在チェック
+  const hasRest = grid.some(row => 
+    row.some(cell => cell.type === 'Rest')
+  );
+  
+  if (hasRest) {
+    const solutions = solveAllWithRest(grid, panels);
+    return { solutions };
+  } else {
+    const normalSolutions = solveAll(grid, panels, true);
+    const phasedSolutions: PhasedSolution[] = normalSolutions.map(solution => ({
+      phases: [solution] // 1フェーズのみ
+    }));
+    return { solutions: phasedSolutions };
+  }
 }

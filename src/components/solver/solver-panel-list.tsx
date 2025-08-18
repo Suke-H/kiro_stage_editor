@@ -8,11 +8,26 @@ interface SolverPanelListProps {
 }
 
 export const SolverPanelList: React.FC<SolverPanelListProps> = ({ solutionIndex }) => {
-  // 指定の解のパネル配置
-  const placements = useSelector(
-    (state: RootState) => state.solution.solutions[solutionIndex]
-  );
-  if (!placements) return null;
+  // 指定のnumberGridのインデックスに対応するパネル配置を取得
+  const solutions = useSelector((state: RootState) => state.solution.solutions);
+  const numberGrids = useSelector((state: RootState) => state.solution.numberGrids);
+  
+  // globalIndexからPanelPlacement[]を取得
+  const getPlacements = (globalIndex: number): PanelPlacement[] => {
+    let currentIndex = 0;
+    for (const phasedSolution of solutions) {
+      for (const phase of phasedSolution.phases) {
+        if (currentIndex === globalIndex) {
+          return phase;
+        }
+        currentIndex++;
+      }
+    }
+    return [];
+  };
+  
+  const placements = getPlacements(solutionIndex);
+  if (!placements || placements.length === 0) return null;
 
   // 元の PanelList の renderPanels をベースに、highlight に番号を追加
   const renderPanels = () => (

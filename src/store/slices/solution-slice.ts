@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { PanelPlacement } from "@/types/panel-placement";
+import { PanelPlacement, PhasedSolution } from "@/types/panel-placement";
 import { NumberGrid } from "@/types/solution";
 
 type SolutionState = {
-  solutions: PanelPlacement[][];
+  solutions: PhasedSolution[];
   numberGrids: NumberGrid[]; 
 };
 
@@ -31,7 +31,7 @@ const solutionSlice = createSlice({
   initialState,
   reducers: {
     /** 解を保存（まだ numberGrid は作らない） */
-    setSolutions(state, action: PayloadAction<PanelPlacement[][]>) {
+    setSolutions(state, action: PayloadAction<PhasedSolution[]>) {
       state.solutions = action.payload;
       state.numberGrids = [];               // クリア
     },
@@ -42,8 +42,10 @@ const solutionSlice = createSlice({
       action: PayloadAction<{ rows: number; cols: number }>,
     ) {
       const { rows, cols } = action.payload;
-      state.numberGrids = state.solutions.map((placements) =>
-        buildNumberGrid(placements, rows, cols),
+      state.numberGrids = state.solutions.flatMap((phasedSolution) =>
+        phasedSolution.phases.map((placements) =>
+          buildNumberGrid(placements, rows, cols)
+        )
       );
     },
 

@@ -1,7 +1,6 @@
 import { Grid } from '@/types/grid';
 import { Panel } from '@/types/panel';
-import { PanelPlacement } from '@/types/panel-placement';
-import { PhasedSolution } from '@/types/phased-solution';
+import { PanelPlacement, PhasedSolution } from '@/types/panel-placement';
 import { dfs } from './solver-dfs';
 
 /**

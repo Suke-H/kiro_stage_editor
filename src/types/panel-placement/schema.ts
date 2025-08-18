@@ -6,3 +6,7 @@ export type PanelPlacement = {
   highlight: Vector; // パネル内座標
   point: Vector;     // 盤面座標
 };
+
+export interface PhasedSolution {
+  phases: PanelPlacement[][];
+}
