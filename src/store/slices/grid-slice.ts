@@ -152,6 +152,11 @@ export const gridSlice = createSlice({
       }
     },
 
+    // グリッド全体を置き換え（パネル配置用）
+    replaceGrid: (state, action: PayloadAction<Grid>) => {
+      state.grid = action.payload;
+    },
+
   },
 });
 

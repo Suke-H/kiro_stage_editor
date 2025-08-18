@@ -1,5 +1,5 @@
 import { Grid } from '@/types/grid';
-import { Panel } from '@/types/panel';
+import { Panel, CopyPanel } from '@/types/panel';
 import { IPanelStrategy } from './types';
 import { deepCopyGrid } from '../utils';
 
@@ -23,7 +23,7 @@ export class NormalPanelStrategy implements IPanelStrategy {
     return true;
   }
 
-  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): Grid {
+  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): [Grid, CopyPanel?] {
     const newGrid = deepCopyGrid(grid);
     
     for (let i = 0; i < panel.cells.length; i++) {
@@ -44,6 +44,6 @@ export class NormalPanelStrategy implements IPanelStrategy {
       }
     }
     
-    return newGrid;
+    return [newGrid]; // CopyPanelなし
   }
 }

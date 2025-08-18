@@ -1,5 +1,5 @@
-import { Grid } from '@/types/grid';
-import { Panel } from '@/types/panel';
+import { Grid, GridCell } from '@/types/grid';
+import { Panel, CopyPanel } from '@/types/panel';
 import { IPanelStrategy } from './types';
 import { deepCopyGrid } from '../utils';
 
@@ -23,20 +23,34 @@ export class CutPanelStrategy implements IPanelStrategy {
     return true;
   }
 
-  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): Grid {
+  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): [Grid, CopyPanel?] {
     const newGrid = deepCopyGrid(grid);
+    const copyCells: GridCell[][] = [];
     
+    // コピー用のセル配列を初期化
     for (let i = 0; i < panel.cells.length; i++) {
+      copyCells[i] = [];
       for (let j = 0; j < panel.cells[0].length; j++) {
         if (panel.cells[i][j] === "Black") {
+          // 元のセルをコピーして保存
+          copyCells[i][j] = { ...grid[rowIdx + i][colIdx + j] };
+          // グリッドのセルを Empty に変換
           const targetCell = newGrid[rowIdx + i][colIdx + j];
-          // Cutされたセルは Empty に変換
           targetCell.type = 'Empty';
           targetCell.side = 'neutral';
+        } else {
+          copyCells[i][j] = { type: "Empty", side: "neutral" };
         }
       }
     }
     
-    return newGrid;
+    // CopyPanelを作成
+    const copyPanel: CopyPanel = {
+      id: `copy-${Date.now()}`,
+      type: "Paste",
+      cells: copyCells,
+    };
+    
+    return [newGrid, copyPanel];
   }
 }

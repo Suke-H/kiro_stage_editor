@@ -1,5 +1,5 @@
 import { Grid } from '@/types/grid';
-import { Panel } from '@/types/panel';
+import { Panel, CopyPanel } from '@/types/panel';
 import { IPanelStrategy } from './types';
 import { deepCopyGrid } from '../utils';
 
@@ -15,7 +15,7 @@ export class FlagPanelStrategy implements IPanelStrategy {
     return targetCell.type === "Normal" && targetCell.side === "front";
   }
 
-  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): Grid {
+  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): [Grid, CopyPanel?] {
     const newGrid = deepCopyGrid(grid);
     
     // Flagパネルは全セルをFlagに変換
@@ -27,6 +27,6 @@ export class FlagPanelStrategy implements IPanelStrategy {
       }
     }
     
-    return newGrid;
+    return [newGrid]; // CopyPanelなし
   }
 }

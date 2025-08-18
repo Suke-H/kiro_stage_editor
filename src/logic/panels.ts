@@ -49,7 +49,7 @@ export const canPlacePanelAt = (
 /**
  * 単一パネルの配置処理を実行（PanelPlacement形式）
  */
-const applyPanelPlacement = (grid: Grid, placement: PanelPlacement): Grid => {
+const applyPanelPlacement = (grid: Grid, placement: PanelPlacement): [Grid, CopyPanel?] => {
   const { panel, highlight, point } = placement;
   const topLeftX = point.x - highlight.x;
   const topLeftY = point.y - highlight.y;
@@ -66,14 +66,14 @@ export const applyPanelAt = (
   rowIdx: number,
   colIdx: number,
   panel: Panel | CopyPanel
-): Grid => {
+): [Grid, CopyPanel?] => {
   // Strategyパターンを使用してパネルタイプ別適用
   const strategy = getStrategy(panel.type);
   return strategy.applyEffect(grid, rowIdx, colIdx, panel);
 };
 
 /**
- * パネル配置実行
+ * パネル配置実行（既存のsolverなど向け）
  * @param original 元のグリッド
  * @param placements 配置するパネルリスト
  * @param mutate trueなら元グリッドを変更、falseならコピーを返す
@@ -93,11 +93,48 @@ export const placePanels = (
     }
   }
   
-  // 配置実行
+  // 配置実行（CopyPanelは無視）
   let currentGrid = grid;
   for (const placement of placements) {
-    currentGrid = applyPanelPlacement(currentGrid, placement);
+    const [newGrid] = applyPanelPlacement(currentGrid, placement);
+    currentGrid = newGrid;
   }
   
   return [currentGrid, true];
-}
+};
+
+/**
+ * パネル配置実行（CopyPanel生成対応版、grid-viewer向け）
+ * @param original 元のグリッド
+ * @param placements 配置するパネルリスト
+ * @param mutate trueなら元グリッドを変更、falseならコピーを返す
+ * @returns [変更後グリッド, 全配置成功フラグ, 作成されたCopyPanelリスト]
+ */
+export const placePanelsWithCopy = (
+  original: Grid,
+  placements: PanelPlacement[],
+  mutate: boolean = false
+): [Grid, boolean, CopyPanel[]] => {
+  const grid = mutate ? original : deepCopyGrid(original);
+  
+  // 事前チェック：全配置が可能か確認
+  for (const placement of placements) {
+    if (!canPlaceSinglePanel(grid, placement)) {
+      return [grid, false, []];
+    }
+  }
+  
+  // 配置実行
+  let currentGrid = grid;
+  const createdCopyPanels: CopyPanel[] = [];
+  
+  for (const placement of placements) {
+    const [newGrid, copyPanel] = applyPanelPlacement(currentGrid, placement);
+    currentGrid = newGrid;
+    if (copyPanel) {
+      createdCopyPanels.push(copyPanel);
+    }
+  }
+  
+  return [currentGrid, true, createdCopyPanels];
+};

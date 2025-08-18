@@ -12,6 +12,7 @@ export interface IPanelStrategy {
 
   /**
    * パネルの効果を適用する
+   * @returns [変更後Grid, 作成されたCopyPanel（Cutの場合のみ）]
    */
-  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel | CopyPanel): Grid;
+  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel | CopyPanel): [Grid, CopyPanel?];
 }
