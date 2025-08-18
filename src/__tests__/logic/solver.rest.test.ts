@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { solveAllWithRest } from '@/logic/solver-rest'
 import { decodeStageFromUrl } from '../../utils/url'
 
-describe('Rest版ソルバー', () => {
-  describe('solveAllWithRest', () => {
+export const restTests = () => {
+  describe('Rest版ソルバー', () => {
     it('基本的なRestパズルを解く', () => {
       // URL: https://kiro-stage-editor-708973678663.asia-northeast1.run.app/stage?cells=h4w4gsbbrbeebweebgbbw&panels=h2w1gbb_h1w2gbb&mode=play
       const stageData = 'cells=h4w4gsbbrbeebweebgbbw&panels=h2w1gbb_h1w2gbby'
@@ -51,6 +51,5 @@ describe('Rest版ソルバー', () => {
         expect(Array.isArray(solution.phases)).toBe(true)
       })
     })
-
   })
-})
+}
