@@ -14,7 +14,7 @@ const canPlaceOnCell = (panel: Panel, targetCell: GridCell): boolean => {
       // 通常パネル：Normal(front)にのみ配置可能
       return targetCell.type === 'Normal';
     case 'Flag':
-      // Flagパネル：Normal(front)にのみ配置可能
+      // Flagパネル：Normal(front)にのみ配置可能、Crow除外
       return targetCell.type === 'Normal' && targetCell.side === 'front';
     case 'Cut':
       // Cutパネル：適切な配置制約を実装（仕様に応じて）
@@ -101,11 +101,11 @@ export const placePanels = (
     const topLeftX = point.x - highlight.x;
     const topLeftY = point.y - highlight.y;
     
-    // パネルの黒セルでfront/back状態を反転
+    // パネルセルの配置処理
     for (let dy = 0; dy < panel.cells.length; dy++) {
       for (let dx = 0; dx < panel.cells[0].length; dx++) {
         const cell = panel.cells[dy][dx];
-        if (cell !== 'Black') {
+        if (cell !== 'Black' && cell !== 'Flag') {
           continue;
         }
         
@@ -113,11 +113,16 @@ export const placePanels = (
         const targetY = topLeftY + dy;
         const targetCell = grid[targetY][targetX];
         
-        // Neutralは無視、front<->backを反転
-        if (targetCell.side === 'front') {
-          targetCell.side = 'back';
-        } else if (targetCell.side === 'back') {
-          targetCell.side = 'front';
+        if (cell === 'Black') {
+          // 黒セル：front<->backを反転
+          if (targetCell.side === 'front') {
+            targetCell.side = 'back';
+          } else if (targetCell.side === 'back') {
+            targetCell.side = 'front';
+          }
+        } else if (cell === 'Flag') {
+          // Flagセル：セルタイプをFlagに変更
+          targetCell.type = 'Flag';
         }
       }
     }

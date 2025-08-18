@@ -4,8 +4,8 @@ import { decodeStageFromUrl } from '../../utils/url'
 
 describe('Flag版ソルバー', () => {
     it('基本的なFlagパズルを解く', () => {
-      // URL: http://localhost:5173/stage?cells=h3w4gcwwewwwgswww&panels=h2w2gwbbb_h1w1gf&mode=play
-      const stageData = 'cells=h3w4gcwwewwwgswww&panels=h2w2gwbbb_h1w1gf'
+      // URL: http://localhost:5173/stage?cells=h4w4gcwwewwwgwswwewww&panels=h2w2gbbwb_h1w1gf&mode=play
+      const stageData = 'cells=h4w4gcwwewwwgwswwewww&panels=h2w2gbbwb_h1w1gf'
       const { cells, panels } = decodeStageFromUrl(stageData)
       
       const solutions = exploreSolutions({

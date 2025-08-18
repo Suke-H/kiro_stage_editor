@@ -61,8 +61,8 @@ const exploreStep = (
   availablePanels: Panel[],
   allowSkip: boolean
 ): StepResult[] => {
-  console.log('=== exploreStep開始 ===');
-  console.log('availablePanels:', availablePanels.map(p => `${p.id}(${p.type || 'Normal'})`));
+  // console.log('=== exploreStep開始 ===');
+  // console.log('availablePanels:', availablePanels.map(p => `${p.id}(${p.type || 'Normal'})`));
   
   const results: StepResult[] = [];
 
@@ -72,7 +72,7 @@ const exploreStep = (
 
   for (const combo of cartesianProduct(...panelChoices)) {
     const placements = combo.filter((p): p is PanelPlacement => p !== null);
-    console.log('試行中のplacements:', placements.map(p => `${p.panel.id}(${p.panel.type || 'Normal'})@(${p.point.x},${p.point.y})`));
+    // console.log('試行中のplacements:', placements.map(p => `${p.panel.id}(${p.panel.type || 'Normal'})@highlight(${p.highlight.x},${p.highlight.y})->point(${p.point.x},${p.point.y})`));
 
     // 配置適用
     const [gridAfter, isValid] = placePanels(currentGrid, placements, false);
@@ -85,7 +85,7 @@ const exploreStep = (
     const { startResult, finalResult } = evaluateAllPaths(gridAfter, [currentGrid]);
     const pathResult = { ...startResult, result: finalResult };
     
-    console.log('  -> pathResult:', finalResult, 'nextGrid有無:', !!pathResult.nextGrid);
+    // console.log('  -> pathResult:', finalResult, 'nextGrid有無:', !!pathResult.nextGrid);
 
     results.push({ pathResult, placements });
   }
@@ -139,31 +139,16 @@ const handleResult = (
       }
         
       case Result.HasFlagPath: {
-        console.log('🚩 HasFlagPath検出！');
-        console.log('  placements:', result.placements.map(p => `${p.panel.id}@(${p.point.x},${p.point.y})`));
-        
         const nextGrid = result.pathResult.nextGrid;
-        console.log('  nextGrid有無:', !!nextGrid);
         
         if (nextGrid) {
-          console.log('  nextGrid:', JSON.stringify(nextGrid));
-          console.log('  現在のphaseHistory長:', current.phaseHistory.length);
-          
-          const usedPanelIds = new Set(
-            current.placementHistory.flat().concat(result.placements).map(p => p.panel.id)
-          );
-          console.log('  使用済みパネルID:', Array.from(usedPanelIds));
-          console.log('  残りパネル:', allPanels.filter(p => !usedPanelIds.has(p.id)).map(p => p.id));
-          
+          // Flag効果発動後のnextGridで継続探索
           newPuzzleSetGroup.push({
             grid: nextGrid,
             phaseHistory: current.phaseHistory,
-            placementHistory: current.placementHistory,
-            availablePanels: allPanels.filter(p => !usedPanelIds.has(p.id))
+            placementHistory: [...current.placementHistory, result.placements],
+            availablePanels: [] // Flag到達で全パネル破棄
           });
-          console.log('  -> 新しいPuzzleSet追加');
-        } else {
-          console.log('  -> nextGridがnullのためスキップ');
         }
         break;
       }
