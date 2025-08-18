@@ -2,7 +2,8 @@ import { Grid } from '@/types/grid';
 import { Panel } from '@/types/panel';
 import { PanelPlacement, PhasedSolution } from '@/types/panel-placement';
 import { Result, PathResult } from '@/types/path';
-import { findPath } from './pathfinding';
+// import { findPath } from './pathfinding';
+import { evaluateAllPaths } from './pathfinding/wolf-evaluation';
 import { placePanels } from './panels';
 
 /** パラメータ */
@@ -28,7 +29,7 @@ const exploreStep = (
   solutions: PhasedSolution[],
   opts: ExploreParams
 ): boolean => {
-  const { panels, allowSkip, findAll } = opts;
+  const { panels, allowSkip } = opts;
 
   // 各パネルの選択肢を列挙（allowSkip を先頭に）
   let allOptions: (PanelPlacement | null)[][] = panels.map(panel => enumerateSinglePanel(currentGrid, panel));
@@ -41,32 +42,12 @@ const exploreStep = (
     const [gridAfter, isValid] = placePanels(currentGrid, placements, false);
     if (!isValid) continue;
 
-    // Rest 対応のため常に phaseHistory を渡す（Rest 無しなら findPath 側が無視）
-    const path = findPath(gridAfter, phaseHistory);
+    // Rest + Wolf 対応のため evaluateAllPaths を使用
+    const { startResult, finalResult } = evaluateAllPaths(gridAfter, phaseHistory);
+    const path = { ...startResult, result: finalResult }; // PathResultのResult部分だけfinalResultに更新
 
-    // --- Result別処理をswitch文で実装 ---
-    const handleResult = (pathResult: PathResult): boolean => {
-      switch (pathResult.result) {
-        case Result.HasClearPath:
-          solutions.push({
-            phases: [...placementHistory, placements],
-            phaseHistory
-          });
-          return !findAll; // 早期終了
-          
-        case Result.HasRestPath: {
-          const nextGrid = pathResult.nextGrid;
-          if (!nextGrid) return false;
-          if (detectInfiniteLoop(nextGrid, phaseHistory)) return false;
-          return exploreStep(nextGrid, [...phaseHistory, nextGrid], [...placementHistory, placements], solutions, opts);
-        }
-          
-        default:
-          return false;
-      }
-    };
-
-    const shouldStop = handleResult(path);
+    // 結果からハンドリング（休憩ならループ続行）
+    const shouldStop = handleResult(path, placementHistory, placements, phaseHistory, solutions, opts);
     if (shouldStop) return true;
   }
   return false;
@@ -76,6 +57,40 @@ const exploreStep = (
 /** 無限ループ検知：今のグリッドが過去のフェーズ履歴に存在するか */
 const detectInfiniteLoop = (currentGrid: Grid, phaseHistory: Grid[]): boolean =>
   phaseHistory.some(prev => JSON.stringify(prev) === JSON.stringify(currentGrid));
+
+/** Result別の処理ロジック */
+const handleResult = (
+  pathResult: PathResult,
+  placementHistory: PanelPlacement[][],
+  placements: PanelPlacement[],
+  phaseHistory: Grid[],
+  solutions: PhasedSolution[],
+  opts: ExploreParams
+): boolean => {
+  const { findAll } = opts;
+  
+  switch (pathResult.result) {
+    // 終了：解に到達
+    case Result.HasClearPath:
+      solutions.push({
+        phases: [...placementHistory, placements],
+        phaseHistory
+      });
+      return !findAll;
+
+    // 続行：解探索を続ける
+    case Result.HasRestPath: {
+      const nextGrid = pathResult.nextGrid;
+      if (!nextGrid) return false;
+      if (detectInfiniteLoop(nextGrid, phaseHistory)) return false;
+      return exploreStep(nextGrid, [...phaseHistory, nextGrid], [...placementHistory, placements], solutions, opts);
+    }
+      
+    // 終了: 解ではない
+    default:
+      return false;
+  }
+};
 
 
 /** 1枚のパネルの全配置パターンを列挙 */
