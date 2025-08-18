@@ -146,20 +146,34 @@ export interface SolveResponse {
   solutions: PhasedSolution[];
 }
 
-export const solvePuzzle = (grid: Grid, panels: Panel[]): SolveResponse => {
+export const solvePuzzle = (grid: Grid, panels: Panel[], minimizePanels: boolean = false): SolveResponse => {
   // Restマスの存在チェック
   const hasRest = grid.some(row => 
     row.some(cell => cell.type === 'Rest')
   );
   
+  let solutions: PhasedSolution[];
+  
   if (hasRest) {
-    const solutions = solveAllWithRest(grid, panels);
-    return { solutions };
+    solutions = solveAllWithRest(grid, panels);
   } else {
     const normalSolutions = solveAll(grid, panels, true);
-    const phasedSolutions: PhasedSolution[] = normalSolutions.map(solution => ({
+    solutions = normalSolutions.map(solution => ({
       phases: [solution] // 1フェーズのみ
     }));
-    return { solutions: phasedSolutions };
   }
+  
+  // パネル設置数最小フィルタリング
+  if (minimizePanels && solutions.length > 0) {
+    const minPanelCount = Math.min(
+      ...solutions.map(sol => 
+        sol.phases.reduce((total, phase) => total + phase.length, 0)
+      )
+    );
+    solutions = solutions.filter(sol => 
+      sol.phases.reduce((total, phase) => total + phase.length, 0) === minPanelCount
+    );
+  }
+  
+  return { solutions };
 }

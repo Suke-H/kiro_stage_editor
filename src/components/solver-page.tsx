@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
@@ -10,16 +11,18 @@ import { solvePuzzle } from "@/logic";
 import { GridViewer } from "@/components/editor/grid-viewer";
 import { PanelList } from "@/components/editor/panel-list";
 import { SolverGridViewer } from "@/components/solver/solver-grid-viewer";
+import { useState } from "react";
 
 const SolverPage: React.FC = () => {
   const dispatch = useDispatch();
+  const [minimizePanels, setMinimizePanels] = useState(true);
 
   const grid      = useSelector((s: RootState) => s.grid.grid);
   const panels    = useSelector((s: RootState) => s.panelList.panels);
   const solutions = useSelector((s: RootState) => s.solution.solutions);
 
   const solve = async () => {
-    const res = solvePuzzle(grid, panels);
+    const res = solvePuzzle(grid, panels, minimizePanels);
     dispatch(solutionActions.setSolutions(res.solutions));
     dispatch(
       solutionActions.buildNumberGrids({
@@ -41,10 +44,18 @@ const SolverPage: React.FC = () => {
           <CardTitle>解探索モード</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex justify-center">
-            <Button variant="secondary" className="w-1/4" onClick={solve}>
-              Solve
-            </Button>
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-center">
+              <Button variant="secondary" className="w-1/4" onClick={solve}>
+                Solve
+              </Button>
+            </div>
+            
+            {/* トグルボタン */}
+            <div className="flex justify-center items-center gap-2">
+              <Switch checked={minimizePanels} onCheckedChange={setMinimizePanels} />
+              <span>パネル設置数が最小の解を表示</span>
+            </div>
           </div>
 
           <div className="flex flex-col gap-8">
