@@ -25,6 +25,7 @@ import {
   PanelCellTypeKey,
   CopyPanel,
 } from "@/types/panel";
+import { canPlacePanelAt } from "@/logic/panels";
 import { StudioMode } from "@/types/store";
 
 import { MatrixOperationPart } from "./grid/matrix-operation-part";
@@ -82,7 +83,8 @@ export const GridViewer: React.FC = () => {
       panelType === "Paste" ? copyPanels.find((cp) => cp.id === placing.id) : undefined;
 
     // 配置可能判定
-    if (!canPlacePanel(grid, rowIdx, colIdx, placing, currentCopyPanel)) {
+    const panelToCheck = panelType === "Paste" && currentCopyPanel ? currentCopyPanel : placing;
+    if (!canPlacePanelAt(grid, rowIdx, colIdx, panelToCheck)) {
       dispatch(
         panelPlacementSlice.actions.selectPanelForPlacement({
           panel: null,
@@ -202,41 +204,6 @@ export const GridViewer: React.FC = () => {
     );
   };
 
-  /* 配置可能判定 */
-  const canPlacePanel = (
-    g: Grid,
-    r0: number,
-    c0: number,
-    p: Panel | CopyPanel,
-    cp?: CopyPanel
-  ): boolean => {
-    const rows = p.cells.length;
-    const cols = p.cells[0].length;
-
-    if (r0 + rows > g.length || c0 + cols > g[0].length) return false;
-
-    if (p.type === "Paste" && cp) {
-      for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-          const src = cp.cells[i][j];
-          if (src.type !== "Empty" && g[r0 + i][c0 + j].type !== "Empty") {
-            return false;
-          }
-        }
-      }
-      return true;
-    }
-
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        const cellType = p.cells[i][j] as PanelCellTypeKey;
-        if (cellType === "Black" && g[r0 + i][c0 + j].type === "Empty") {
-          return false;
-        }
-      }
-    }
-    return true;
-  };
 
   const renderGridCell = (cell: GridCell, r: number, c: number) => {
     const def = GRID_CELL_TYPES[cell.type];

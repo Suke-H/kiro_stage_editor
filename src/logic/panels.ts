@@ -1,35 +1,11 @@
-import { Grid, GridCell } from '@/types/grid';
-import { Panel } from '@/types/panel/schema';
+import { Grid } from '@/types/grid';
+import { Panel, CopyPanel } from '@/types/panel/schema';
 import { PanelPlacement } from '@/types/panel-placement';
 import { deepCopyGrid } from './utils';
+import { getStrategy } from './panel-strategies';
 
 /**
- * パネルタイプに応じた配置制約チェック
- */
-const canPlaceOnCell = (panel: Panel, targetCell: GridCell): boolean => {
-  const panelType = panel.type || 'Normal';
-  
-  switch (panelType) {
-    case 'Normal':
-      // 通常パネル：Normal(front)にのみ配置可能
-      return targetCell.type === 'Normal';
-    case 'Flag':
-      // Flagパネル：Normal(front)にのみ配置可能、Crow除外
-      return targetCell.type === 'Normal' && targetCell.side === 'front';
-    case 'Cut':
-      // Cutパネル：適切な配置制約を実装（仕様に応じて）
-      return targetCell.type === 'Normal';
-    case 'Paste':
-      // Pasteパネル：適切な配置制約を実装（仕様に応じて）
-      return targetCell.type === 'Normal';
-    default:
-      // デフォルト：Normal以外には配置不可
-      return targetCell.type === 'Normal';
-  }
-};
-
-/**
- * 単一パネル配置可能性判定
+ * 単一パネル配置可能性判定（PanelPlacement形式）
  * パネルの黒セルはパネルタイプに応じた制約に従って配置される
  */
 export const canPlaceSinglePanel = (grid: Grid, placement: PanelPlacement): boolean => {
@@ -40,68 +16,60 @@ export const canPlaceSinglePanel = (grid: Grid, placement: PanelPlacement): bool
   const topLeftX = point.x - highlight.x;
   const topLeftY = point.y - highlight.y;
   
+  return canPlacePanelAt(grid, topLeftY, topLeftX, panel);
+};
+
+/**
+ * パネル配置可能性判定（座標直接指定）
+ * grid-viewerとの互換性のため
+ */
+export const canPlacePanelAt = (
+  grid: Grid,
+  rowIdx: number,
+  colIdx: number,
+  panel: Panel | CopyPanel
+): boolean => {
   const panelRows = panel.cells.length;
   const panelCols = panel.cells[0].length;
   const gridRows = grid.length;
   const gridCols = grid[0].length;
   
   // 盤外チェック
-  if (topLeftX < 0 || topLeftY < 0 ||
-      topLeftX + panelCols > gridCols ||
-      topLeftY + panelRows > gridRows) {
+  if (rowIdx < 0 || colIdx < 0 ||
+      colIdx + panelCols > gridCols ||
+      rowIdx + panelRows > gridRows) {
     return false;
   }
   
-  // 黒セルの配置可能性チェック
-  for (let dy = 0; dy < panelRows; dy++) {
-    for (let dx = 0; dx < panelCols; dx++) {
-      const cell = panel.cells[dy][dx];
-      if (cell !== 'Black' && cell !== 'Flag') {
-        continue;
-      }
-      
-      const targetX = topLeftX + dx;
-      const targetY = topLeftY + dy;
-      const targetCell = grid[targetY][targetX];
-      
-      // パネルタイプに応じた配置制約チェック
-      if (!canPlaceOnCell(panel, targetCell)) {
-        return false;
-      }
-    }
-  }
-  
-  return true;
+  // Strategyパターンを使用してパネルタイプ別チェック
+  const strategy = getStrategy(panel.type);
+  return strategy.canPlace(grid, rowIdx, colIdx, panel);
 };
 
 /**
- * 単一パネルの配置処理を実行
+ * 単一パネルの配置処理を実行（PanelPlacement形式）
  */
-const applyPanelPlacement = (grid: Grid, placement: PanelPlacement): void => {
+const applyPanelPlacement = (grid: Grid, placement: PanelPlacement): Grid => {
   const { panel, highlight, point } = placement;
   const topLeftX = point.x - highlight.x;
   const topLeftY = point.y - highlight.y;
   
-  for (let dy = 0; dy < panel.cells.length; dy++) {
-    for (let dx = 0; dx < panel.cells[0].length; dx++) {
-      const cell = panel.cells[dy][dx];
-      if (cell !== 'Black' && cell !== 'Flag') {
-        continue;
-      }
-      
-      const targetX = topLeftX + dx;
-      const targetY = topLeftY + dy;
-      const targetCell = grid[targetY][targetX];
-      
-      if (cell === 'Black') {
-        // 黒セル：front<->backを反転
-        targetCell.side = targetCell.side === 'front' ? 'back' : 'front';
-      } else if (cell === 'Flag') {
-        // Flagセル：セルタイプをFlagに変更
-        targetCell.type = 'Flag';
-      }
-    }
-  }
+  return applyPanelAt(grid, topLeftY, topLeftX, panel);
+};
+
+/**
+ * パネル効果適用（座標直接指定）
+ * grid-viewerとの互換性のため
+ */
+export const applyPanelAt = (
+  grid: Grid,
+  rowIdx: number,
+  colIdx: number,
+  panel: Panel | CopyPanel
+): Grid => {
+  // Strategyパターンを使用してパネルタイプ別適用
+  const strategy = getStrategy(panel.type);
+  return strategy.applyEffect(grid, rowIdx, colIdx, panel);
 };
 
 /**
@@ -126,9 +94,10 @@ export const placePanels = (
   }
   
   // 配置実行
+  let currentGrid = grid;
   for (const placement of placements) {
-    applyPanelPlacement(grid, placement);
+    currentGrid = applyPanelPlacement(currentGrid, placement);
   }
   
-  return [grid, true];
+  return [currentGrid, true];
 }
