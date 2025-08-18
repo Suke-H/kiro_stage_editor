@@ -14,28 +14,60 @@ export interface ExploreParams {
   findAll: boolean;     // false: 最初の解で打ち切り
 }
 
+/** パズル問題の定義 */
+interface PuzzleProblemSet {
+  grid: Grid;
+  phaseHistory: Grid[];
+  placementHistory: PanelPlacement[][];
+  availablePanels: Panel[];
+}
+
 /** 解探索アルゴリズム */
 export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
   const solutions: PhasedSolution[] = [];
-  exploreStep(opts.initialGrid, [opts.initialGrid], [], solutions, opts);
+  
+  const puzzleSetGroup: PuzzleProblemSet[] = [{
+    grid: opts.initialGrid,
+    phaseHistory: [opts.initialGrid],
+    placementHistory: [],
+    availablePanels: opts.panels
+  }];
+  
+  while (puzzleSetGroup.length > 0) {
+    const puzzleSet = puzzleSetGroup.pop()!;
+    const results = exploreStep(puzzleSet.grid, puzzleSet.availablePanels, opts.allowSkip);
+    
+    const processed = handleResult(results, puzzleSet, opts.panels, opts.findAll);
+    solutions.push(...processed.newSolutions);
+    puzzleSetGroup.push(...processed.newPuzzleSetGroup);
+
+    if (processed.shouldStop) {
+      return solutions;
+    }
+  }
+  
   return solutions;
 };
 
-/** DFS探索のステップ関数 */
+/** 探索結果の型 */
+interface StepResult {
+  pathResult: PathResult;
+  placements: PanelPlacement[];
+}
+
+/** 1ステップの探索（パネル組み合わせを試すだけ） */
 const exploreStep = (
   currentGrid: Grid, 
-  phaseHistory: Grid[], 
-  placementHistory: PanelPlacement[][], 
-  solutions: PhasedSolution[],
-  opts: ExploreParams
-): boolean => {
-  const { panels, allowSkip } = opts;
+  availablePanels: Panel[],
+  allowSkip: boolean
+): StepResult[] => {
+  const results: StepResult[] = [];
 
-  // 各パネルの選択肢を列挙（allowSkip を先頭に）
-  let allOptions: (PanelPlacement | null)[][] = panels.map(panel => enumerateSinglePanel(currentGrid, panel));
-  if (allowSkip) allOptions = allOptions.map(opts => [null, ...opts]);
+  // 各パネルの配置選択肢を列挙（allowSkip時は「置かない」選択肢も追加）
+  let panelChoices: (PanelPlacement | null)[][] = availablePanels.map(panel => enumerateSinglePanel(currentGrid, panel));
+  if (allowSkip) panelChoices = panelChoices.map(choices => [null, ...choices]);
 
-  for (const combo of cartesianProduct(...allOptions)) {
+  for (const combo of cartesianProduct(...panelChoices)) {
     const placements = combo.filter((p): p is PanelPlacement => p !== null);
 
     // 配置適用
@@ -43,14 +75,13 @@ const exploreStep = (
     if (!isValid) continue;
 
     // Rest + Wolf 対応のため evaluateAllPaths を使用
-    const { startResult, finalResult } = evaluateAllPaths(gridAfter, phaseHistory);
-    const path = { ...startResult, result: finalResult }; // PathResultのResult部分だけfinalResultに更新
+    const { startResult, finalResult } = evaluateAllPaths(gridAfter, [currentGrid]);
+    const pathResult = { ...startResult, result: finalResult };
 
-    // 結果からハンドリング（休憩ならループ続行）
-    const shouldStop = handleResult(path, placementHistory, placements, phaseHistory, solutions, opts);
-    if (shouldStop) return true;
+    results.push({ pathResult, placements });
   }
-  return false;
+  
+  return results;
 };
 
 
@@ -58,39 +89,69 @@ const exploreStep = (
 const detectInfiniteLoop = (currentGrid: Grid, phaseHistory: Grid[]): boolean =>
   phaseHistory.some(prev => JSON.stringify(prev) === JSON.stringify(currentGrid));
 
-/** Result別の処理ロジック */
-const handleResult = (
-  pathResult: PathResult,
-  placementHistory: PanelPlacement[][],
-  placements: PanelPlacement[],
-  phaseHistory: Grid[],
-  solutions: PhasedSolution[],
-  opts: ExploreParams
-): boolean => {
-  const { findAll } = opts;
-  
-  switch (pathResult.result) {
-    // 終了：解に到達
-    case Result.HasClearPath:
-      solutions.push({
-        phases: [...placementHistory, placements],
-        phaseHistory
-      });
-      return !findAll;
+/** 処理結果の型 */
+interface ProcessResult {
+  shouldStop: boolean;
+  newSolutions: PhasedSolution[];
+  newPuzzleSetGroup: PuzzleProblemSet[];
+}
 
-    // 続行：解探索を続ける
-    case Result.HasRestPath: {
-      const nextGrid = pathResult.nextGrid;
-      if (!nextGrid) return false;
-      if (detectInfiniteLoop(nextGrid, phaseHistory)) return false;
-      return exploreStep(nextGrid, [...phaseHistory, nextGrid], [...placementHistory, placements], solutions, opts);
+/** 結果処理全体を関数化 */
+const handleResult = (
+  results: StepResult[],
+  current: PuzzleProblemSet,
+  allPanels: Panel[],
+  findAll: boolean
+): ProcessResult => {
+  const newSolutions: PhasedSolution[] = [];
+  const newPuzzleSetGroup: PuzzleProblemSet[] = [];
+  
+  for (const result of results) {
+    switch (result.pathResult.result) {
+      case Result.HasClearPath:
+        newSolutions.push({
+          phases: [...current.placementHistory, result.placements],
+          phaseHistory: current.phaseHistory
+        });
+        if (!findAll) return { shouldStop: true, newSolutions, newPuzzleSetGroup };
+        break;
+        
+      case Result.HasRestPath: {
+        const nextGrid = result.pathResult.nextGrid;
+        if (nextGrid && !detectInfiniteLoop(nextGrid, current.phaseHistory)) {
+          newPuzzleSetGroup.push({
+            grid: nextGrid,
+            phaseHistory: [...current.phaseHistory, nextGrid],
+            placementHistory: [...current.placementHistory, result.placements],
+            availablePanels: allPanels
+          });
+        }
+        break;
+      }
+        
+      case Result.HasFlagPath: {
+        const nextGrid = result.pathResult.nextGrid;
+        if (nextGrid) {
+          const usedPanelIds = new Set(
+            current.placementHistory.flat().concat(result.placements).map(p => p.panel.id)
+          );
+          newPuzzleSetGroup.push({
+            grid: nextGrid,
+            phaseHistory: current.phaseHistory,
+            placementHistory: current.placementHistory,
+            availablePanels: allPanels.filter(p => !usedPanelIds.has(p.id))
+          });
+        }
+        break;
+      }
+        
+      // その他（NoPath等）は何もしない
     }
-      
-    // 終了: 解ではない
-    default:
-      return false;
   }
+  
+  return { shouldStop: false, newSolutions, newPuzzleSetGroup };
 };
+
 
 
 /** 1枚のパネルの全配置パターンを列挙 */
