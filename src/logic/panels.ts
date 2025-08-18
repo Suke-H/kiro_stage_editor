@@ -1,10 +1,36 @@
-import { Grid } from '@/types/grid';
+import { Grid, GridCell } from '@/types/grid';
+import { Panel } from '@/types/panel/schema';
 import { PanelPlacement } from '@/types/panel-placement';
 import { deepCopyGrid } from './utils';
 
 /**
+ * パネルタイプに応じた配置制約チェック
+ */
+const canPlaceOnCell = (panel: Panel, targetCell: GridCell): boolean => {
+  const panelType = panel.type || 'Normal';
+  
+  switch (panelType) {
+    case 'Normal':
+      // 通常パネル：Normal(front)にのみ配置可能
+      return targetCell.type === 'Normal';
+    case 'Flag':
+      // Flagパネル：Normal(front)にのみ配置可能、Crow除外
+      return targetCell.type === 'Normal' && targetCell.side === 'front';
+    case 'Cut':
+      // Cutパネル：適切な配置制約を実装（仕様に応じて）
+      return targetCell.type === 'Normal';
+    case 'Paste':
+      // Pasteパネル：適切な配置制約を実装（仕様に応じて）
+      return targetCell.type === 'Normal';
+    default:
+      // デフォルト：Normal以外には配置不可
+      return targetCell.type === 'Normal';
+  }
+};
+
+/**
  * 単一パネル配置可能性判定
- * パネルの黒セルはNormal(front)のセルにのみ配置可能
+ * パネルの黒セルはパネルタイプに応じた制約に従って配置される
  */
 const canPlaceSingle = (grid: Grid, placement: PanelPlacement): boolean => {
   const panel = placement.panel;
@@ -30,7 +56,7 @@ const canPlaceSingle = (grid: Grid, placement: PanelPlacement): boolean => {
   for (let dy = 0; dy < panelRows; dy++) {
     for (let dx = 0; dx < panelCols; dx++) {
       const cell = panel.cells[dy][dx];
-      if (cell !== 'Black') {
+      if (cell !== 'Black' && cell !== 'Flag') {
         continue;
       }
       
@@ -38,8 +64,8 @@ const canPlaceSingle = (grid: Grid, placement: PanelPlacement): boolean => {
       const targetY = topLeftY + dy;
       const targetCell = grid[targetY][targetX];
       
-      // Normal以外には配置不可
-      if (targetCell.type !== 'Normal') {
+      // パネルタイプに応じた配置制約チェック
+      if (!canPlaceOnCell(panel, targetCell)) {
         return false;
       }
     }
@@ -75,11 +101,11 @@ export const placePanels = (
     const topLeftX = point.x - highlight.x;
     const topLeftY = point.y - highlight.y;
     
-    // パネルの黒セルでfront/back状態を反転
+    // パネルセルの配置処理
     for (let dy = 0; dy < panel.cells.length; dy++) {
       for (let dx = 0; dx < panel.cells[0].length; dx++) {
         const cell = panel.cells[dy][dx];
-        if (cell !== 'Black') {
+        if (cell !== 'Black' && cell !== 'Flag') {
           continue;
         }
         
@@ -87,11 +113,16 @@ export const placePanels = (
         const targetY = topLeftY + dy;
         const targetCell = grid[targetY][targetX];
         
-        // Neutralは無視、front<->backを反転
-        if (targetCell.side === 'front') {
-          targetCell.side = 'back';
-        } else if (targetCell.side === 'back') {
-          targetCell.side = 'front';
+        if (cell === 'Black') {
+          // 黒セル：front<->backを反転
+          if (targetCell.side === 'front') {
+            targetCell.side = 'back';
+          } else if (targetCell.side === 'back') {
+            targetCell.side = 'front';
+          }
+        } else if (cell === 'Flag') {
+          // Flagセル：セルタイプをFlagに変更
+          targetCell.type = 'Flag';
         }
       }
     }
