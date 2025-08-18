@@ -1,9 +1,10 @@
 import { Grid } from '@/types/grid';
 import { Panel } from '@/types/panel';
-import { PanelPlacement } from '@/types/panel-placement';
+import { PanelPlacement, PhasedSolution } from '@/types/panel-placement';
 import { Result } from '@/types/path';
 import { findPath } from './pathfinding';
 import { placePanels } from './panels';
+import { solveAllWithRest } from './solver-rest';
 
 /**
  * 1枚のパネルの全配置パターンを列挙
@@ -142,10 +143,38 @@ export const solveAll = (
  * APIレスポンス形式でのソルバー
  */
 export interface SolveResponse {
-  solutions: PanelPlacement[][];
+  solutions: PhasedSolution[];
 }
 
-export const solvePuzzle = (grid: Grid, panels: Panel[]): SolveResponse => {
-  const solutions = solveAll(grid, panels, true);
+export const solvePuzzle = (grid: Grid, panels: Panel[], minimizePanels: boolean = false): SolveResponse => {
+  // Restマスの存在チェック
+  const hasRest = grid.some(row => 
+    row.some(cell => cell.type === 'Rest')
+  );
+  
+  let solutions: PhasedSolution[];
+  
+  if (hasRest) {
+    solutions = solveAllWithRest(grid, panels);
+  } else {
+    const normalSolutions = solveAll(grid, panels, true);
+    solutions = normalSolutions.map(solution => ({
+      phases: [solution], // 1フェーズのみ
+      phaseHistory: [grid] // 初期グリッドのみ
+    }));
+  }
+  
+  // パネル設置数最小フィルタリング
+  if (minimizePanels && solutions.length > 0) {
+    const minPanelCount = Math.min(
+      ...solutions.map(sol => 
+        sol.phases.reduce((total, phase) => total + phase.length, 0)
+      )
+    );
+    solutions = solutions.filter(sol => 
+      sol.phases.reduce((total, phase) => total + phase.length, 0) === minPanelCount
+    );
+  }
+  
   return { solutions };
 }
