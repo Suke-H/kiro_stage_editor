@@ -166,6 +166,7 @@ const handleResult = (
 export const enumerateSinglePanel = (grid: Grid, panel: Panel): PanelPlacement[] => {
   const gridRows = grid.length;
   const gridCols = grid[0].length;
+  
 
   // パネル内の最初の配置対象セル（BlackまたはFlag）
   let firstTargetX = -1;

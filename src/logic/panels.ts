@@ -56,7 +56,7 @@ const canPlaceSingle = (grid: Grid, placement: PanelPlacement): boolean => {
   for (let dy = 0; dy < panelRows; dy++) {
     for (let dx = 0; dx < panelCols; dx++) {
       const cell = panel.cells[dy][dx];
-      if (cell !== 'Black') {
+      if (cell !== 'Black' && cell !== 'Flag') {
         continue;
       }
       
