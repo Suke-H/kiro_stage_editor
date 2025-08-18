@@ -6,13 +6,29 @@ import { NumberGrid } from "@/types/solution";
 import { GRID_CELL_TYPES, CellSideInfo } from "@/types/grid";
 
 type Props = {
-  baseGrid: Grid; // Redux の grid をそのまま渡す
+  baseGrid: Grid; // このpropsは使用しない（phaseHistory優先）
   index: number;  // 何番目の解か
 };
 
 export const SolverGridViewer: React.FC<Props> = ({ baseGrid, index }) => {
+  const solutions = useSelector((s: RootState) => s.solution.solutions);
   const numberGrid: NumberGrid =
     useSelector((s: RootState) => s.solution.numberGrids[index]) || [];
+
+  // phaseHistoryからフェーズの初期gridを取得
+  let phaseGrid = baseGrid; // フォールバック
+  let globalPhaseIndex = 0;
+  
+  for (const solution of solutions) {
+    for (let phaseIndex = 0; phaseIndex < solution.phases.length; phaseIndex++) {
+      if (globalPhaseIndex === index) {
+        phaseGrid = solution.phaseHistory[phaseIndex] || baseGrid;
+        break;
+      }
+      globalPhaseIndex++;
+    }
+    if (globalPhaseIndex > index) break;
+  }
 
   const renderNumberOverlay = (row: number, col: number) => {
     const num = numberGrid[row]?.[col];
@@ -64,12 +80,12 @@ export const SolverGridViewer: React.FC<Props> = ({ baseGrid, index }) => {
       <div
         className="grid"
         style={{
-          gridTemplateColumns: `repeat(${baseGrid[0]?.length ?? 0}, 40px)`,
-          gridTemplateRows: `repeat(${baseGrid.length}, 40px)`,
+          gridTemplateColumns: `repeat(${phaseGrid[0]?.length ?? 0}, 40px)`,
+          gridTemplateRows: `repeat(${phaseGrid.length}, 40px)`,
           gap: "4px",
         }}
       >
-        {baseGrid.map((row, rIdx) =>
+        {phaseGrid.map((row, rIdx) =>
           row.map((cell, cIdx) => renderGridCell(cell, rIdx, cIdx)),
         )}
       </div>

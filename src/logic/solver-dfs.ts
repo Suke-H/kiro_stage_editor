@@ -42,7 +42,8 @@ export const dfs = (
 
     if (pathResult.result === Result.HasClearPath) {
       solutions.push({
-        phases: [...placementHistory, placements]
+        phases: [...placementHistory, placements],
+        phaseHistory: phaseHistory
       });
     }
 

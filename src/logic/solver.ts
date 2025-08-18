@@ -159,7 +159,8 @@ export const solvePuzzle = (grid: Grid, panels: Panel[], minimizePanels: boolean
   } else {
     const normalSolutions = solveAll(grid, panels, true);
     solutions = normalSolutions.map(solution => ({
-      phases: [solution] // 1フェーズのみ
+      phases: [solution], // 1フェーズのみ
+      phaseHistory: [grid] // 初期グリッドのみ
     }));
   }
   

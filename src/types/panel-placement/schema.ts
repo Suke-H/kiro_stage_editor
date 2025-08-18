@@ -1,5 +1,6 @@
 import { Vector } from '../path';
 import { Panel } from '../panel';
+import { Grid } from '../grid';
 
 export type PanelPlacement = {
   panel: Panel;
@@ -9,4 +10,5 @@ export type PanelPlacement = {
 
 export interface PhasedSolution {
   phases: PanelPlacement[][];
+  phaseHistory: Grid[];
 }
