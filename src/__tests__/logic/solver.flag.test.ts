@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { exploreSolutions } from '@/logic/solution-explorer'
 import { decodeStageFromUrl } from '../../utils/url'
 
+export const flagTests = () => {
 describe('Flag版ソルバー', () => {
     it('基本的なFlagパズルを解く', () => {
       // URL: http://localhost:5173/stage?cells=h4w4gcwwewwwgwswwewww&panels=h2w2gbbwb_h1w1gf&mode=play
@@ -47,3 +48,4 @@ describe('Flag版ソルバー', () => {
       // Flag と Rest が混在するケースのテスト（今後追加可能）
     })
 })
+}
