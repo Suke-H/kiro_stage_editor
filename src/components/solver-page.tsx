@@ -63,7 +63,7 @@ const SolverPage: React.FC = () => {
               phasedSolution.phases.map((_, phaseIdx) => {
                 const globalIndex = solutions.slice(0, solutionIdx).reduce((acc, ps) => acc + ps.phases.length, 0) + phaseIdx;
                 return (
-                  <div key={`${solutionIdx}-${phaseIdx}`} className="flex gap-6 items-start">
+                  <div key={`${solutionIdx}-${phaseIdx}`} className="flex gap-6 items-start mr-8">
                     <div className="text-sm mb-2">解{solutionIdx + 1} - フェーズ{phaseIdx + 1}</div>
                     <SolverGridViewer baseGrid={grid} index={globalIndex} />
                     <SolverPanelList solutionIndex={globalIndex} />

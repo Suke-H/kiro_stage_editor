@@ -1,6 +1,6 @@
 import { Grid } from "@/types/grid";
 import { Panel, CopyPanel } from "@/types/panel";
-import { PanelPlacement, PhasedSolution } from "@/types/panel-placement";
+import { PanelPlacement, PhasedSolution, PhaseGrids } from "@/types/panel-placement";
 import { Result, PathResult } from "@/types/path";
 // import { findPath } from './pathfinding';
 import { evaluateAllPaths } from "./pathfinding/wolf-evaluation";
@@ -18,6 +18,7 @@ interface PuzzleProblemSet {
   grid: Grid;
   phaseHistory: Grid[];
   placementHistory: PanelPlacement[][];
+  phaseGrids: PhaseGrids[];
   availablePanels: Panel[];
 }
 
@@ -30,6 +31,7 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
       grid: opts.initialGrid,
       phaseHistory: [opts.initialGrid],
       placementHistory: [],
+      phaseGrids: [],
       availablePanels: opts.panels,
     },
   ];
@@ -62,6 +64,7 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
 interface StepResult {
   pathResult: PathResult;
   placements: PanelPlacement[];
+  finalGrid: Grid; // パネル配置後のグリッド
 }
 
 /** placePanels の戻り値（生成パネルの有無でユニオン） */
@@ -99,7 +102,11 @@ const exploreStep = (
     // 評価
     const { startResult, finalResult } = evaluateAllPaths(state.grid, [currentGrid]);
     const pathResult = { ...startResult, result: finalResult };
-    results.push({ pathResult, placements: state.seq });
+    
+    // パネル配置後のグリッド（state.gridは既に配置後）
+    const finalGrid = state.grid;
+    
+    results.push({ pathResult, placements: state.seq, finalGrid });
     // アクション実施
     const nextStates = handleAction(state);
     // 組み合わせを追加
@@ -179,6 +186,10 @@ const handleResult = (
         newSolutions.push({
           phases: [...current.placementHistory, result.placements],
           phaseHistory: current.phaseHistory,
+          phaseGrids: [...current.phaseGrids, {
+            before: current.grid,
+            after: result.finalGrid
+          }],
         });
         if (!findAll)
           return { shouldStop: true, newSolutions, newPuzzleSetGroup };
@@ -191,6 +202,10 @@ const handleResult = (
             grid: nextGrid,
             phaseHistory: [...current.phaseHistory, nextGrid],
             placementHistory: [...current.placementHistory, result.placements],
+            phaseGrids: [...current.phaseGrids, {
+              before: current.grid,
+              after: result.finalGrid
+            }],
             availablePanels: allPanels,
           });
         }
@@ -206,6 +221,10 @@ const handleResult = (
             grid: nextGrid,
             phaseHistory: current.phaseHistory,
             placementHistory: [...current.placementHistory, result.placements],
+            phaseGrids: [...current.phaseGrids, {
+              before: current.grid,
+              after: result.finalGrid
+            }],
             availablePanels: [], // Flag到達で全パネル破棄
           });
         }

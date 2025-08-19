@@ -15,19 +15,21 @@ export const SolverGridViewer: React.FC<Props> = ({ baseGrid, index }) => {
   const numberGrid: NumberGrid =
     useSelector((s: RootState) => s.solution.numberGrids[index]) || [];
 
-  // phaseHistoryからフェーズの初期gridを取得
+  // phaseHistoryからフェーズのgridを取得
   let phaseGrid = baseGrid; // フォールバック
-  let globalPhaseIndex = 0;
-  
-  for (const solution of solutions) {
+  let currentIndex = 0;
+  let solutionNumber = 1; // 解の番号
+
+  outer: for (let solutionIdx = 0; solutionIdx < solutions.length; solutionIdx++) {
+    const solution = solutions[solutionIdx];
     for (let phaseIndex = 0; phaseIndex < solution.phases.length; phaseIndex++) {
-      if (globalPhaseIndex === index) {
-        phaseGrid = solution.phaseHistory[phaseIndex] || baseGrid;
-        break;
+      if (currentIndex === index) {
+        phaseGrid = solution.phaseGrids?.[phaseIndex]?.after || baseGrid;
+        solutionNumber = solutionIdx + 1;
+        break outer;
       }
-      globalPhaseIndex++;
+      currentIndex++;
     }
-    if (globalPhaseIndex > index) break;
   }
 
   const renderNumberOverlay = (row: number, col: number) => {
@@ -76,7 +78,7 @@ export const SolverGridViewer: React.FC<Props> = ({ baseGrid, index }) => {
 
   return (
     <div className="flex flex-col items-start gap-2">
-      <span className="font-medium">#{index + 1}</span>
+      <span className="font-medium">#{solutionNumber}</span>
       <div
         className="grid"
         style={{
