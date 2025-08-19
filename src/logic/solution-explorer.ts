@@ -39,6 +39,7 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
     const results = exploreStep(
       puzzleSet.grid,
       puzzleSet.availablePanels,
+      puzzleSet.phaseHistory
     );
 
     const processed = handleResult(
@@ -78,7 +79,8 @@ function hasCopyPanel(
 /** 1ステップ：順序つき・1枚ずつ置く（0枚＝何もしない も含め全組み合わせを評価） */
 const exploreStep = (
   currentGrid: Grid,
-  availablePanels: Panel[]
+  availablePanels: Panel[],
+  phaseHistory: Grid[]
 ): StepResult[] => {
   const results: StepResult[] = [];
 
@@ -97,7 +99,7 @@ const exploreStep = (
     // 現在の状態を取り出す
     const state = worklist.pop()!;
     // 評価
-    const { startResult, finalResult } = evaluateAllPaths(state.grid, [currentGrid]);
+    const { startResult, finalResult } = evaluateAllPaths(state.grid, phaseHistory);
     const pathResult = { ...startResult, result: finalResult };
     results.push({ pathResult, placements: state.seq });
     // アクション実施
