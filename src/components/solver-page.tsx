@@ -59,7 +59,7 @@ const SolverPage: React.FC = () => {
           </div>
 
           <div className="flex flex-col gap-8">
-            {solutions.flatMap((phasedSolution, solutionIdx) =>
+            {solutions.map((phasedSolution, solutionIdx) =>
               phasedSolution.phases.map((_, phaseIdx) => {
                 const globalIndex = solutions.slice(0, solutionIdx).reduce((acc, ps) => acc + ps.phases.length, 0) + phaseIdx;
                 return (
