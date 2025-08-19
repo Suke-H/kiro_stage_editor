@@ -2,6 +2,7 @@ import { Grid } from '@/types/grid';
 import { Panel } from '@/types/panel';
 import { PanelPlacement, PhasedSolution } from '@/types/panel-placement';
 import { exploreSolutions } from './solution-explorer';
+import { placePanels } from './panels';
 
 
 /** 最初の解 */
@@ -58,7 +59,11 @@ export const solvePuzzle = (
     const normal = solveAll(grid, panels);
     solutions = normal.map(solution => ({
       phases: [solution],        // 単フェーズとして格納
-      phaseHistory: [grid]       // 初期グリッドのみ
+      phaseHistory: [grid],      // 初期グリッドのみ
+      phaseGrids: [{             // 配置前後のグリッド
+        before: grid,
+        after: placePanels(grid, solution, false)[0]
+      }]
     }));
   }
 
