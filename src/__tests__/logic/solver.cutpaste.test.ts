@@ -11,16 +11,6 @@ export const cutPasteTests = () => {
       
       const solutions = solveAllWithRest(cells, panels)
       
-      console.log(`Cut/Pasteステージ解の数: ${solutions.length}`)
-      solutions.forEach((solution, i) => {
-        console.log(`解${i}:`)
-        solution.phases.forEach((phase, phaseIndex) => {
-          console.log(`  フェーズ${phaseIndex}:`)
-          phase.forEach(placement => {
-            console.log(`    {panel-id}: ${placement.panel.id}, type: ${placement.panel.type || 'Normal'}, highlight: {x: ${placement.highlight.x}, y: ${placement.highlight.y}}, pos: {x: ${placement.point.x}, y: ${placement.point.y}}`)
-          })
-        })
-      })
       
       expect(solutions.length).toBeGreaterThan(0)
       // Cut/Pasteパネルのテスト
