@@ -77,13 +77,13 @@ export const applyPanelAt = (
  * @param original 元のグリッド
  * @param placements 配置するパネルリスト
  * @param mutate trueなら元グリッドを変更、falseならコピーを返す
- * @returns [変更後グリッド, 全配置成功フラグ]
+ * @returns [変更後グリッド, 全配置成功フラグ] または [変更後グリッド, 全配置成功フラグ, {copyPanel}]
  */
 export const placePanels = (
   original: Grid,
   placements: PanelPlacement[],
   mutate: boolean = false
-): [Grid, boolean] => {
+): [Grid, boolean] | [Grid, boolean, { copyPanel: CopyPanel }] => {
   const grid = mutate ? original : deepCopyGrid(original);
   
   // 事前チェック：全配置が可能か確認
@@ -93,14 +93,24 @@ export const placePanels = (
     }
   }
   
-  // 配置実行（CopyPanelは無視）
+  // 配置実行
   let currentGrid = grid;
+  let lastCopyPanel: CopyPanel | undefined;
+  
   for (const placement of placements) {
-    const [newGrid] = applyPanelPlacement(currentGrid, placement);
+    const [newGrid, copyPanel] = applyPanelPlacement(currentGrid, placement);
     currentGrid = newGrid;
+    if (copyPanel) {
+      lastCopyPanel = copyPanel;
+    }
   }
   
-  return [currentGrid, true];
+  // CopyPanelが生成された場合は3要素、そうでなければ2要素を返す
+  if (lastCopyPanel) {
+    return [currentGrid, true, { copyPanel: lastCopyPanel }];
+  } else {
+    return [currentGrid, true];
+  }
 };
 
 /**

@@ -1,5 +1,5 @@
 import { Grid } from "@/types/grid";
-import { Panel } from "@/types/panel";
+import { Panel, CopyPanel } from "@/types/panel";
 import { PanelPlacement, PhasedSolution } from "@/types/panel-placement";
 import { Result, PathResult } from "@/types/path";
 // import { findPath } from './pathfinding';
@@ -10,7 +10,6 @@ import { placePanels, canPlaceSinglePanel } from "./panels";
 export interface ExploreParams {
   initialGrid: Grid;
   panels: Panel[];
-  allowSkip: boolean; // true: パネルを全て使わない選択肢を追加
   findAll: boolean; // false: 最初の解で打ち切り
 }
 
@@ -40,7 +39,6 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
     const results = exploreStep(
       puzzleSet.grid,
       puzzleSet.availablePanels,
-      opts.allowSkip
     );
 
     const processed = handleResult(
@@ -66,43 +64,91 @@ interface StepResult {
   placements: PanelPlacement[];
 }
 
-/** 1ステップの探索（パネル組み合わせを試すだけ） */
+/** placePanels の戻り値（生成パネルの有無でユニオン） */
+type PlacePanelsReturn =
+  | [Grid, boolean]
+  | [Grid, boolean, { copyPanel: CopyPanel }];
+
+function hasCopyPanel(
+  ret: PlacePanelsReturn
+): ret is [Grid, boolean, { copyPanel: CopyPanel }] {
+  return ret.length === 3;
+}
+
+/** 1ステップ：順序つき・1枚ずつ置く（0枚＝何もしない も含め全組み合わせを評価） */
 const exploreStep = (
   currentGrid: Grid,
-  availablePanels: Panel[],
-  allowSkip: boolean
+  availablePanels: Panel[]
 ): StepResult[] => {
-
   const results: StepResult[] = [];
 
-  // 各パネルの配置選択肢を列挙（allowSkip時は「置かない」選択肢も追加）
-  let panelChoices: (PanelPlacement | null)[][] = availablePanels.map((panel) =>
-    enumerateSinglePanel(currentGrid, panel)
-  );
-  if (allowSkip)
-    panelChoices = panelChoices.map((choices) => [null, ...choices]);
+  type State = {
+    grid: Grid;
+    inventory: (Panel | CopyPanel)[];      // パネル在庫（Cutで生成されたCopyもここに入る）
+    seq: PanelPlacement[];   // 置いた順序の履歴（= placements）
+  };
 
-  for (const combo of cartesianProduct(...panelChoices)) {
-    const placements = combo.filter((p): p is PanelPlacement => p !== null);
+  // 初期状態（このフェーズの開始点）
+  const worklist: State[] = [
+    { grid: currentGrid, inventory: availablePanels, seq: [] },
+  ];
 
-    // 配置適用
-    const [gridAfter, isValid] = placePanels(currentGrid, placements, false);
-    if (!isValid) {
-      console.log("  -> 配置無効");
-      continue;
-    }
-
-    // Rest + Wolf 対応のため evaluateAllPaths を使用
-    const { startResult, finalResult } = evaluateAllPaths(gridAfter, [
-      currentGrid,
-    ]);
+  while (worklist.length > 0) {
+    // 現在の状態を取り出す
+    const state = worklist.pop()!;
+    // 評価
+    const { startResult, finalResult } = evaluateAllPaths(state.grid, [currentGrid]);
     const pathResult = { ...startResult, result: finalResult };
-
-    results.push({ pathResult, placements });
+    results.push({ pathResult, placements: state.seq });
+    // アクション実施
+    const nextStates = handleAction(state);
+    // 組み合わせを追加
+    for (const ns of nextStates) worklist.push(ns);
   }
 
   return results;
 };
+
+/** アクション： 在庫にあるパネルを1枚取り出して設置した結果をすべて生成
+ * 置いた後にGrid反映
+ * 置いたパネルを減らす
+ * Cutを設置した場合、CopyPanelを在庫に追加
+*/
+function handleAction(state: {
+  grid: Grid;
+  inventory: (Panel | CopyPanel)[];
+  seq: PanelPlacement[];
+}): Array<{ grid: Grid; inventory: (Panel | CopyPanel)[]; seq: PanelPlacement[] }> {
+  const out: Array<{ grid: Grid; inventory: (Panel | CopyPanel)[]; seq: PanelPlacement[] }> = [];
+
+  // 在庫から1枚ずつ取り出して配置
+  for (const panel of state.inventory) {
+
+    // 配置できる場所を列挙
+    const placements = enumerateSinglePanel(state.grid, panel);
+    if (placements.length === 0) continue;
+    // 各配置候補に対して配置実施
+    for (const placement of placements) {
+      const ret = placePanels(state.grid, [placement], false) as PlacePanelsReturn;
+      const gridAfter = ret[0];
+      const isValid = ret[1];
+      if (!isValid) continue;
+
+      // 在庫更新：使った1枚を消費し、Cutなら生成されたCopyを在庫に加える
+      const remaining = state.inventory.filter((p) => p.id !== panel.id);
+      const generated = hasCopyPanel(ret) ? [ret[2].copyPanel] : [];
+
+      out.push({
+        grid: gridAfter,
+        inventory: [...remaining, ...generated],
+        seq: [...state.seq, placement], // 順序を保持
+      });
+    }
+  }
+
+  return out;
+}
+
 
 /** 無限ループ検知：今のグリッドが過去のフェーズ履歴に存在するか */
 const detectInfiniteLoop = (currentGrid: Grid, phaseHistory: Grid[]): boolean =>
@@ -174,11 +220,27 @@ const handleResult = (
 };
 
 /** パネル内の最初の配置対象セル（BlackまたはFlag）を取得 */
-const findFirstTargetCell = (panel: Panel): { x: number; y: number } | null => {
+const findHighlightCell = (panel: Panel | CopyPanel): { x: number; y: number } | null => {
   for (let y = 0; y < panel.cells.length; y++) {
     for (let x = 0; x < panel.cells[y].length; x++) {
-      if (panel.cells[y][x] === "Black" || panel.cells[y][x] === "Flag") {
-        return { x, y };
+      const cell = panel.cells[y][x];
+      switch (panel.type) {
+        case "Cut":
+        case "Normal":
+          if (typeof cell === 'string' && cell === "Black") {
+            return { x, y };
+          }
+          break;
+        case "Flag":
+          if (typeof cell === 'string' && cell === "Flag") {
+            return { x, y };
+          }
+          break;
+        case "Paste":
+          if (typeof cell === 'object' && cell.type !== "Empty") {
+            return { x, y };
+          }
+          break;
       }
     }
   }
@@ -188,20 +250,24 @@ const findFirstTargetCell = (panel: Panel): { x: number; y: number } | null => {
 /** 1枚のパネルの全配置パターンを列挙 */
 export const enumerateSinglePanel = (
   grid: Grid,
-  panel: Panel
+  panel: Panel | CopyPanel
 ): PanelPlacement[] => {
   const gridRows = grid.length;
   const gridCols = grid[0].length;
 
-  const firstTarget = findFirstTargetCell(panel);
-  if (!firstTarget) return [];
+  const highlight = findHighlightCell(panel);
+  if (!highlight) 
+  {
+    console.log(`最初のターゲットセルが見つかりませんでした: ${JSON.stringify(panel)}`);
+    return [];
+  }
 
   const placements: PanelPlacement[] = [];
   for (let gy = 0; gy < gridRows; gy++) {
     for (let gx = 0; gx < gridCols; gx++) {
       const placement: PanelPlacement = {
         panel,
-        highlight: firstTarget,
+        highlight: highlight,
         point: { x: gx, y: gy },
       };
       if (canPlaceSinglePanel(grid, placement)) {
@@ -212,14 +278,3 @@ export const enumerateSinglePanel = (
   return placements;
 };
 
-/** 配列の直積を生成 */
-export function* cartesianProduct<T>(...arrays: T[][]): Generator<T[]> {
-  if (arrays.length === 0) {
-    yield [];
-    return;
-  }
-  const [first, ...rest] = arrays;
-  for (const item of first) {
-    for (const comb of cartesianProduct(...rest)) yield [item, ...comb];
-  }
-}

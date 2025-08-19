@@ -8,10 +8,9 @@ import { exploreSolutions } from './solution-explorer';
 export const solveSingle = (
   initialGrid: Grid,
   panels: Panel[],
-  allowSkip: boolean = true
 ): PanelPlacement[] | null => {
   const sols = exploreSolutions({
-    initialGrid, panels, allowSkip, findAll: false
+    initialGrid, panels, findAll: false
   });
   return sols.length ? sols[0].phases[0] : null;
 };
@@ -20,10 +19,9 @@ export const solveSingle = (
 export const solveAll = (
   initialGrid: Grid,
   panels: Panel[],
-  allowSkip: boolean = true
 ): PanelPlacement[][] => {
   const sols = exploreSolutions({
-    initialGrid, panels, allowSkip, findAll: true
+    initialGrid, panels, findAll: true
   });
   // Rest 無しなら各解は 1 フェーズになるので先頭を返す
   return sols.map(s => s.phases[0]);
@@ -33,10 +31,9 @@ export const solveAll = (
 export const solveAllWithRest = (
   initialGrid: Grid,
   panels: Panel[],
-  allowSkip: boolean = true
 ): PhasedSolution[] => {
   return exploreSolutions({
-    initialGrid, panels, allowSkip, findAll: true
+    initialGrid, panels,  findAll: true
   });
 };
 
@@ -56,9 +53,9 @@ export const solvePuzzle = (
 
   let solutions: PhasedSolution[];
   if (hasRest) {
-    solutions = solveAllWithRest(grid, panels, true);
+    solutions = solveAllWithRest(grid, panels);
   } else {
-    const normal = solveAll(grid, panels, true);
+    const normal = solveAll(grid, panels);
     solutions = normal.map(solution => ({
       phases: [solution],        // 単フェーズとして格納
       phaseHistory: [grid]       // 初期グリッドのみ
