@@ -1,4 +1,3 @@
-// components/GridViewer.tsx
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 
@@ -7,25 +6,11 @@ import { panelListSlice } from "@/store/slices/panel-list-slice";
 import { copyPanelListSlice } from "@/store/slices/copy-panel-list-slice";
 import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import {
-  Grid,
-  GridCell,
-  GridCellKey,
-  GRID_CELL_TYPES,
-  CellSideInfo,
-} from "@/types/grid";
-import {
-  Panel,
-  PanelCellTypeKey,
-  CopyPanel,
-} from "@/types/panel";
+import { Grid, GridCell, GridCellKey, GRID_CELL_TYPES, CellSideInfo } from "@/types/grid";
+import { Panel, CopyPanel } from "@/types/panel";
+import { canPlacePanelAt, applyPanelAt } from "@/logic/panels";
 import { StudioMode } from "@/types/store";
 
 import { MatrixOperationPart } from "./grid/matrix-operation-part";
@@ -34,7 +19,6 @@ import { StageDataIOPart } from "./grid/stage-data-io-part";
 export const GridViewer: React.FC = () => {
   const dispatch = useDispatch();
 
-  /* ========== state ========== */
   const studioMode      = useSelector((s: RootState) => s.studioMode.studioMode);
   const grid            = useSelector((s: RootState) => s.grid.grid) as Grid;
   const gridHistory     = useSelector((s: RootState) => s.grid.gridHistory);
@@ -76,14 +60,13 @@ export const GridViewer: React.FC = () => {
 
     // 選択したパネルの情報取得
     const panelType = placing.type ?? "Normal";
-    const rows = placing.cells.length;
-    const cols = placing.cells[0].length;
     // コピーパネル
     const currentCopyPanel: CopyPanel | undefined =
       panelType === "Paste" ? copyPanels.find((cp) => cp.id === placing.id) : undefined;
 
     // 配置可能判定
-    if (!canPlacePanel(grid, rowIdx, colIdx, placing, currentCopyPanel)) {
+    const panelToCheck = panelType === "Paste" && currentCopyPanel ? currentCopyPanel : placing;
+    if (!canPlacePanelAt(grid, rowIdx, colIdx, panelToCheck)) {
       dispatch(
         panelPlacementSlice.actions.selectPanelForPlacement({
           panel: null,
@@ -102,80 +85,12 @@ export const GridViewer: React.FC = () => {
       dispatch(gridSlice.actions.saveHistory());
     }
 
-    // Cut 用コピー配列初期化
-    let copyCells: GridCell[][] = [];
-    if (panelType === "Cut") {
-      copyCells = placing.cells.map((row) =>
-        row.map(() => ({ type: "Empty", side: "neutral" } as GridCell))
-      );
-    }
+    // パネル配置実行（Strategy Pattern使用）
+    const panelToApply = panelType === "Paste" && currentCopyPanel ? currentCopyPanel : placing;
+    const [newGrid, createdCopyPanel] = applyPanelAt(grid, rowIdx, colIdx, panelToApply);
 
-    // パネル配置実行
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        const r = rowIdx + i;
-        const c = colIdx + j;
-
-        if (panelType === "Normal") {
-          const t = placing.cells[i][j] as PanelCellTypeKey;
-          if (t === "Black") {
-            dispatch(gridSlice.actions.flipCell({ row: r, col: c }));
-          } else if (t === "Flag") {
-            dispatch(
-              gridSlice.actions.placeCell({
-                row: r,
-                col: c,
-                cell: { type: "Flag", side: "neutral" },
-              })
-            );
-          } else if (t === "Cut") {
-            dispatch(
-              gridSlice.actions.placeCell({
-                row: r,
-                col: c,
-                cell: { type: "Empty", side: "neutral" },
-              })
-            );
-          }
-        }
-
-        else if (panelType === "Flag") {
-          dispatch(
-            gridSlice.actions.placeCell({
-              row: r,
-              col: c,
-              cell: { type: "Flag", side: "neutral" },
-            })
-          );
-        }
-
-        else if (panelType === "Cut") {
-          if (placing.cells[i][j] === "Black") {
-            copyCells[i][j] = { ...grid[r][c] };  // 完全コピー
-            dispatch(
-              gridSlice.actions.placeCell({
-                row: r,
-                col: c,
-                cell: { type: "Empty", side: "neutral" },
-              })
-            );
-          }
-        }
-
-        else if (panelType === "Paste" && currentCopyPanel) {
-          const src = currentCopyPanel.cells[i][j];
-          if (src.type !== "Empty") {
-            dispatch(
-              gridSlice.actions.placeCell({
-                row: r,
-                col: c,
-                cell: { type: src.type, side: src.side },
-              })
-            );
-          }
-        }
-      }
-    }
+    // gridを更新
+    dispatch(gridSlice.actions.replaceGrid(newGrid));
 
     // パネルリストの更新
     if (panelType === "Paste" && currentCopyPanel) {
@@ -184,14 +99,9 @@ export const GridViewer: React.FC = () => {
       dispatch(panelListSlice.actions.placePanel(placing as Panel));
     }
 
-    // Cut パネルの場合、コピーパネルを作成
-    if (panelType === "Cut") {
-      const newCopyPanel: CopyPanel = {
-        id: `copy-${Date.now()}`,
-        type: "Paste",
-        cells: copyCells,
-      };
-      dispatch(copyPanelListSlice.actions.createPanel(newCopyPanel));
+    // Cutパネルで生成されたCopyPanelをstoreに追加
+    if (createdCopyPanel) {
+      dispatch(copyPanelListSlice.actions.createPanel(createdCopyPanel));
     }
 
     // パネル選択を解除
@@ -201,42 +111,6 @@ export const GridViewer: React.FC = () => {
         highlightedCell: null,
       })
     );
-  };
-
-  /* 配置可能判定 */
-  const canPlacePanel = (
-    g: Grid,
-    r0: number,
-    c0: number,
-    p: Panel | CopyPanel,
-    cp?: CopyPanel
-  ): boolean => {
-    const rows = p.cells.length;
-    const cols = p.cells[0].length;
-
-    if (r0 + rows > g.length || c0 + cols > g[0].length) return false;
-
-    if (p.type === "Paste" && cp) {
-      for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-          const src = cp.cells[i][j];
-          if (src.type !== "Empty" && g[r0 + i][c0 + j].type !== "Empty") {
-            return false;
-          }
-        }
-      }
-      return true;
-    }
-
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        const cellType = p.cells[i][j] as PanelCellTypeKey;
-        if (cellType === "Black" && g[r0 + i][c0 + j].type === "Empty") {
-          return false;
-        }
-      }
-    }
-    return true;
   };
 
   const renderGridCell = (cell: GridCell, r: number, c: number) => {

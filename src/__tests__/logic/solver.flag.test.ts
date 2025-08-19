@@ -12,7 +12,6 @@ describe('Flag版ソルバー', () => {
       const solutions = exploreSolutions({
         initialGrid: cells,
         panels,
-        allowSkip: true,
         findAll: true
       })
       
