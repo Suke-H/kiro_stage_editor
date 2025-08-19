@@ -17,17 +17,16 @@ export const SolverGridViewer: React.FC<Props> = ({ baseGrid, index }) => {
 
   // phaseHistoryからフェーズの初期gridを取得
   let phaseGrid = baseGrid; // フォールバック
-  let globalPhaseIndex = 0;
-  
-  for (const solution of solutions) {
+  let currentIndex = 0;
+
+  outer: for (const solution of solutions) {
     for (let phaseIndex = 0; phaseIndex < solution.phases.length; phaseIndex++) {
-      if (globalPhaseIndex === index) {
+      if (currentIndex === index) {
         phaseGrid = solution.phaseHistory[phaseIndex] || baseGrid;
-        break;
+        break outer;
       }
-      globalPhaseIndex++;
+      currentIndex++;
     }
-    if (globalPhaseIndex > index) break;
   }
 
   const renderNumberOverlay = (row: number, col: number) => {

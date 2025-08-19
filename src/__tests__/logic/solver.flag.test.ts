@@ -15,17 +15,6 @@ describe('Flag版ソルバー', () => {
         findAll: true
       })
       
-      console.log(`Flag解の数: ${solutions.length}`)
-      solutions.forEach((solution, i) => {
-        console.log(`解${i}:`)
-        solution.phases.forEach((phase, phaseIndex) => {
-          console.log(`  フェーズ${phaseIndex}:`)
-          phase.forEach(placement => {
-            console.log(`    {panel-id}: ${placement.panel.id}, highlight: {x: ${placement.highlight.x}, y: ${placement.highlight.y}}, pos: {x: ${placement.point.x}, y: ${placement.point.y}}`)
-          })
-        })
-        console.log(`  phaseHistory長: ${solution.phaseHistory.length}`)
-      })
       
       expect(solutions.length).toBeGreaterThan(0)
       
