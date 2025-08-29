@@ -21,11 +21,13 @@ export const filterDuplicateSolutions = (
 const isNormal = (p: Panel | CopyPanel): p is Panel =>
   p.type === "Normal";
 
-// 「同じパネル、同じ場所」かを識別するキー
-const placementKey = (pl: PanelPlacement): string => {
-  const pid = "id" in pl.panel ? pl.panel.id : "no-id";
-  return `${pid}@${pl.point.x},${pl.point.y}`;
-};
+// 順序に依存しない“構造キー”
+const panelStructKey = (p: Panel | CopyPanel): string =>
+  `${p.type}:${JSON.stringify(p.cells)}`;
+
+// 「同じパネル、同じ場所」を識別
+const placementKey = (pl: PanelPlacement): string =>
+  `${panelStructKey(pl.panel)}@${pl.point.x},${pl.point.y}`;
 
 // Normal だけの連続ブロックを検出し、その内部は順序を潰して正規化する
 const normalizePlacements = (seq: PanelPlacement[]): PanelPlacement[] => {
