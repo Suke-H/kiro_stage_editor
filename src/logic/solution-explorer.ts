@@ -5,6 +5,7 @@ import { Result, PathResult } from "@/types/path";
 // import { findPath } from './pathfinding';
 import { evaluateAllPaths } from "./pathfinding/wolf-evaluation";
 import { placePanels, canPlaceSinglePanel } from "./panels";
+import { filterDuplicateSolutions } from "./filter-duplicate-solutions";
 
 /** パラメータ */
 export interface ExploreParams {
@@ -58,7 +59,7 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
     }
   }
 
-  return solutions;
+  return filterDuplicateSolutions(solutions);
 };
 
 /** 探索結果の型 */
