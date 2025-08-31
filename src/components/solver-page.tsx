@@ -4,9 +4,8 @@ import { Switch } from "@/components/ui/switch";
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
-import { solutionActions } from "@/store/slices/solution-slice";
+import { solutionActions, solvePuzzleAsync } from "@/store/slices/solution-slice";
 import { SolverPanelList } from '@/components/solver/solver-panel-list';
-import { solvePuzzle } from "@/logic";
 
 import { GridViewer } from "@/components/editor/grid-viewer";
 import { PanelList } from "@/components/editor/panel-list";
@@ -20,16 +19,24 @@ const SolverPage: React.FC = () => {
   const grid      = useSelector((s: RootState) => s.grid.grid);
   const panels    = useSelector((s: RootState) => s.panelList.panels);
   const solutions = useSelector((s: RootState) => s.solution.solutions);
+  const isLoading = useSelector((s: RootState) => s.solution.isLoading);
+  const error     = useSelector((s: RootState) => s.solution.error);
 
   const solve = async () => {
-    const res = solvePuzzle(grid, panels, minimizePanels);
-    dispatch(solutionActions.setSolutions(res.solutions));
-    dispatch(
-      solutionActions.buildNumberGrids({
-        rows: grid.length,
-        cols: grid[0].length,
-      }),
-    );
+    const resultAction = await dispatch(solvePuzzleAsync({ 
+      grid, 
+      panels, 
+      minimizePanels 
+    }));
+    
+    if (solvePuzzleAsync.fulfilled.match(resultAction)) {
+      dispatch(
+        solutionActions.buildNumberGrids({
+          rows: grid.length,
+          cols: grid[0].length,
+        }),
+      );
+    }
   };
 
   return (
@@ -45,9 +52,17 @@ const SolverPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-4">
+            {error && (
+              <div className="text-red-500 text-center">{error}</div>
+            )}
             <div className="flex justify-center">
-              <Button variant="secondary" className="w-1/4" onClick={solve}>
-                Solve
+              <Button 
+                variant="secondary" 
+                className="w-1/4" 
+                onClick={solve}
+                disabled={isLoading}
+              >
+                {isLoading ? "解を探索中..." : "Solve"}
               </Button>
             </div>
             
