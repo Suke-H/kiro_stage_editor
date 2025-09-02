@@ -19,17 +19,19 @@ export const solvePuzzleAsync = createAsyncThunk(
   }
 );
 
+type SolverStatus = 'not_executed' | 'loading' | 'success' | 'error';
+
 type SolutionState = {
   solutions: PhasedSolution[];
   numberGrids: NumberGrid[];
-  isLoading: boolean;
+  status: SolverStatus;
   error: string | null;
 };
 
 const initialState: SolutionState = {
   solutions: [],
   numberGrids: [],
-  isLoading: false,
+  status: 'not_executed',
   error: null,
 };
 
@@ -83,15 +85,15 @@ const solutionSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(solvePuzzleAsync.pending, (state) => {
-        state.isLoading = true;
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(solvePuzzleAsync.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.status = 'success';
         state.solutions = action.payload;
       })
       .addCase(solvePuzzleAsync.rejected, (state, action) => {
-        state.isLoading = false;
+        state.status = 'error';
         state.error = action.error.message || '解の探索に失敗しました';
       });
   },
