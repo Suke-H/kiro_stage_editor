@@ -1,15 +1,38 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { PanelPlacement, PhasedSolution } from "@/types/panel-placement";
 import { NumberGrid } from "@/types/solution";
+import { Grid } from "@/types/grid";
+import { Panel } from "@/types/panel";
+import { solvePuzzle } from "@/logic";
+
+export const solvePuzzleAsync = createAsyncThunk(
+  'solution/solve',
+  async ({ grid, panels, minimizePanels }: { 
+    grid: Grid, 
+    panels: Panel[], 
+    minimizePanels: boolean 
+  }) => {
+    // UIの更新を可能にするため、少し待機
+    await new Promise(resolve => setTimeout(resolve, 10));
+    const response = solvePuzzle(grid, panels, minimizePanels);
+    return response.solutions;
+  }
+);
+
+type SolverStatus = 'not_executed' | 'loading' | 'success' | 'error';
 
 type SolutionState = {
   solutions: PhasedSolution[];
-  numberGrids: NumberGrid[]; 
+  numberGrids: NumberGrid[];
+  status: SolverStatus;
+  error: string | null;
 };
 
 const initialState: SolutionState = {
   solutions: [],
   numberGrids: [],
+  status: 'not_executed',
+  error: null,
 };
 
 const buildNumberGrid = (
@@ -54,6 +77,25 @@ const solutionSlice = createSlice({
       state.solutions = [];
       state.numberGrids = [];
     },
+
+    clearError(state) {
+      state.error = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(solvePuzzleAsync.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(solvePuzzleAsync.fulfilled, (state, action) => {
+        state.status = 'success';
+        state.solutions = action.payload;
+      })
+      .addCase(solvePuzzleAsync.rejected, (state, action) => {
+        state.status = 'error';
+        state.error = action.error.message || '解の探索に失敗しました';
+      });
   },
 });
 
