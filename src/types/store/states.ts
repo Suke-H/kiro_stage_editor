@@ -21,8 +21,9 @@ export interface PanelListState {
 }
 
 export interface CopyPanelListState {
-  panels: CopyPanel[];
-  removedPanels: { panel: CopyPanel; index: number }[];
+  copyPanels: CopyPanel[];
+  pastedPanels: CopyPanel[];
+  lastOperationType: 'cut' | 'paste' | null;
 }
 
 export interface CreatePanelState {
