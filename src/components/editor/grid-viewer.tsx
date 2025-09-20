@@ -24,7 +24,7 @@ export const GridViewer: React.FC = () => {
   const gridHistory     = useSelector((s: RootState) => s.grid.gridHistory);
   const selectedCellKey = useSelector((s: RootState) => s.cellType.selectedCellType) as GridCellKey;
   const placementMode   = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
-  const copyPanels      = useSelector((s: RootState) => s.copyPanelList.panels);
+  const copyPanels      = useSelector((s: RootState) => s.copyPanelList.copyPanels);
 
   const handleGridCellClick = (rowIdx: number, colIdx: number): void => {
     const placing = placementMode.panel;           // Panel | CopyPanel | null

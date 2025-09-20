@@ -3,8 +3,9 @@ import { CopyPanel } from "@/types/panel";
 import { CopyPanelListState } from "@/types/store/states";
 
 const initialState: CopyPanelListState = {
-  panels: [],
-  removedPanels: [],
+  copyPanels: [],
+  pastedPanels: [],
+  lastOperationType: null,
 };
 
 export const copyPanelListSlice = createSlice({
@@ -13,34 +14,39 @@ export const copyPanelListSlice = createSlice({
   reducers: {
     /** URL などから読み込む */
     loadPanels: (state, action: PayloadAction<CopyPanel[]>) => {
-      state.panels = action.payload;
+      state.copyPanels = action.payload;
     },
 
     /* Editor モード */
     createPanel: (state, action: PayloadAction<CopyPanel>) => {
-      state.panels.push(action.payload);
+      state.copyPanels.push(action.payload);
+      state.lastOperationType = 'cut';
     },
     removePanel: (state, action: PayloadAction<string>) => {
-      state.panels = state.panels.filter(p => p.id !== action.payload);
+      state.copyPanels = state.copyPanels.filter(p => p.id !== action.payload);
     },
 
     /* Play モード */
     placePanel: (state, action: PayloadAction<CopyPanel>) => {
-      const index = state.panels.findIndex(p => p.id === action.payload.id);
+      const index = state.copyPanels.findIndex(p => p.id === action.payload.id);
       if (index !== -1) {
-        state.removedPanels.push({ panel: action.payload, index });
-        state.panels.splice(index, 1);
+        state.pastedPanels.push(action.payload);
+        state.copyPanels.splice(index, 1);
+        state.lastOperationType = 'paste';
       }
     },
     undo: state => {
-      const last = state.removedPanels.pop();
-      if (last) state.panels.splice(last.index, 0, last.panel);
+      if (state.lastOperationType === 'paste') {
+        state.pastedPanels.pop();
+      } else if (state.lastOperationType === 'cut') {
+        state.copyPanels.pop();
+      }
+      state.lastOperationType = null;
     },
     reset: state => {
-      while (state.removedPanels.length) {
-        const last = state.removedPanels.pop();
-        if (last) state.panels.splice(last.index, 0, last.panel);
-      }
+      state.copyPanels = [];
+      state.pastedPanels = [];
+      state.lastOperationType = null;
     },
   },
 });

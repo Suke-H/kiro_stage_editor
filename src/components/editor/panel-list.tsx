@@ -43,7 +43,7 @@ export const PanelList: React.FC = () => {
   const dispatch = useDispatch();
   const studioMode = useSelector((s: RootState) => s.studioMode.studioMode);
   const panels     = useSelector((s: RootState) => s.panelList.panels);
-  const copyPanels = useSelector((s: RootState) => s.copyPanelList.panels);
+  const copyPanels = useSelector((s: RootState) => s.copyPanelList.copyPanels);
   const placement  = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
 
   /* -------- パネル選択 -------- */
