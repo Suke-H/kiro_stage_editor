@@ -6,6 +6,7 @@ import { Result, PathResult } from "@/types/path";
 import { evaluateAllPaths } from "./pathfinding/wolf-evaluation";
 import { placePanels, canPlaceSinglePanel } from "./panels";
 import { filterDuplicateSolutions } from "./filter-duplicate-solutions";
+import * as fs from 'fs';
 
 /** パラメータ */
 export interface ExploreParams {
@@ -23,9 +24,34 @@ interface PuzzleProblemSet {
   availablePanels: Panel[];
 }
 
-/** 解探索アルゴリズム */
+const tag = (phase: number, depth: number): string => {
+  return "[P" + phase + "][d" + depth + "]";
+};
+
+/** ログ収集 */
+let debugLogs: string[] = [];
+
+export const getDebugLogs = () => debugLogs;
+export const clearDebugLogs = () => { debugLogs = []; };
+export const saveDebugLogsToFile = (filename = 'solver-debug.log') => {
+  fs.writeFileSync(filename, debugLogs.join('\n'));
+  console.log(`ログを ${filename} に保存しました`);
+};
+
+/** 解探索アルゴリズム（最小ログ付き） */
 export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
   const solutions: PhasedSolution[] = [];
+  let iterationCount = 0;
+  const MAX_ITERATIONS = 1000;
+  
+  const log = (message: string) => {
+    debugLogs.push(message);
+    console.log(message);
+    // 毎回ログファイルを上書き保存（無限ループ対策）
+    fs.writeFileSync('solver-realtime.log', debugLogs.join('\n'));
+  };
+  const tag = (phase: number, depth: number) =>
+    "[P" + phase + "][d" + depth + "]";
 
   const puzzleSetGroup: PuzzleProblemSet[] = [
     {
@@ -37,28 +63,52 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
     },
   ];
 
+  log(`=== ソルバー開始（最大反復回数: ${MAX_ITERATIONS}） ===`);
+
   while (puzzleSetGroup.length > 0) {
-    const puzzleSet = puzzleSetGroup.pop()!;
+    iterationCount++;
+    
+    if (iterationCount > MAX_ITERATIONS) {
+      log(`❌ 最大反復回数 ${MAX_ITERATIONS} に達しました`);
+      log(`現在のキュー長: ${puzzleSetGroup.length}`);
+      saveDebugLogsToFile('solver-max-iterations.log');
+      break;
+    }
+    
+    if (iterationCount % 50 === 0) {
+      log(`⏱️ 反復回数: ${iterationCount}/${MAX_ITERATIONS}, キュー長: ${puzzleSetGroup.length}`);
+    }
+    const puzzleSet = puzzleSetGroup.pop() as PuzzleProblemSet;
+    const phaseIndex = puzzleSet.phaseHistory.length - 1;
+    log(tag(phaseIndex, 0) + " start phase");
+
     const results = exploreStep(
       puzzleSet.grid,
       puzzleSet.availablePanels,
-      puzzleSet.phaseHistory
+      puzzleSet.phaseHistory,
+      phaseIndex,
+      log
     );
 
     const processed = handleResult(
       results,
       puzzleSet,
       opts.panels,
-      opts.findAll
+      opts.findAll,
+      log
     );
     solutions.push(...processed.newSolutions);
     puzzleSetGroup.push(...processed.newPuzzleSetGroup);
 
     if (processed.shouldStop) {
+      log(`✅ 解発見により探索終了（反復回数: ${iterationCount}）`);
       return solutions;
     }
   }
 
+  log(`=== ソルバー終了（総反復回数: ${iterationCount}） ===`);
+  log(`発見した解の数: ${solutions.length}`);
+  
   return filterDuplicateSolutions(solutions);
 };
 
@@ -74,84 +124,102 @@ type PlacePanelsReturn =
   | [Grid, boolean]
   | [Grid, boolean, { copyPanel: CopyPanel }];
 
+/** 型ガード */
 function hasCopyPanel(
   ret: PlacePanelsReturn
 ): ret is [Grid, boolean, { copyPanel: CopyPanel }] {
   return ret.length === 3;
 }
 
-/** 1ステップ：順序つき・1枚ずつ置く（0枚＝何もしない も含め全組み合わせを評価） */
+/** 1ステップ：順序つき・1枚ずつ置く */
 const exploreStep = (
   currentGrid: Grid,
   availablePanels: Panel[],
-  phaseHistory: Grid[]
+  phaseHistory: Grid[],
+  phaseIndex: number,
+  log: (s: string) => void
 ): StepResult[] => {
   const results: StepResult[] = [];
 
   type State = {
     grid: Grid;
-    inventory: (Panel | CopyPanel)[];      // パネル在庫（Cutで生成されたCopyもここに入る）
-    seq: PanelPlacement[];   // 置いた順序の履歴（= placements）
+    inventory: (Panel | CopyPanel)[];
+    seq: PanelPlacement[];
   };
 
-  // 初期状態（このフェーズの開始点）
   const worklist: State[] = [
     { grid: currentGrid, inventory: availablePanels, seq: [] },
   ];
 
   while (worklist.length > 0) {
-    // 現在の状態を取り出す
-    const state = worklist.pop()!;
-    // 評価
-    const { startResult, finalResult } = evaluateAllPaths(state.grid, phaseHistory);
-    const pathResult = { ...startResult, result: finalResult };
-    
-    // パネル配置後のグリッド（state.gridは既に配置後）
+    const state = worklist.pop() as State;
+    const depth = state.seq.length;
+
+    const { startResult, finalResult } = evaluateAllPaths(
+      state.grid,
+      phaseHistory
+    );
+    const pathResult: PathResult = { ...startResult, result: finalResult };
+    log(tag(phaseIndex, depth) + " eval -> " + Result[pathResult.result]);
+
     const finalGrid = state.grid;
-    
     results.push({ pathResult, placements: state.seq, finalGrid });
-    // アクション実施
-    const nextStates = handleAction(state);
-    // 組み合わせを追加
+
+    const nextStates = handleAction(state, phaseIndex, log);
     for (const ns of nextStates) worklist.push(ns);
   }
 
   return results;
 };
 
-/** アクション： 在庫にあるパネルを1枚取り出して設置した結果をすべて生成
- * 置いた後にGrid反映
- * 置いたパネルを減らす
- * Cutを設置した場合、CopyPanelを在庫に追加
-*/
-function handleAction(state: {
-  grid: Grid;
-  inventory: (Panel | CopyPanel)[];
-  seq: PanelPlacement[];
-}): Array<{ grid: Grid; inventory: (Panel | CopyPanel)[]; seq: PanelPlacement[] }> {
-  const out: Array<{ grid: Grid; inventory: (Panel | CopyPanel)[]; seq: PanelPlacement[] }> = [];
+/** アクション展開 */
+function handleAction(
+  state: {
+    grid: Grid;
+    inventory: (Panel | CopyPanel)[];
+    seq: PanelPlacement[];
+  },
+  phaseIndex: number,
+  log: (s: string) => void
+): Array<{ grid: Grid; inventory: (Panel | CopyPanel)[]; seq: PanelPlacement[] }> {
+  const out: Array<{
+    grid: Grid;
+    inventory: (Panel | CopyPanel)[];
+    seq: PanelPlacement[];
+  }> = [];
 
-  // 在庫から1枚ずつ取り出して配置
   for (const panel of state.inventory) {
-
-    // 配置できる場所を列挙
     const placements = enumerateSinglePanel(state.grid, panel);
     if (placements.length === 0) continue;
-    // 各配置候補に対して配置実施
+
     for (const placement of placements) {
       const ret = placePanels(state.grid, [placement], false) as PlacePanelsReturn;
       const gridAfter = ret[0];
       const isValid = ret[1];
+
+      const depth = state.seq.length;
+      const where = "@ (" + placement.point.x + "," + placement.point.y + ")";
+      log(
+        tag(phaseIndex, depth) +
+          " place " +
+          panel.type +
+          "#" +
+          panel.id +
+          " " +
+          where +
+          " -> " +
+          (isValid ? "OK" : "NG")
+      );
+
       if (!isValid) continue;
 
-      // 在庫更新：使った1枚を消費し、Cutなら生成されたCopyを在庫に加える
       const remaining = state.inventory.filter((p) => p.id !== panel.id);
       const generated = hasCopyPanel(ret) ? [ret[2].copyPanel] : [];
 
       out.push({
         grid: gridAfter,
         inventory: [...remaining, ...generated],
-        seq: [...state.seq, placement], // 順序を保持
+        seq: [...state.seq, placement],
       });
     }
   }
@@ -159,56 +227,68 @@ function handleAction(state: {
   return out;
 }
 
-
-/** 無限ループ検知：今のグリッドが過去のフェーズ履歴に存在するか */
+/** 無限ループ検知 */
 const detectInfiniteLoop = (currentGrid: Grid, phaseHistory: Grid[]): boolean =>
   phaseHistory.some(
     (prev) => JSON.stringify(prev) === JSON.stringify(currentGrid)
   );
 
-/** 処理結果の型 */
+/** 処理結果 */
 interface ProcessResult {
   shouldStop: boolean;
   newSolutions: PhasedSolution[];
   newPuzzleSetGroup: PuzzleProblemSet[];
 }
 
-/** 結果処理全体を関数化 */
+/** 結果処理 */
 const handleResult = (
   results: StepResult[],
   current: PuzzleProblemSet,
   allPanels: Panel[],
-  findAll: boolean
+  findAll: boolean,
+  log: (s: string) => void
 ): ProcessResult => {
   const newSolutions: PhasedSolution[] = [];
   const newPuzzleSetGroup: PuzzleProblemSet[] = [];
+  const phaseIndex = current.phaseHistory.length - 1;
 
   for (const result of results) {
+    const depth = result.placements.length;
+
     switch (result.pathResult.result) {
-      case Result.HasClearPath:
+      case Result.HasClearPath: {
+        log(tag(phaseIndex, depth) + " clear (placements=" + depth + ")");
         newSolutions.push({
           phases: [...current.placementHistory, result.placements],
           phaseHistory: current.phaseHistory,
-          phaseGrids: [...current.phaseGrids, {
-            before: current.grid,
-            after: result.finalGrid
-          }],
+          phaseGrids: [
+            ...current.phaseGrids,
+            { before: current.grid, after: result.finalGrid },
+          ],
         });
-        if (!findAll)
+        if (!findAll) {
           return { shouldStop: true, newSolutions, newPuzzleSetGroup };
+        }
         break;
+      }
 
       case Result.HasRestPath: {
         const nextGrid = result.pathResult.nextGrid;
         if (nextGrid && !detectInfiniteLoop(nextGrid, current.phaseHistory)) {
+          log(
+            tag(phaseIndex, depth) +
+              " next phase -> P" +
+              (phaseIndex + 1) +
+              " (RestPath)"
+          );
           newPuzzleSetGroup.push({
             grid: nextGrid,
             phaseHistory: [...current.phaseHistory, nextGrid],
             placementHistory: [...current.placementHistory, result.placements],
-            phaseGrids: [...current.phaseGrids, {
-              before: current.grid,
-              after: result.finalGrid
-            }],
+            phaseGrids: [
+              ...current.phaseGrids,
+              { before: current.grid, after: result.finalGrid },
+            ],
             availablePanels: allPanels,
           });
         }
@@ -217,49 +297,56 @@ const handleResult = (
 
       case Result.HasFlagPath: {
         const nextGrid = result.pathResult.nextGrid;
-
         if (nextGrid) {
-          // Flag効果発動後のnextGridで継続探索
+          log(
+            tag(phaseIndex, depth) +
+              " next phase -> P" +
+              (phaseIndex + 1) +
+              " (FlagPath)"
+          );
           newPuzzleSetGroup.push({
             grid: nextGrid,
             phaseHistory: current.phaseHistory,
             placementHistory: [...current.placementHistory, result.placements],
-            phaseGrids: [...current.phaseGrids, {
-              before: current.grid,
-              after: result.finalGrid
-            }],
-            availablePanels: [], // Flag到達で全パネル破棄
+            phaseGrids: [
+              ...current.phaseGrids,
+              { before: current.grid, after: result.finalGrid },
+            ],
+            availablePanels: [],
           });
         }
         break;
       }
 
-      // その他（NoPath等）は何もしない
+      default:
+        break;
     }
   }
 
   return { shouldStop: false, newSolutions, newPuzzleSetGroup };
 };
 
-/** パネル内の最初の配置対象セル（BlackまたはFlag）を取得 */
-const findHighlightCell = (panel: Panel | CopyPanel): { x: number; y: number } | null => {
+/** パネル内の最初の配置対象セルを取得 */
+const findHighlightCell = (
+  panel: Panel | CopyPanel
+): { x: number; y: number } | null => {
   for (let y = 0; y < panel.cells.length; y++) {
     for (let x = 0; x < panel.cells[y].length; x++) {
       const cell = panel.cells[y][x];
       switch (panel.type) {
         case "Cut":
         case "Normal":
-          if (typeof cell === 'string' && cell === "Black") {
+          if (typeof cell === "string" && cell === "Black") {
             return { x, y };
           }
           break;
         case "Flag":
-          if (typeof cell === 'string' && cell === "Flag") {
+          if (typeof cell === "string" && cell === "Flag") {
             return { x, y };
           }
           break;
         case "Paste":
-          if (typeof cell === 'object' && cell.type !== "Empty") {
+          if (typeof cell === "object" && cell.type !== "Empty") {
             return { x, y };
           }
           break;
@@ -278,9 +365,10 @@ export const enumerateSinglePanel = (
   const gridCols = grid[0].length;
 
   const highlight = findHighlightCell(panel);
-  if (!highlight) 
-  {
-    console.log(`最初のターゲットセルが見つかりませんでした: ${JSON.stringify(panel)}`);
+  if (!highlight) {
+    console.log(
+      "最初のターゲットセルが見つかりませんでした: " + JSON.stringify(panel)
+    );
     return [];
   }
 
@@ -289,7 +377,7 @@ export const enumerateSinglePanel = (
     for (let gx = 0; gx < gridCols; gx++) {
       const placement: PanelPlacement = {
         panel,
-        highlight: highlight,
+        highlight,
         point: { x: gx, y: gy },
       };
       if (canPlaceSinglePanel(grid, placement)) {
@@ -299,4 +387,3 @@ export const enumerateSinglePanel = (
   }
   return placements;
 };
-
