@@ -75,16 +75,16 @@ export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
     const baseData = {
       Type: panel.type || "Normal"
     };
-    
-    // Flagパネルの場合は固定座標（X: 0, Y: 0）を追加
-    if (panel.type === "Flag") {
+
+    // 特殊パネル（Flag, Swap）の場合は固定座標（X: 0, Y: 0）を追加
+    if (panel.type === "Flag" || panel.type === "Swap") {
       return {
         ...baseData,
         Coordinates: [{ X: 0, Y: 0 }]
       };
     }
-    
-    // Flag以外のパネルは通常の座標処理
+
+    // 特殊パネル以外は通常の座標処理
     return {
       ...baseData,
       Coordinates: panel.cells
@@ -144,6 +144,13 @@ export const importStageFromYaml = async (
                 cells: [["Flag"]],
                 type: "Flag",
               };
+            } else if (panel.Type === "Swap") {
+              // Swapパネルの場合は1x1のSwapセルを作成
+              return {
+                id: `panel-${index}`,
+                cells: [["Swap"]],
+                type: "Swap",
+              };
             } else {
               // 通常のパネル処理
               const panelGrid: PanelCellTypeKey[][] = Array.from(
@@ -189,6 +196,11 @@ const trimPanels = (panels: Panel[]): Panel[] => panels.map(trimPanelCells);
 const trimPanelCells = (panel: Panel): Panel => {
 
   console.log("Trimming panel:", panel);
+
+  // 特殊パネル（Flag、Swap）は既に1x1で作成されているのでトリム不要
+  if (panel.type === "Flag" || panel.type === "Swap") {
+    return panel;
+  }
 
   // "Black"セルの座標を取得
   const coordinates = panel.cells.flatMap((row, rowIndex) =>
