@@ -28,9 +28,9 @@ export const SpecialPanelCreator: React.FC = () => {
   };
 
   const addSwap = () => {
-    // 1セルにWhiteがある高さ1幅1のPanelGridを作成
+    // 1セルにSwapがある高さ1幅1のPanelGridを作成
     const swapGrid: PanelCellTypeKey[][] = Array.from({ length: 1 }, () =>
-      Array.from({ length: 1 }, () => "White")
+      Array.from({ length: 1 }, () => "Swap")
     );
 
     const newPanel: Panel = {
