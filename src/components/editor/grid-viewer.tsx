@@ -136,12 +136,15 @@ export const GridViewer: React.FC = () => {
     const def = GRID_CELL_TYPES[cell.type];
     const sideInfo: CellSideInfo | undefined = def[cell.side];
 
+    // Swap 1回目のクリック位置をハイライト
+    const isSwapTarget = swapState.swapTarget?.row === r && swapState.swapTarget?.col === c;
+
     return (
       <div
         key={`${r}-${c}`}
         className={`relative h-10 w-10 flex items-center justify-center ${
           cell.type === "Empty" ? "" : "border"
-        }`}
+        } ${isSwapTarget ? "ring-2 ring-red-500" : ""}`}
         onClick={() => handleGridCellClick(r, c)}
       >
         {cell.type !== "Empty" && sideInfo && (
