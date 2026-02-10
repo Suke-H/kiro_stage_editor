@@ -27,6 +27,22 @@ export const SpecialPanelCreator: React.FC = () => {
     dispatch(panelListSlice.actions.createPanel(newPanel));
   };
 
+  const addSwap = () => {
+    // 1セルにWhiteがある高さ1幅1のPanelGridを作成
+    const swapGrid: PanelCellTypeKey[][] = Array.from({ length: 1 }, () =>
+      Array.from({ length: 1 }, () => "White")
+    );
+
+    const newPanel: Panel = {
+      id: `panel-${Date.now()}`,
+      cells: swapGrid,
+      type: "Swap",
+    };
+
+    // パネル追加
+    dispatch(panelListSlice.actions.createPanel(newPanel));
+  };
+
   return (
     <Card className="w-64 bg-[#B3B9D1] md:self-start">
       <CardHeader>
@@ -37,7 +53,7 @@ export const SpecialPanelCreator: React.FC = () => {
           <Button onClick={addFlag} className="w-1/2 flex items-center justify-center gap-2">
             🚩旗
           </Button>
-          <Button onClick={addFlag} className="w-1/2 flex items-center justify-center gap-2">
+          <Button onClick={addSwap} className="w-1/2 flex items-center justify-center gap-2">
             ⇔入れ替え
           </Button>
         </div>

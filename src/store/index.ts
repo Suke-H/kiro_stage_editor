@@ -10,6 +10,7 @@ import panelPlacementReducer from "./slices/panel-placement-slice";
 import createPanelReducer from "./slices/create-panel-slice";
 import gridReducer from "./slices/grid-slice";
 import solutionReducer from "./slices/solution-slice";
+import swapReducer from "./slices/swap-slice";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     createPanel: createPanelReducer,
     grid: gridReducer,
     solution: solutionReducer,
+    swap: swapReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
 });

@@ -15,9 +15,9 @@ export class FlagPanelStrategy implements IPanelStrategy {
     return targetCell.type === "Normal" && targetCell.side === "front";
   }
 
-  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): [Grid, CopyPanel?] {
+  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): [Grid, undefined, undefined] {
     const newGrid = deepCopyGrid(grid);
-    
+
     // Flagパネルは全セルをFlagに変換
     for (let i = 0; i < panel.cells.length; i++) {
       for (let j = 0; j < panel.cells[0].length; j++) {
@@ -26,7 +26,7 @@ export class FlagPanelStrategy implements IPanelStrategy {
         targetCell.side = 'neutral';
       }
     }
-    
-    return [newGrid]; // CopyPanelなし
+
+    return [newGrid, undefined, undefined];
   }
 }

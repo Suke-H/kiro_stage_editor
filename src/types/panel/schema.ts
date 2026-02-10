@@ -6,7 +6,7 @@ export type PanelCellTypeKey = "White" | "Black" | "Flag" | "Cut" | "CopyWhite" 
 export interface Panel {
   id: string;
   cells: PanelCellTypeKey[][];
-  type?: "Normal" | "Cut" | "Paste" | "Flag";
+  type?: "Normal" | "Cut" | "Paste" | "Flag" | "Swap";
 }
 
 export type CopyPanel = Omit<Panel, "cells"> & {
