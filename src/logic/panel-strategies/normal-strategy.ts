@@ -1,5 +1,5 @@
 import { Grid } from '@/types/grid';
-import { Panel, CopyPanel } from '@/types/panel';
+import { Panel } from '@/types/panel';
 import { IPanelStrategy } from './types';
 import { deepCopyGrid } from '../utils';
 

@@ -49,11 +49,11 @@ export const canPlacePanelAt = (
 /**
  * 単一パネルの配置処理を実行（PanelPlacement形式）
  */
-const applyPanelPlacement = (grid: Grid, placement: PanelPlacement): [Grid, CopyPanel?] => {
+const applyPanelPlacement = (grid: Grid, placement: PanelPlacement): [Grid, CopyPanel?, { swapAction?: string; pos?: { row: number; col: number } }?] => {
   const { panel, highlight, point } = placement;
   const topLeftX = point.x - highlight.x;
   const topLeftY = point.y - highlight.y;
-  
+
   return applyPanelAt(grid, topLeftY, topLeftX, panel);
 };
 
@@ -66,7 +66,7 @@ export const applyPanelAt = (
   rowIdx: number,
   colIdx: number,
   panel: Panel | CopyPanel
-): [Grid, CopyPanel?] => {
+): [Grid, CopyPanel?, { swapAction?: string; pos?: { row: number; col: number } }?] => {
   // Strategyパターンを使用してパネルタイプ別適用
   const strategy = getStrategy(panel.type);
   return strategy.applyEffect(grid, rowIdx, colIdx, panel);

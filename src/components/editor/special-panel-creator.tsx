@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus } from "lucide-react";
 import { Panel } from "@/types/panel";
 import { Button } from "@/components/ui/button";
 import { panelListSlice } from "@/store/slices/panel-list-slice";
