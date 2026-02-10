@@ -23,9 +23,9 @@ export class NormalPanelStrategy implements IPanelStrategy {
     return true;
   }
 
-  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): [Grid, CopyPanel?] {
+  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): [Grid, undefined, undefined] {
     const newGrid = deepCopyGrid(grid);
-    
+
     for (let i = 0; i < panel.cells.length; i++) {
       for (let j = 0; j < panel.cells[0].length; j++) {
         const cellType = panel.cells[i][j];
@@ -43,7 +43,7 @@ export class NormalPanelStrategy implements IPanelStrategy {
         }
       }
     }
-    
-    return [newGrid]; // CopyPanelなし
+
+    return [newGrid, undefined, undefined];
   }
 }

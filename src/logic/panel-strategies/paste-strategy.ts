@@ -24,9 +24,9 @@ export class PastePanelStrategy implements IPanelStrategy {
     return true;
   }
 
-  applyEffect(grid: Grid, rowIdx: number, colIdx: number, copyPanel: CopyPanel): [Grid, CopyPanel?] {
+  applyEffect(grid: Grid, rowIdx: number, colIdx: number, copyPanel: CopyPanel): [Grid, undefined, undefined] {
     const newGrid = deepCopyGrid(grid);
-    
+
     for (let i = 0; i < copyPanel.cells.length; i++) {
       for (let j = 0; j < copyPanel.cells[0].length; j++) {
         const src = copyPanel.cells[i][j];
@@ -38,7 +38,7 @@ export class PastePanelStrategy implements IPanelStrategy {
         }
       }
     }
-    
-    return [newGrid]; // CopyPanelなし
+
+    return [newGrid, undefined, undefined];
   }
 }

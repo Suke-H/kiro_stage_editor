@@ -23,10 +23,10 @@ export class CutPanelStrategy implements IPanelStrategy {
     return true;
   }
 
-  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): [Grid, CopyPanel?] {
+  applyEffect(grid: Grid, rowIdx: number, colIdx: number, panel: Panel): [Grid, CopyPanel, undefined] {
     const newGrid = deepCopyGrid(grid);
     const copyCells: GridCell[][] = [];
-    
+
     // コピー用のセル配列を初期化
     for (let i = 0; i < panel.cells.length; i++) {
       copyCells[i] = [];
@@ -43,14 +43,14 @@ export class CutPanelStrategy implements IPanelStrategy {
         }
       }
     }
-    
+
     // CopyPanelを作成
     const copyPanel: CopyPanel = {
       id: `copy-${Date.now()}`,
       type: "Paste",
       cells: copyCells,
     };
-    
-    return [newGrid, copyPanel];
+
+    return [newGrid, copyPanel, undefined];
   }
 }

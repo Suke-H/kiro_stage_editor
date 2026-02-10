@@ -8,7 +8,7 @@ import { useDispatch, } from "react-redux";
 import { PanelCellTypeKey } from "@/types/panel";
 
 
-export const FlagCreator: React.FC = () => {
+export const SpecialPanelCreator: React.FC = () => {
   const dispatch = useDispatch();
 
   const addFlag = () => {
@@ -27,15 +27,36 @@ export const FlagCreator: React.FC = () => {
     dispatch(panelListSlice.actions.createPanel(newPanel));
   };
 
+  const addSwap = () => {
+    // 1セルにSwapがある高さ1幅1のPanelGridを作成
+    const swapGrid: PanelCellTypeKey[][] = Array.from({ length: 1 }, () =>
+      Array.from({ length: 1 }, () => "Swap")
+    );
+
+    const newPanel: Panel = {
+      id: `panel-${Date.now()}`,
+      cells: swapGrid,
+      type: "Swap",
+    };
+
+    // パネル追加
+    dispatch(panelListSlice.actions.createPanel(newPanel));
+  };
+
   return (
     <Card className="w-64 bg-[#B3B9D1] md:self-start">
       <CardHeader>
-        <CardTitle>🚩作成</CardTitle>
+        <CardTitle>特殊パネル作成</CardTitle>
       </CardHeader>
       <CardContent>
-        <Button onClick={addFlag} className="w-full flex items-center gap-2">
-          <Plus size={16} /> 🚩追加
-        </Button>
+        <div className="flex flex-row gap-2">
+          <Button onClick={addFlag} className="w-1/2 flex items-center justify-center gap-2">
+            🚩旗
+          </Button>
+          <Button onClick={addSwap} className="w-1/2 flex items-center justify-center gap-2">
+            ⇔入れ替え
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
