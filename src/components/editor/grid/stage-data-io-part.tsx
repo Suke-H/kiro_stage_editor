@@ -5,9 +5,11 @@ import { gridSlice } from '@/store/slices/grid-slice';
 import { panelListSlice } from '@/store/slices/panel-list-slice';
 
 import { Button } from "@/components/ui/button";
-import { Download, Upload, Link } from "lucide-react";
+import { Download, Upload, Link, Save } from "lucide-react";
 import { exportStageToYaml, importStageFromYaml } from "../../../utils/yaml";
 import { shareStageUrl } from "../../../utils/url";
+import { saveStageToLocalStorage } from "../../../utils/local-storage";
+import { toast } from "sonner";
 
 export const StageDataIOPart: React.FC = () => {
   const dispatch = useDispatch();
@@ -30,8 +32,25 @@ export const StageDataIOPart: React.FC = () => {
     }
   };
 
+  const handleSaveToLocalStorage = () => {
+    try {
+      saveStageToLocalStorage(grid, panels);
+      toast.success("端末に保存しました！");
+    } catch (error) {
+      toast.error("保存に失敗しました");
+    }
+  };
+
   return (
     <div className="flex flex-col gap-2 mt-8">
+      {/* 端末に保存ボタン */}
+      <Button
+        onClick={handleSaveToLocalStorage}
+        className="flex items-center gap-2 w-40 bg-green-600 hover:bg-green-700"
+      >
+        <Save size={16} /> 端末に保存
+      </Button>
+
       {/* YAML、URL */}
       <Button
         onClick={() => exportStageToYaml(grid, panels)}
