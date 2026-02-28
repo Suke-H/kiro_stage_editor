@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Upload, Link, Save } from "lucide-react";
 import { exportStageToYaml, importStageFromYaml } from "../../../utils/yaml";
 import { shareStageUrl } from "../../../utils/url";
-import { saveStageToLocalStorage } from "../../../utils/local-storage";
+import { saveToLocalStorage } from "../../../utils/local-storage";
 import { toast } from "sonner";
 
 export const StageDataIOPart: React.FC = () => {
@@ -23,22 +23,32 @@ export const StageDataIOPart: React.FC = () => {
     }
   };
 
-  const handleImportStageFromYaml = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const result = await importStageFromYaml(event);
-    if (result) {
-      const [grid, trimmedPanels] = result;
+  const handleExportYaml = () => {
+    const yamlString = exportStageToYaml(grid, panels);
+    const blob = new Blob([yamlString], { type: "text/yaml" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "stage.yaml";
+    link.click();
+  };
+
+  const handleImportStageFromYaml = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const [grid, panels] = importStageFromYaml(e.target?.result as string);
       dispatch(gridSlice.actions.loadGrid(grid));
-      dispatch(panelListSlice.actions.loadPanels(trimmedPanels));
-    }
+      dispatch(panelListSlice.actions.loadPanels(panels));
+    };
+    reader.readAsText(file);
   };
 
   const handleSaveToLocalStorage = () => {
-    try {
-      saveStageToLocalStorage(grid, panels);
-      toast.success("端末に保存しました！");
-    } catch (error) {
-      toast.error("保存に失敗しました");
-    }
+    const yamlString = exportStageToYaml(grid, panels);
+    saveToLocalStorage(yamlString);
+    toast.success("端末に保存しました！");
   };
 
   return (
@@ -53,7 +63,7 @@ export const StageDataIOPart: React.FC = () => {
 
       {/* YAML、URL */}
       <Button
-        onClick={() => exportStageToYaml(grid, panels)}
+        onClick={handleExportYaml}
         className="flex items-center gap-2 w-40"
       >
         <Upload size={16} /> YAMLエクスポート
