@@ -5,9 +5,11 @@ import { gridSlice } from '@/store/slices/grid-slice';
 import { panelListSlice } from '@/store/slices/panel-list-slice';
 
 import { Button } from "@/components/ui/button";
-import { Download, Upload, Link } from "lucide-react";
+import { Download, Upload, Link, Save } from "lucide-react";
 import { exportStageToYaml, importStageFromYaml } from "../../../utils/yaml";
 import { shareStageUrl } from "../../../utils/url";
+import { saveToLocalStorage } from "../../../utils/local-storage";
+import { toast } from "sonner";
 
 export const StageDataIOPart: React.FC = () => {
   const dispatch = useDispatch();
@@ -21,20 +23,47 @@ export const StageDataIOPart: React.FC = () => {
     }
   };
 
-  const handleImportStageFromYaml = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const result = await importStageFromYaml(event);
-    if (result) {
-      const [grid, trimmedPanels] = result;
+  const handleExportYaml = () => {
+    const yamlString = exportStageToYaml(grid, panels);
+    const blob = new Blob([yamlString], { type: "text/yaml" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "stage.yaml";
+    link.click();
+  };
+
+  const handleImportStageFromYaml = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const [grid, panels] = importStageFromYaml(e.target?.result as string);
       dispatch(gridSlice.actions.loadGrid(grid));
-      dispatch(panelListSlice.actions.loadPanels(trimmedPanels));
-    }
+      dispatch(panelListSlice.actions.loadPanels(panels));
+    };
+    reader.readAsText(file);
+  };
+
+  const handleSaveToLocalStorage = () => {
+    const yamlString = exportStageToYaml(grid, panels);
+    saveToLocalStorage(yamlString);
+    toast.success("端末に保存しました！");
   };
 
   return (
     <div className="flex flex-col gap-2 mt-8">
+      {/* 端末に保存ボタン */}
+      <Button
+        onClick={handleSaveToLocalStorage}
+        className="flex items-center gap-2 w-40 bg-green-600 hover:bg-green-700"
+      >
+        <Save size={16} /> 端末に保存
+      </Button>
+
       {/* YAML、URL */}
       <Button
-        onClick={() => exportStageToYaml(grid, panels)}
+        onClick={handleExportYaml}
         className="flex items-center gap-2 w-40"
       >
         <Upload size={16} /> YAMLエクスポート

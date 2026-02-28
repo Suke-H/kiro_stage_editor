@@ -12,6 +12,8 @@ import EditorPage from "@/components/editor-page";
 import PlayPage from "./play-page";
 import SolverPage from "./solver-page";
 import { decodeStageFromUrl } from '../utils/url';
+import { getYamlFromLocalStorage } from '../utils/local-storage';
+import { importStageFromYaml } from '../utils/yaml';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -33,11 +35,20 @@ const PuzzleStudio: React.FC = () => {
 
     dispatch(studioModeSlice.actions.switchMode(mode));
 
+    // URL優先、なければlocalStorageから読み込み
     if (cells && panels) {
       const stageData = `cells=${cells}&panels=${panels}`;
       const parsedData = decodeStageFromUrl(stageData);
       dispatch(gridSlice.actions.loadGrid(parsedData.cells));
       dispatch(panelListSlice.actions.loadPanels(parsedData.panels));
+    } else {
+      // ① localStorageからYAMLを取り出す
+      const yamlString = getYamlFromLocalStorage();
+      if (yamlString) {
+        const [grid, panels] = importStageFromYaml(yamlString);
+        dispatch(gridSlice.actions.loadGrid(grid));
+        dispatch(panelListSlice.actions.loadPanels(panels));
+      }
     }
   }, [dispatch]);
 

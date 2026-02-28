@@ -62,10 +62,10 @@ const removeExtraEmptyCells = (grid: Grid): Grid => {
   return grid.slice(minRow, maxRow + 1).map(row => row.slice(minCol, maxCol + 1));
 };
 
-export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
+export const exportStageToYaml = (grid: Grid, panels: Panel[]): string => {
   // Empty削除処理を適用
   const trimmedGrid = removeExtraEmptyCells(grid);
-  
+
   // Y軸を反転してYAMLに出力（上下逆さま）
   const cells = [...trimmedGrid].reverse().map((row) =>
     row.map((cell) => transformCellToYamlFormat(cell))
@@ -97,97 +97,66 @@ export const exportStageToYaml = (grid: Grid, panels: Panel[]) => {
     };
   });
 
-  const yamlStageData = {
+  return stringify({
     Height: trimmedGrid.length,
     Width: trimmedGrid[0].length,
     Cells: cells,
     Panels: panelCoordinates,
-  };
-
-  const yamlString = stringify(yamlStageData);
-  const blob = new Blob([yamlString], { type: "text/yaml" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "stage.yaml";
-  link.click();
+  });
 };
 
-export const importStageFromYaml = async (
-  event: React.ChangeEvent<HTMLInputElement>
-): Promise<[Grid, Panel[]] | null> => {
-  const file = event.target.files?.[0];
-  if (!file) return null;
+export const importStageFromYaml = (yamlString: string): [Grid, Panel[]] => {
+  const yamlData = parse(yamlString);
+  const { Height, Width, Cells, Panels } = yamlData;
 
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const yamlData = parse(e.target?.result as string);
-        const { Height, Width, Cells, Panels } = yamlData;
+  // グリッド変換（Y軸を反転して読み込み）
+  const grid: Grid = [...Cells].reverse().map((row: CellYamlData[]) =>
+    row.map((cell: CellYamlData) => ({
+      type: cell.Type as GridCellKey,
+      side: uncapitalize(cell.CellSide) as GridCell["side"],
+    }))
+  );
 
-        // グリッド変換（Y軸を反転して読み込み）
-        const grid: Grid = [...Cells].reverse().map((row: CellYamlData[]) =>
-          row.map((cell: CellYamlData) => ({
-            type: cell.Type as GridCellKey,
-            side: uncapitalize(cell.CellSide) as GridCell["side"],
-          }))
+  // パネル変換とトリム
+  const panels: Panel[] = Panels.map(
+    (panel: PanelYamlData, index: number) => {
+      if (panel.Type === "Flag") {
+        return {
+          id: `panel-${index}`,
+          cells: [["Flag"]],
+          type: "Flag",
+        };
+      } else if (panel.Type === "Swap") {
+        return {
+          id: `panel-${index}`,
+          cells: [["Swap"]],
+          type: "Swap",
+        };
+      } else {
+        const panelGrid: PanelCellTypeKey[][] = Array.from(
+          { length: Height },
+          () => Array.from({ length: Width }, () => "White")
         );
-
-        // パネル変換とトリム
-        const panels: Panel[] = Panels.map(
-          (panel: PanelYamlData, index: number) => {
-            if (panel.Type === "Flag") {
-              // Flagパネルの場合は1x1のFlagセルを作成
-              return {
-                id: `panel-${index}`,
-                cells: [["Flag"]],
-                type: "Flag",
-              };
-            } else if (panel.Type === "Swap") {
-              // Swapパネルの場合は1x1のSwapセルを作成
-              return {
-                id: `panel-${index}`,
-                cells: [["Swap"]],
-                type: "Swap",
-              };
-            } else {
-              // 通常のパネル処理
-              const panelGrid: PanelCellTypeKey[][] = Array.from(
-                { length: Height },
-                () => Array.from({ length: Width }, () => "White")
-              );
-              panel.Coordinates?.forEach(({ X, Y }) => {
-                // パネルタイプに応じてセルタイプを決定
-                const reversedY = Height - 1 - Y;
-                switch (panel.Type) {
-                  case "Cut":
-                    panelGrid[reversedY][X] = "Cut";
-                    break;
-                  default:
-                    panelGrid[reversedY][X] = "Black";
-                }
-              });
-              return {
-                id: `panel-${index}`,
-                cells: panelGrid,
-                type: (panel.Type as Panel["type"]) || "Normal",
-              };
-            }
+        panel.Coordinates?.forEach(({ X, Y }) => {
+          const reversedY = Height - 1 - Y;
+          switch (panel.Type) {
+            case "Cut":
+              panelGrid[reversedY][X] = "Cut";
+              break;
+            default:
+              panelGrid[reversedY][X] = "Black";
           }
-        );
-
-        // パネルのトリム処理
-        const trimmedPanels = trimPanels(panels);
-
-        resolve([grid, trimmedPanels]);
-      } catch (error) {
-        console.error("Error importing YAML:", error);
-        reject(error);
+        });
+        return {
+          id: `panel-${index}`,
+          cells: panelGrid,
+          type: (panel.Type as Panel["type"]) || "Normal",
+        };
       }
-    };
-    reader.readAsText(file);
-  });
+    }
+  );
+
+  return [grid, trimPanels(panels)];
 };
 
 // Panels全体をトリムする関数
