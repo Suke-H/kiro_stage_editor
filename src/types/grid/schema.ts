@@ -14,6 +14,8 @@ export type GridCellKey =
   | "FootDown"
   | "FootLeft"
   | "Flag"
+  | "Switch"
+  | "Wall"
 
 export type GridCell = {
   type: GridCellKey;
