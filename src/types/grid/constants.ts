@@ -8,95 +8,112 @@ export type CellSideInfo = {
 export type CellDefinition = {
   label: string;
   color: string;
+  defaultSide: "neutral" | "front" | "back";
   neutral?: CellSideInfo;
   front?: CellSideInfo;
   back?: CellSideInfo;
 };
 
 export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
-  Flip: { label: "反転", color: "bg-black" },
+  Flip: { label: "反転", color: "bg-black", defaultSide: "neutral" },
   Empty: {
     label: "空",
     color: "bg-white",
+    defaultSide: "neutral",
     neutral: { code: "e", picture: "empty.png" },
   },
   Normal: {
     label: "通常床",
     color: "bg-[#DAE0EA]",
+    defaultSide: "front",
     front: { code: "w", picture: "white.png" },
     back: { code: "b", picture: "black.png" },
   },
   Start: {
     label: "スタート",
     color: "bg-green-500",
+    defaultSide: "neutral",
     neutral: { code: "s", picture: "start.png" },
   },
   Goal: {
     label: "ゴール",
     color: "bg-blue-500",
+    defaultSide: "neutral",
     neutral: { code: "g", picture: "goal.png" },
   },
   DummyGoal: {
     label: "ダミーゴール",
     color: "bg-red-500",
+    defaultSide: "neutral",
     neutral: { code: "d", picture: "dummy-goal.png" },
   },
   Crow: {
     label: "カラス",
     color: "bg-black",
+    defaultSide: "front",
     front: { code: "c", picture: "crow.png" },
     back: { code: "C", picture: "black.png" },
   },
   Wolf: {
     label: "オオカミ",
     color: "bg-gray-500",
+    defaultSide: "neutral",
     neutral: { code: "o", picture: "wolf.png" },
   },
   Trauma: {
     label: "トラウマ",
     color: "bg-purple-500",
+    defaultSide: "front",
     front: { code: "t", picture: "warp-white.png" },
     back: { code: "T", picture: "warp-black.png" },
   },
   Rest: {
     label: "休憩",
     color: "bg-yellow-500",
+    defaultSide: "neutral",
     neutral: { code: "r", picture: "rest.png" },
   },
-    FootUp: {
+  FootUp: {
     label: "足あと↑",
     color: "bg-gray-200",
+    defaultSide: "neutral",
     neutral: { code: "fu", picture: "foot_up.png" },
   },
   FootRight: {
     label: "足あと→",
     color: "bg-gray-200",
+    defaultSide: "neutral",
     neutral: { code: "fr", picture: "foot_right.png" },
   },
   FootDown: {
     label: "足あと↓",
     color: "bg-gray-200",
+    defaultSide: "neutral",
     neutral: { code: "fd", picture: "foot_down.png" },
   },
   FootLeft: {
     label: "足あと←",
     color: "bg-gray-200",
+    defaultSide: "neutral",
     neutral: { code: "fl", picture: "foot_left.png" },
   },
   Flag: {
     label: "フラグ",
     color: "bg-gray-200",
+    defaultSide: "neutral",
     neutral: { code: "f", picture: "flag.png" },
   },
   Switch: {
     label: "スイッチ",
     color: "bg-orange-400",
+    defaultSide: "back",
     front: { code: "h", picture: "switch_on.png" },
     back:  { code: "H", picture: "switch_off.png" },
   },
   Wall: {
     label: "壁",
     color: "bg-gray-800",
+    defaultSide: "back",
     back:  { code: "l", picture: "wall.png" },
     front: { code: "L", picture: "wall_open.png" },
   },

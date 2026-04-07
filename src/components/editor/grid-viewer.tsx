@@ -39,7 +39,7 @@ export const GridViewer: React.FC = () => {
           dispatch(gridSlice.actions.flipCell({ row: rowIdx, col: colIdx }));
         }
       } else {
-        const side: "neutral" | "front" = "neutral" in def ? "neutral" : "front";
+        const side = def.defaultSide;
         dispatch(
           gridSlice.actions.placeCell({
             row: rowIdx,
