@@ -234,6 +234,25 @@ const handleResult = (
         break;
       }
 
+      case Result.HasSwitchPath: {
+        const nextGrid = result.pathResult.nextGrid;
+
+        if (nextGrid) {
+          // Switch効果発動後のnextGridで継続探索
+          newPuzzleSetGroup.push({
+            grid: nextGrid,
+            phaseHistory: current.phaseHistory,
+            placementHistory: [...current.placementHistory, result.placements],
+            phaseGrids: [...current.phaseGrids, {
+              before: current.grid,
+              after: result.finalGrid
+            }],
+            availablePanels: [], // Switch到達で全パネル破棄
+          });
+        }
+        break;
+      }
+
       // その他（NoPath等）は何もしない
     }
   }

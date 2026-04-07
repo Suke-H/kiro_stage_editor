@@ -88,4 +88,16 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
     color: "bg-gray-200",
     neutral: { code: "f", picture: "flag.png" },
   },
+  Switch: {
+    label: "スイッチ",
+    color: "bg-orange-400",
+    front: { code: "h", picture: "switch_on.png" },
+    back:  { code: "H", picture: "switch_off.png" },
+  },
+  Wall: {
+    label: "壁",
+    color: "bg-gray-800",
+    back:  { code: "l", picture: "wall.png" },
+    front: { code: "L", picture: "wall_open.png" },
+  },
 } as const;

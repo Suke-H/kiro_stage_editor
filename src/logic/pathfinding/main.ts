@@ -1,6 +1,6 @@
 import { Grid } from '@/types/grid';
 import { PathResult, Result } from '@/types/path';
-import { findSingle, findAll, Point } from '../utils';
+import { findSingle, findAll, findAllBySide, Point } from '../utils';
 import { bfsAllShortestPaths } from './bfs';
 import { Candidate } from './types';
 import { rankCandidates } from './candidate-ranking';
@@ -14,11 +14,13 @@ const findAllPaths = (grid: Grid, start: Point): {
   dummyPaths: Point[][];
   restPaths: Point[][];
   flagPaths: Point[][];
+  switchPaths: Point[][];
 } => {
   const goalReal = findSingle(grid, 'Goal');
   const dummyGoals = findAll(grid, 'DummyGoal');
   const restPositions = findAll(grid, 'Rest');
   const flagPositions = findAll(grid, 'Flag');
+  const switchPositions = findAllBySide(grid, 'Switch', 'back');
   
   // 最短経路群を取得
   const realPaths = goalReal ? bfsAllShortestPaths(grid, start, goalReal) : [];
@@ -40,8 +42,14 @@ const findAllPaths = (grid: Grid, start: Point): {
   for (const flag of flagPositions) {
     flagPaths.push(...bfsAllShortestPaths(grid, start, flag));
   }
-  
-  return { realPaths, dummyPaths, restPaths, flagPaths };
+
+  // すべてのSwitch(On)に対して最短経路を取得
+  const switchPaths: Point[][] = [];
+  for (const sw of switchPositions) {
+    switchPaths.push(...bfsAllShortestPaths(grid, start, sw));
+  }
+
+  return { realPaths, dummyPaths, restPaths, flagPaths, switchPaths };
 };
 
 /**
@@ -51,7 +59,8 @@ const createCandidates = (
   realPaths: Point[][],
   dummyPaths: Point[][],
   restPaths: Point[][],
-  flagPaths: Point[][]
+  flagPaths: Point[][],
+  switchPaths: Point[][]
 ): Candidate[] => {
   const allCandidates: Candidate[] = [];
   
@@ -67,7 +76,10 @@ const createCandidates = (
   for (const path of flagPaths) {
     allCandidates.push({ path, kind: 3, crowCount: 0 });
   }
-  
+  for (const path of switchPaths) {
+    allCandidates.push({ path, kind: 4, crowCount: 0 });
+  }
+
   return allCandidates;
 };
 
@@ -103,10 +115,10 @@ export const findPath = (grid: Grid, phaseHistory?: Grid[]): PathResult => {
     return { result: Result.NoGoal, path: [], nextGrid: null};
 
   // 2. 全経路の収集
-  const { realPaths, dummyPaths, restPaths, flagPaths } = findAllPaths(grid, start);
-  
+  const { realPaths, dummyPaths, restPaths, flagPaths, switchPaths } = findAllPaths(grid, start);
+
   // 3. 候補リストの作成
-  const allCandidates = createCandidates(realPaths, dummyPaths, restPaths, flagPaths);
+  const allCandidates = createCandidates(realPaths, dummyPaths, restPaths, flagPaths, switchPaths);
   if (allCandidates.length === 0)
     return { result: Result.NoPath, path: [], nextGrid: null };
   

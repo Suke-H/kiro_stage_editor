@@ -16,18 +16,23 @@ export const createRestTransitionGrid = (
   
   // フェーズ履歴から元の状態を判定
   let isStartOriginallyRest = false;
+  let isStartOriginallySwitch = false;
   if (phaseHistory && phaseHistory.length >= 2) {
     const previousGrid = phaseHistory[phaseHistory.length - 2];
     if (start.y < previousGrid.length && start.x < previousGrid[start.y].length) {
       const originalCell = previousGrid[start.y][start.x];
       isStartOriginallyRest = originalCell.type === 'Rest';
+      isStartOriginallySwitch = originalCell.type === 'Switch';
     }
   }
-  
+
   // スタート地点の状態変更
   if (isStartOriginallyRest) {
     // Rest間移動時：前のRest（現在のStart）をRestに戻す
     newGrid[start.y][start.x] = { type: 'Rest', side: 'neutral' };
+  } else if (isStartOriginallySwitch) {
+    // Switch経由時：前のSwitch（現在のStart）をSwitchOff(back)に戻す
+    newGrid[start.y][start.x] = { type: 'Switch', side: 'front' };
   } else {
     // 初回Rest到達：StartをNormal:frontに変更
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };

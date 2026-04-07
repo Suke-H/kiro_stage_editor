@@ -8,6 +8,7 @@ export enum Result {
   HasFailPath = "HasFailPath",
   HasRestPath = "HasRestPath",
   HasFlagPath = "HasFlagPath",
+  HasSwitchPath = "HasSwitchPath",
   WolfReachedGoal = "WolfReachedGoal",
 }
 
@@ -19,6 +20,7 @@ export const resultMessages: Record<Result, string> = {
   [Result.HasFailPath]: "間違った道でした...😢",
   [Result.HasRestPath]: "休憩地点に着きました！",
   [Result.HasFlagPath]: "旗に到達しました！（続けて再生をおしてね！）",
+  [Result.HasSwitchPath]: "スイッチを押しました！（続けて再生をおしてね！）",
   [Result.WolfReachedGoal]: "オオカミがゴールに到達しました...",
 };
 

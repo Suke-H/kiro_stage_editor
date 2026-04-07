@@ -16,7 +16,7 @@ export const inBounds = (point: Point, grid: Grid): boolean => {
  * セルが通行可能かチェック
  */
 export const isPassable = (cell: GridCell): boolean => {
-  return cell.type !== 'Empty' && cell.side !== 'back';
+  return cell.type === 'Switch' || (cell.type !== 'Empty' && cell.side !== 'back');
 }
 
 /**
@@ -41,6 +41,21 @@ export const findAll = (grid: Grid, key: GridCellKey): Point[] => {
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[0].length; x++) {
       if (grid[y][x].type === key) {
+        results.push({ x, y });
+      }
+    }
+  }
+  return results;
+}
+
+/**
+ * グリッドから特定のキー・sideを持つセル座標をすべて探す
+ */
+export const findAllBySide = (grid: Grid, key: GridCellKey, side: 'front' | 'back' | 'neutral'): Point[] => {
+  const results: Point[] = [];
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[0].length; x++) {
+      if (grid[y][x].type === key && grid[y][x].side === side) {
         results.push({ x, y });
       }
     }
