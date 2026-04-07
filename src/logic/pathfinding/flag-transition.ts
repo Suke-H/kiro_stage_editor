@@ -23,7 +23,7 @@ export const createFlagTransitionGrid = (
   }
 
   if (isStartOriginallySwitch) {
-    newGrid[start.y][start.x] = { type: 'Switch', side: 'back' };
+    newGrid[start.y][start.x] = { type: 'Switch', side: 'front' };
   } else {
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };
   }

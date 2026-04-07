@@ -32,7 +32,7 @@ export const createRestTransitionGrid = (
     newGrid[start.y][start.x] = { type: 'Rest', side: 'neutral' };
   } else if (isStartOriginallySwitch) {
     // Switch経由時：前のSwitch（現在のStart）をSwitchOff(back)に戻す
-    newGrid[start.y][start.x] = { type: 'Switch', side: 'back' };
+    newGrid[start.y][start.x] = { type: 'Switch', side: 'front' };
   } else {
     // 初回Rest到達：StartをNormal:frontに変更
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };

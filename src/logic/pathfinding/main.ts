@@ -20,7 +20,7 @@ const findAllPaths = (grid: Grid, start: Point): {
   const dummyGoals = findAll(grid, 'DummyGoal');
   const restPositions = findAll(grid, 'Rest');
   const flagPositions = findAll(grid, 'Flag');
-  const switchPositions = findAllBySide(grid, 'Switch', 'front');
+  const switchPositions = findAllBySide(grid, 'Switch', 'back');
   
   // 最短経路群を取得
   const realPaths = goalReal ? bfsAllShortestPaths(grid, start, goalReal) : [];

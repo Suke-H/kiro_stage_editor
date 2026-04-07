@@ -25,7 +25,7 @@ export const createSwitchTransitionGrid = (
 
   // スタート地点の状態変更
   if (isStartOriginallySwitch) {
-    newGrid[start.y][start.x] = { type: 'Switch', side: 'back' };
+    newGrid[start.y][start.x] = { type: 'Switch', side: 'front' };
   } else {
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };
   }
