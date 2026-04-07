@@ -91,13 +91,13 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
   Switch: {
     label: "スイッチ",
     color: "bg-orange-400",
-    front: { code: "sw", picture: "switch_on.png" },
-    back:  { code: "sW", picture: "switch_off.png" },
+    front: { code: "h", picture: "switch_on.png" },
+    back:  { code: "H", picture: "switch_off.png" },
   },
   Wall: {
     label: "壁",
     color: "bg-gray-800",
-    back:  { code: "wa", picture: "wall.png" },
-    front: { code: "wA", picture: "wall_open.png" },
+    back:  { code: "l", picture: "wall.png" },
+    front: { code: "L", picture: "wall_open.png" },
   },
 } as const;
