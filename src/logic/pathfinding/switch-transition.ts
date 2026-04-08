@@ -14,18 +14,23 @@ export const createSwitchTransitionGrid = (
 ): Grid => {
   const newGrid = deepCopyGrid(grid);
 
-  // phaseHistoryから元のStart位置がSwitchだったか確認
+  // phaseHistoryから元のStart位置の種別を確認
   let isStartOriginallySwitch = false;
+  let isStartOriginallyInvertSwitch = false;
   if (phaseHistory && phaseHistory.length >= 2) {
     const previousGrid = phaseHistory[phaseHistory.length - 2];
     if (start.y < previousGrid.length && start.x < previousGrid[start.y].length) {
-      isStartOriginallySwitch = previousGrid[start.y][start.x].type === 'Switch';
+      const originalCell = previousGrid[start.y][start.x];
+      isStartOriginallySwitch = originalCell.type === 'Switch';
+      isStartOriginallyInvertSwitch = originalCell.type === 'InvertSwitch';
     }
   }
 
   // スタート地点の状態変更
   if (isStartOriginallySwitch) {
     newGrid[start.y][start.x] = { type: 'Switch', side: 'front' };
+  } else if (isStartOriginallyInvertSwitch) {
+    newGrid[start.y][start.x] = { type: 'InvertSwitch', side: 'front' };
   } else {
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };
   }

@@ -13,8 +13,8 @@ export class CutPanelStrategy implements IPanelStrategy {
       for (let j = 0; j < panel.cells[0].length; j++) {
         if (panel.cells[i][j] === "Black") {
           const targetCell = grid[rowIdx + i][colIdx + j];
-          // Cutは Normal セルにのみ適用可能
-          if (targetCell.type !== "Normal") {
+          // Cutは Normal / InvertCell セルに適用可能
+          if (targetCell.type !== "Normal" && targetCell.type !== "InvertCell") {
             return false;
           }
         }

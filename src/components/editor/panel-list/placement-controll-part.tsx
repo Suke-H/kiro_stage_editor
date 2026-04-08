@@ -121,6 +121,7 @@ export const PlacementControllPart: React.FC = () => {
         || _pathResult.result === Result.HasRestPath
         || _pathResult.result === Result.HasFlagPath
         || _pathResult.result === Result.HasSwitchPath
+        || _pathResult.result === Result.HasInvertSwitchPath
         || finalResult === Result.WolfReachedGoal){
           // nullじゃない場合のみ配置
           if (_pathResult.nextGrid !== null)
@@ -129,8 +130,10 @@ export const PlacementControllPart: React.FC = () => {
           // フェーズ履歴を保存
           dispatch(gridSlice.actions.savePhaseHistory());
 
-          // Flag・Switch以外の場合は配置履歴を初期化する
-          if (_pathResult.result !== Result.HasFlagPath && _pathResult.result !== Result.HasSwitchPath) {
+          // Flag・Switch・InvertSwitch以外の場合は配置履歴を初期化する
+          if (_pathResult.result !== Result.HasFlagPath
+            && _pathResult.result !== Result.HasSwitchPath
+            && _pathResult.result !== Result.HasInvertSwitchPath) {
               dispatch(gridSlice.actions.initHistory());
               dispatch(panelListSlice.actions.reset());
           }
