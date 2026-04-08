@@ -117,4 +117,18 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
     back:  { code: "l", picture: "wall.png" },
     front: { code: "L", picture: "wall_open.png" },
   },
+  InvertCell: {
+    label: "反転マス",
+    color: "bg-[#B0C4DE]",
+    defaultSide: "front",
+    front: { code: "v", picture: "warp-white.png" },
+    back:  { code: "V", picture: "warp-black.png" },
+  },
+  InvertSwitch: {
+    label: "反転スイッチ",
+    color: "bg-purple-400",
+    defaultSide: "back",
+    front: { code: "j", picture: "switch_on.png" },
+    back:  { code: "J", picture: "switch_off.png" },
+  },
 } as const;

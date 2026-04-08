@@ -2,18 +2,21 @@ import { Grid } from '@/types/grid';
 import { deepCopyGrid, Point } from '../utils';
 
 /**
- * Flag到達時の次状態グリッド作成
+ * InvertSwitch到達時の次状態グリッド作成
+ * - 全InvertCellのfront/backを反転
+ * - Switchと異なりWallには影響しない
  */
-export const createFlagTransitionGrid = (
+export const createInvertSwitchTransitionGrid = (
   grid: Grid,
   start: Point,
-  flagPosition: Point,
+  switchPosition: Point,
   crowPositions: Set<string>,
   path: Point[],
   phaseHistory?: Grid[]
 ): Grid => {
   const newGrid = deepCopyGrid(grid);
 
+  // phaseHistoryから元のStart位置の種別を確認
   let isStartOriginallySwitch = false;
   let isStartOriginallyInvertSwitch = false;
   if (phaseHistory && phaseHistory.length >= 2) {
@@ -25,6 +28,7 @@ export const createFlagTransitionGrid = (
     }
   }
 
+  // スタート地点の状態変更
   if (isStartOriginallySwitch) {
     newGrid[start.y][start.x] = { type: 'Switch', side: 'front' };
   } else if (isStartOriginallyInvertSwitch) {
@@ -32,7 +36,7 @@ export const createFlagTransitionGrid = (
   } else {
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };
   }
-  
+
   // 通過したCrowをNormal:frontに置き換え
   for (const point of path) {
     const pointKey = `${point.x},${point.y}`;
@@ -40,12 +44,19 @@ export const createFlagTransitionGrid = (
       newGrid[point.y][point.x] = { type: 'Normal', side: 'front' };
     }
   }
-  
-  // Normalパネルの状態はそのまま保持（Restと違いリセットしない）
-  // パネルの反転状態を維持する
-  
-  // 到達したFlagを新しいStartに置換
-  newGrid[flagPosition.y][flagPosition.x] = { type: 'Start', side: 'neutral' };
-  
+
+  // 全InvertCellのfront/backを反転
+  for (let y = 0; y < newGrid.length; y++) {
+    for (let x = 0; x < newGrid[y].length; x++) {
+      const cell = newGrid[y][x];
+      if (cell.type === 'InvertCell') {
+        newGrid[y][x] = { type: 'InvertCell', side: cell.side === 'front' ? 'back' : 'front' };
+      }
+    }
+  }
+
+  // 到達したInvertSwitchを新しいStartに置換
+  newGrid[switchPosition.y][switchPosition.x] = { type: 'Start', side: 'neutral' };
+
   return newGrid;
 };
