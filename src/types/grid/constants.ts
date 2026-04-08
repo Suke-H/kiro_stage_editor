@@ -128,7 +128,7 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
     label: "反転スイッチ",
     color: "bg-purple-400",
     defaultSide: "back",
-    front: { code: "j", picture: "switch_on.png" },
-    back:  { code: "J", picture: "switch_off.png" },
+    front: { code: "j", picture: "flip_switch_on.png" },
+    back:  { code: "J", picture: "flip_switch_off.png" },
   },
 } as const;
