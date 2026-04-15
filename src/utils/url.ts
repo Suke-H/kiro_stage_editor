@@ -1,5 +1,5 @@
 import { PanelCellTypeKey, PANEL_CELL_TYPES } from "@/types/panel";
-import { GridCellKey, GRID_CELL_TYPES, CellSideInfo, CellDefinition } from "@/types/grid";
+import { GridCellKey, GRID_CELL_TYPES, CellSideInfo } from "@/types/grid";
 import { Panel } from "@/types/panel";
 import { Grid, GridCell } from "@/types/grid";
 
@@ -65,37 +65,47 @@ export const decodeStageFromUrl = (stageData: string) => {
   const isCellSideInfo = (v: unknown): v is CellSideInfo =>
     typeof v === "object" && v !== null && "code" in v;
 
+  const findCellByCode = (code: string): GridCell | null => {
+    for (const type of GridCellKeys) {
+      const def = GRID_CELL_TYPES[type];
+      for (const sideKey of ["neutral", "front", "back"] as const) {
+        const sideInfo = def[sideKey];
+        if (isCellSideInfo(sideInfo) && sideInfo.code === code) {
+          return { type, side: sideKey };
+        }
+      }
+    }
+    return null;
+  };
+
   const decodeCellGrid = (gridString: string): GridCell[] => {
     const cells: GridCell[] = [];
     let i = 0;
+
     while (i < gridString.length) {
-      const currentChar = gridString[i];
+      const ch = gridString[i];
 
-      const cellType = GridCellKeys.find((type) =>
-        Object.values(GRID_CELL_TYPES[type]).some(
-          (side) => isCellSideInfo(side) && side.code === currentChar
-        )
-      );
-
-      if (cellType) {
-        let side: GridCell["side"] = "neutral";
-        (
-          Object.entries(GRID_CELL_TYPES[cellType]) as [
-            keyof CellDefinition,
-            unknown
-          ][]
-        ).forEach(([key, value]) => {
-          if (isCellSideInfo(value) && value.code === currentChar) {
-            side = key as GridCell["side"];
+      if (/[A-Z]/.test(ch)) {
+        // 大文字: 次がFかBなら2文字コードとして照合
+        const next = gridString[i + 1];
+        if (next === "F" || next === "B") {
+          const found = findCellByCode(ch + next);
+          if (found) {
+            cells.push(found);
+            i += 2;
+            continue;
           }
-        });
-
-        cells.push({ type: cellType, side });
+        }
+        // 次がF/Bでない、または2文字でマッチしなければ1文字照合
+        const found = findCellByCode(ch);
+        cells.push(found ?? { type: "Empty", side: "neutral" });
+        i += 1;
       } else {
-        cells.push({ type: "Empty", side: "neutral" });
+        // 小文字: 1文字照合
+        const found1 = findCellByCode(ch);
+        cells.push(found1 ?? { type: "Empty", side: "neutral" });
+        i += 1;
       }
-
-      i += 1;
     }
 
     return cells;

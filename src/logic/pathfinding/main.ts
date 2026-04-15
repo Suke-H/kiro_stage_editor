@@ -24,37 +24,40 @@ const findAllPaths = (grid: Grid, start: Point): {
   const switchPositions = findAllBySide(grid, 'Switch', 'back');
   const invertSwitchPositions = findAllBySide(grid, 'InvertSwitch', 'back');
 
+  // Startのsideがbackなら通行条件を反転
+  const inverted = grid[start.y][start.x].side === 'back';
+
   // 最短経路群を取得
-  const realPaths = goalReal ? bfsAllShortestPaths(grid, start, goalReal) : [];
+  const realPaths = goalReal ? bfsAllShortestPaths(grid, start, goalReal, inverted) : [];
 
   // すべてのDummyGoalに対して最短経路を取得
   const dummyPaths: Point[][] = [];
   for (const dummyGoal of dummyGoals) {
-    dummyPaths.push(...bfsAllShortestPaths(grid, start, dummyGoal));
+    dummyPaths.push(...bfsAllShortestPaths(grid, start, dummyGoal, inverted));
   }
 
   // すべてのRestに対して最短経路を取得
   const restPaths: Point[][] = [];
   for (const rest of restPositions) {
-    restPaths.push(...bfsAllShortestPaths(grid, start, rest));
+    restPaths.push(...bfsAllShortestPaths(grid, start, rest, inverted));
   }
 
   // すべてのFlagに対して最短経路を取得
   const flagPaths: Point[][] = [];
   for (const flag of flagPositions) {
-    flagPaths.push(...bfsAllShortestPaths(grid, start, flag));
+    flagPaths.push(...bfsAllShortestPaths(grid, start, flag, inverted));
   }
 
   // すべてのSwitch(back=オフ)に対して最短経路を取得
   const switchPaths: Point[][] = [];
   for (const sw of switchPositions) {
-    switchPaths.push(...bfsAllShortestPaths(grid, start, sw));
+    switchPaths.push(...bfsAllShortestPaths(grid, start, sw, inverted));
   }
 
   // すべてのInvertSwitch(back=オフ)に対して最短経路を取得
   const invertSwitchPaths: Point[][] = [];
   for (const sw of invertSwitchPositions) {
-    invertSwitchPaths.push(...bfsAllShortestPaths(grid, start, sw));
+    invertSwitchPaths.push(...bfsAllShortestPaths(grid, start, sw, inverted));
   }
 
   return { realPaths, dummyPaths, restPaths, flagPaths, switchPaths, invertSwitchPaths };

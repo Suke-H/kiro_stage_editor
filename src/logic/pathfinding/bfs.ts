@@ -24,7 +24,7 @@ class Queue<T> {
 /**
  * start→goalへの全最短経路を取得
  */
-export const bfsAllShortestPaths = (grid: Grid, start: Point, goal: Point): Point[][] => {
+export const bfsAllShortestPaths = (grid: Grid, start: Point, goal: Point, inverted: boolean = false): Point[][] => {
   const dist = new Map<string, number>();
   const parents = new Map<string, Point[]>();
   
@@ -55,7 +55,7 @@ export const bfsAllShortestPaths = (grid: Grid, start: Point, goal: Point): Poin
         y: current.y + direction.y
       };
       
-      if (!inBounds(next, grid) || !isPassable(grid[next.y][next.x])) {
+      if (!inBounds(next, grid) || !isPassable(grid[next.y][next.x], inverted)) {
         continue;
       }
       

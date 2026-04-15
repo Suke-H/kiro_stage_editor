@@ -13,6 +13,7 @@ export interface GridState {
 
 export interface CellTypeState {
   selectedCellType: GridCellKey;
+  selectedSide: "neutral" | "front" | "back";
 }
 
 export interface PanelListState {
