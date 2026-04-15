@@ -1,5 +1,5 @@
 import { PanelCellTypeKey, PANEL_CELL_TYPES } from "@/types/panel";
-import { GridCellKey, GRID_CELL_TYPES, CellSideInfo, CellDefinition } from "@/types/grid";
+import { GridCellKey, GRID_CELL_TYPES, CellSideInfo } from "@/types/grid";
 import { Panel } from "@/types/panel";
 import { Grid, GridCell } from "@/types/grid";
 

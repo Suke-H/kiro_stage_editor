@@ -34,7 +34,6 @@ export const GridViewer: React.FC = () => {
 
     /* 単セル配置モード */
     if (studioMode === StudioMode.Editor && !placing) {
-      const def = GRID_CELL_TYPES[selectedCellKey];
       if (selectedCellKey === "Flip") {
         if (grid[rowIdx][colIdx].type !== "Empty") {
           dispatch(gridSlice.actions.flipCell({ row: rowIdx, col: colIdx }));
