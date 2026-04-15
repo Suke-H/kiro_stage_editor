@@ -24,6 +24,7 @@ export const GridViewer: React.FC = () => {
   const grid            = useSelector((s: RootState) => s.grid.grid) as Grid;
   const gridHistory     = useSelector((s: RootState) => s.grid.gridHistory);
   const selectedCellKey = useSelector((s: RootState) => s.cellType.selectedCellType) as GridCellKey;
+  const selectedSide    = useSelector((s: RootState) => s.cellType.selectedSide);
   const placementMode   = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
   const copyPanels      = useSelector((s: RootState) => s.copyPanelList.copyPanels);
   const swapState       = useSelector((s: RootState) => s.swap);
@@ -39,7 +40,7 @@ export const GridViewer: React.FC = () => {
           dispatch(gridSlice.actions.flipCell({ row: rowIdx, col: colIdx }));
         }
       } else {
-        const side = def.defaultSide;
+        const side = selectedSide;
         dispatch(
           gridSlice.actions.placeCell({
             row: rowIdx,
