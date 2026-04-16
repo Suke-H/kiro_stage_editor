@@ -151,4 +151,10 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
     front: { code: "j", picture: "flip_switch_on.png" },
     back:  { code: "J", picture: "flip_switch_off.png" },
   },
+  SwapCell: {
+    label: "入れ替えマス",
+    color: "bg-amber-500",
+    defaultSide: "neutral",
+    neutral: { code: "sw", picture: "swap.png" },
+  },
 } as const;
