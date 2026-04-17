@@ -1,12 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { gridSlice } from "@/store/slices/grid-slice";
-import { panelListSlice } from "@/store/slices/panel-list-slice";
-import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
 import { setSwapTarget, clearSwapTarget } from "@/store/slices/swap-slice";
-import { Panel } from "@/types/panel";
-import { canPlacePanelAt } from "@/logic/panels";
-import { Grid } from "@/types/grid";
+import { Grid, GridCell } from "@/types/grid";
 import { swapGridCells } from "@/logic/grid-utils";
 
 export const useSwapHandler = () => {
@@ -30,9 +26,29 @@ export const useSwapHandler = () => {
 
   const selectSecondSwapTarget = (rowIdx: number, colIdx: number) => {
     saveHistory();
-    const newGrid = swapGridCells(grid, swapState.swapTarget!, { row: rowIdx, col: colIdx });
+
+    const first = swapState.swapTarget!;
+    let targetGrid = grid;
+
+    // 入れ替えマスは削除する（一度きり）
+    if (grid[first.row][first.col].type === "SwapCell") {
+      targetGrid = vanishSwapCell(grid, first);
+    }
+
+    const newGrid = swapGridCells(targetGrid, first, { row: rowIdx, col: colIdx });
+
     dispatch(gridSlice.actions.replaceGrid(newGrid));
     dispatch(clearSwapTarget());
+  };
+
+  const vanishSwapCell = (grid: Grid, target: { row: number; col: number }): Grid => {
+    return grid.map((row, r) =>
+      row.map((cell, c) =>
+        r === target.row && c === target.col
+          ? ({ type: "Normal", side: "front" } as GridCell)
+          : cell
+      )
+    );
   };
 
   const selectSwapCell = (rowIdx: number, colIdx: number) => {
