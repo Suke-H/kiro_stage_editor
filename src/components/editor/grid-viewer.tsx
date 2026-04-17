@@ -5,7 +5,7 @@ import { gridSlice } from "@/store/slices/grid-slice";
 import { panelListSlice } from "@/store/slices/panel-list-slice";
 import { copyPanelListSlice } from "@/store/slices/copy-panel-list-slice";
 import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
-import { setSwapTarget, clearSwapTarget } from "@/store/slices/swap-slice";
+import { useSwapHandler } from "@/hooks/useSwapHandler";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -27,7 +27,7 @@ export const GridViewer: React.FC = () => {
   const selectedSide    = useSelector((s: RootState) => s.cellType.selectedSide);
   const placementMode   = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
   const copyPanels      = useSelector((s: RootState) => s.copyPanelList.copyPanels);
-  const swapState       = useSelector((s: RootState) => s.swap);
+  const { handleSwap, isSwapTarget } = useSwapHandler();
 
   const handleGridCellClick = (rowIdx: number, colIdx: number): void => {
     const placing = placementMode.panel;           // Panel | CopyPanel | null
@@ -62,15 +62,18 @@ export const GridViewer: React.FC = () => {
 
     // 選択したパネルの情報取得
     const panelType = placing.type ?? "Normal";
+
+    // Swapパネルの場合は専用ハンドラに処理を委譲
+    if (panelType === "Swap") {
+      handleSwap(rowIdx, colIdx, placing as Panel);
+      return;
+    }
+
     // コピーパネル
     const currentCopyPanel: CopyPanel | undefined =
       panelType === "Paste" ? copyPanels.find((cp) => cp.id === placing.id) : undefined;
 
-    // Swapパネルの場合、2回目のクリックかどうかで type を変更
-    let panelToApply = panelType === "Paste" && currentCopyPanel ? currentCopyPanel : placing;
-    if (panelType === "Swap" && swapState.swapTarget) {
-      panelToApply = { ...placing, type: "SwapSecond" };
-    }
+    const panelToApply = panelType === "Paste" && currentCopyPanel ? currentCopyPanel : placing;
 
     // 配置可能判定
     if (!canPlacePanelAt(grid, rowIdx, colIdx, panelToApply)) {
@@ -84,7 +87,6 @@ export const GridViewer: React.FC = () => {
     }
 
     // パネル操作の前に、履歴保存
-    // 履歴が1つもない場合は、初期化
     if (gridHistory.length === 0) {
       dispatch(gridSlice.actions.initHistory());
       dispatch(gridSlice.actions.initPhaseHistory());
@@ -93,7 +95,7 @@ export const GridViewer: React.FC = () => {
     }
 
     // パネル配置実行（Strategy Pattern使用）
-    const [newGrid, createdCopyPanel, swapInfo] = applyPanelAt(grid, rowIdx, colIdx, panelToApply);
+    const [newGrid, createdCopyPanel] = applyPanelAt(grid, rowIdx, colIdx, panelToApply);
 
     // gridを更新
     dispatch(gridSlice.actions.replaceGrid(newGrid));
@@ -101,11 +103,7 @@ export const GridViewer: React.FC = () => {
     // パネルリストの更新
     if (panelType === "Paste" && currentCopyPanel) {
       dispatch(copyPanelListSlice.actions.placePanel(currentCopyPanel));
-    } else if (panelType === "Swap" && swapState.swapTarget) {
-      // Swap 2回目の場合のみパネル削除
-      dispatch(panelListSlice.actions.placePanel(placing as Panel));
-    } else if (panelType !== "Swap") {
-      // Swap 1回目以外は通常通りパネル削除
+    } else {
       dispatch(panelListSlice.actions.placePanel(placing as Panel));
     }
 
@@ -114,37 +112,25 @@ export const GridViewer: React.FC = () => {
       dispatch(copyPanelListSlice.actions.createPanel(createdCopyPanel));
     }
 
-    // Swap処理
-    if (swapInfo?.swapAction === "set") {
-      dispatch(setSwapTarget(swapInfo.pos!));
-    } else if (swapInfo?.swapAction === "clear") {
-      dispatch(clearSwapTarget());
-    }
-
-    // パネル選択を解除（Swap 1回目は解除しない）
-    if (!(panelType === "Swap" && !swapState.swapTarget)) {
-      dispatch(
-        panelPlacementSlice.actions.selectPanelForPlacement({
-          panel: null,
-          highlightedCell: null,
-        })
-      );
-    }
+    // パネル選択を解除
+    dispatch(
+      panelPlacementSlice.actions.selectPanelForPlacement({
+        panel: null,
+        highlightedCell: null,
+      })
+    );
   };
 
   const renderGridCell = (cell: GridCell, r: number, c: number) => {
     const def = GRID_CELL_TYPES[cell.type];
     const sideInfo: CellSideInfo | undefined = def[cell.side];
 
-    // Swap 1回目のクリック位置をハイライト
-    const isSwapTarget = swapState.swapTarget?.row === r && swapState.swapTarget?.col === c;
-
     return (
       <div
         key={`${r}-${c}`}
         className={`relative h-10 w-10 flex items-center justify-center ${
           cell.type === "Empty" ? "" : "border"
-        } ${isSwapTarget ? "ring-2 ring-red-500" : ""}`}
+        } ${isSwapTarget(r, c) ? "ring-2 ring-red-500" : ""}`}
         onClick={() => handleGridCellClick(r, c)}
       >
         {cell.type !== "Empty" && sideInfo && (
