@@ -5,8 +5,9 @@ import { panelListSlice } from "@/store/slices/panel-list-slice";
 import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
 import { setSwapTarget, clearSwapTarget } from "@/store/slices/swap-slice";
 import { Panel } from "@/types/panel";
-import { canPlacePanelAt, applyPanelAt } from "@/logic/panels";
+import { canPlacePanelAt } from "@/logic/panels";
 import { Grid } from "@/types/grid";
+import { swapGridCells } from "@/logic/grid-utils";
 
 export const useSwapHandler = () => {
   const dispatch = useDispatch();
@@ -14,50 +15,38 @@ export const useSwapHandler = () => {
   const gridHistory = useSelector((s: RootState) => s.grid.gridHistory);
   const swapState = useSelector((s: RootState) => s.swap);
 
-  const handleSwap = (rowIdx: number, colIdx: number, placing: Panel) => {
-    const panelToApply = swapState.swapTarget
-      ? { ...placing, type: "SwapSecond" as const }
-      : placing;
-
-    if (!canPlacePanelAt(grid, rowIdx, colIdx, panelToApply)) {
-      dispatch(
-        panelPlacementSlice.actions.selectPanelForPlacement({
-          panel: null,
-          highlightedCell: null,
-        })
-      );
-      return;
-    }
-
+  const saveHistory = () => {
     if (gridHistory.length === 0) {
       dispatch(gridSlice.actions.initHistory());
       dispatch(gridSlice.actions.initPhaseHistory());
     } else {
       dispatch(gridSlice.actions.saveHistory());
     }
+  };
 
-    const [newGrid, , swapInfo] = applyPanelAt(grid, rowIdx, colIdx, panelToApply);
+  const selectFirstSwapTarget = (rowIdx: number, colIdx: number) => {
+    dispatch(setSwapTarget({ row: rowIdx, col: colIdx }));
+  };
+
+  const selectSecondSwapTarget = (rowIdx: number, colIdx: number) => {
+    saveHistory();
+    const newGrid = swapGridCells(grid, swapState.swapTarget!, { row: rowIdx, col: colIdx });
     dispatch(gridSlice.actions.replaceGrid(newGrid));
+    dispatch(clearSwapTarget());
+  };
 
-    if (swapInfo?.swapAction === "set") {
-      dispatch(setSwapTarget(swapInfo.pos!));
-    } else if (swapInfo?.swapAction === "clear") {
-      dispatch(clearSwapTarget());
-    }
-
-    if (swapState.swapTarget) {
-      dispatch(panelListSlice.actions.placePanel(placing));
-      dispatch(
-        panelPlacementSlice.actions.selectPanelForPlacement({
-          panel: null,
-          highlightedCell: null,
-        })
-      );
-    }
+  const selectSwapCell = (rowIdx: number, colIdx: number) => {
+    selectFirstSwapTarget(rowIdx, colIdx);
   };
 
   const isSwapTarget = (r: number, c: number) =>
     swapState.swapTarget?.row === r && swapState.swapTarget?.col === c;
 
-  return { handleSwap, isSwapTarget };
+  return {
+    selectFirstSwapTarget,
+    selectSecondSwapTarget,
+    selectSwapCell,
+    hasSwapTarget: !!swapState.swapTarget,
+    isSwapTarget,
+  };
 };

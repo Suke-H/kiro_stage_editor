@@ -27,12 +27,21 @@ export const GridViewer: React.FC = () => {
   const selectedSide    = useSelector((s: RootState) => s.cellType.selectedSide);
   const placementMode   = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
   const copyPanels      = useSelector((s: RootState) => s.copyPanelList.copyPanels);
-  const { handleSwap, isSwapTarget } = useSwapHandler();
+  const { selectFirstSwapTarget, selectSecondSwapTarget, hasSwapTarget, isSwapTarget } = useSwapHandler();
 
   const handleGridCellClick = (rowIdx: number, colIdx: number): void => {
-    const placing = placementMode.panel;           // Panel | CopyPanel | null
+    const placing = placementMode.panel;
 
-    /* 単セル配置モード */
+    if (hasSwapTarget) {
+      selectSecondSwapTarget(rowIdx, colIdx);
+      return;
+    }
+
+    if (studioMode === StudioMode.Play && grid[rowIdx][colIdx].type === "SwapCell") {
+      selectFirstSwapTarget(rowIdx, colIdx);
+      return;
+    }
+
     if (studioMode === StudioMode.Editor && !placing) {
       if (selectedCellKey === "Flip") {
         if (grid[rowIdx][colIdx].type !== "Empty") {
@@ -49,33 +58,25 @@ export const GridViewer: React.FC = () => {
         );
       }
 
-      // 単セル配置実施後は、履歴を初期化
       dispatch(gridSlice.actions.initHistory());
       dispatch(gridSlice.actions.initPhaseHistory());
       return;
     }
 
-    /* パネル配置モード */
-
-    // パネル未選択の場合、何もしない
     if (!placing) return;
 
-    // 選択したパネルの情報取得
     const panelType = placing.type ?? "Normal";
 
-    // Swapパネルの場合は専用ハンドラに処理を委譲
     if (panelType === "Swap") {
-      handleSwap(rowIdx, colIdx, placing as Panel);
+      selectFirstSwapTarget(rowIdx, colIdx);
       return;
     }
 
-    // コピーパネル
     const currentCopyPanel: CopyPanel | undefined =
       panelType === "Paste" ? copyPanels.find((cp) => cp.id === placing.id) : undefined;
 
     const panelToApply = panelType === "Paste" && currentCopyPanel ? currentCopyPanel : placing;
 
-    // 配置可能判定
     if (!canPlacePanelAt(grid, rowIdx, colIdx, panelToApply)) {
       dispatch(
         panelPlacementSlice.actions.selectPanelForPlacement({
@@ -86,7 +87,6 @@ export const GridViewer: React.FC = () => {
       return;
     }
 
-    // パネル操作の前に、履歴保存
     if (gridHistory.length === 0) {
       dispatch(gridSlice.actions.initHistory());
       dispatch(gridSlice.actions.initPhaseHistory());
@@ -94,25 +94,20 @@ export const GridViewer: React.FC = () => {
       dispatch(gridSlice.actions.saveHistory());
     }
 
-    // パネル配置実行（Strategy Pattern使用）
     const [newGrid, createdCopyPanel] = applyPanelAt(grid, rowIdx, colIdx, panelToApply);
 
-    // gridを更新
     dispatch(gridSlice.actions.replaceGrid(newGrid));
 
-    // パネルリストの更新
     if (panelType === "Paste" && currentCopyPanel) {
       dispatch(copyPanelListSlice.actions.placePanel(currentCopyPanel));
     } else {
       dispatch(panelListSlice.actions.placePanel(placing as Panel));
     }
 
-    // Cutパネルで生成されたCopyPanelをstoreに追加
     if (createdCopyPanel) {
       dispatch(copyPanelListSlice.actions.createPanel(createdCopyPanel));
     }
 
-    // パネル選択を解除
     dispatch(
       panelPlacementSlice.actions.selectPanelForPlacement({
         panel: null,
