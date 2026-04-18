@@ -10,6 +10,7 @@ export enum Result {
   HasFlagPath = "HasFlagPath",
   HasSwitchPath = "HasSwitchPath",
   HasInvertSwitchPath = "HasInvertSwitchPath",
+  HasPlayerInvertSwitchPath = "HasPlayerInvertSwitchPath",
   WolfReachedGoal = "WolfReachedGoal",
 }
 
@@ -23,6 +24,7 @@ export const resultMessages: Record<Result, string> = {
   [Result.HasFlagPath]: "旗に到達しました！（続けて再生をおしてね！）",
   [Result.HasSwitchPath]: "スイッチを押しました！（続けて再生をおしてね！）",
   [Result.HasInvertSwitchPath]: "反転スイッチを押しました！（続けて再生をおしてね！）",
+  [Result.HasPlayerInvertSwitchPath]: "プレイヤー反転スイッチを押しました！（続けて再生をおしてね！）",
   [Result.WolfReachedGoal]: "オオカミがゴールに到達しました...",
 };
 

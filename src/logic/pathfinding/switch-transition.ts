@@ -17,12 +17,14 @@ export const createSwitchTransitionGrid = (
   // phaseHistoryから元のStart位置の種別を確認
   let isStartOriginallySwitch = false;
   let isStartOriginallyInvertSwitch = false;
+  let isStartOriginallyPlayerInvertSwitch = false;
   if (phaseHistory && phaseHistory.length >= 2) {
     const previousGrid = phaseHistory[phaseHistory.length - 2];
     if (start.y < previousGrid.length && start.x < previousGrid[start.y].length) {
       const originalCell = previousGrid[start.y][start.x];
       isStartOriginallySwitch = originalCell.type === 'Switch';
       isStartOriginallyInvertSwitch = originalCell.type === 'InvertSwitch';
+      isStartOriginallyPlayerInvertSwitch = originalCell.type === 'PlayerInvertSwitch';
     }
   }
 
@@ -31,6 +33,8 @@ export const createSwitchTransitionGrid = (
     newGrid[start.y][start.x] = { type: 'Switch', side: 'front' };
   } else if (isStartOriginallyInvertSwitch) {
     newGrid[start.y][start.x] = { type: 'InvertSwitch', side: 'front' };
+  } else if (isStartOriginallyPlayerInvertSwitch) {
+    newGrid[start.y][start.x] = { type: 'PlayerInvertSwitch', side: 'front' };
   } else {
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };
   }
