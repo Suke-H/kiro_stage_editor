@@ -16,6 +16,7 @@ const findAllPaths = (grid: Grid, start: Point): {
   flagPaths: Point[][];
   switchPaths: Point[][];
   invertSwitchPaths: Point[][];
+  playerInvertSwitchPaths: Point[][];
 } => {
   const goalReal = findSingle(grid, 'Goal');
   const dummyGoals = findAll(grid, 'DummyGoal');
@@ -23,6 +24,7 @@ const findAllPaths = (grid: Grid, start: Point): {
   const flagPositions = findAll(grid, 'Flag');
   const switchPositions = findAllBySide(grid, 'Switch', 'back');
   const invertSwitchPositions = findAllBySide(grid, 'InvertSwitch', 'back');
+  const playerInvertSwitchPositions = findAllBySide(grid, 'PlayerInvertSwitch', 'back');
 
   // Startのsideがbackなら通行条件を反転
   const inverted = grid[start.y][start.x].side === 'back';
@@ -60,7 +62,12 @@ const findAllPaths = (grid: Grid, start: Point): {
     invertSwitchPaths.push(...bfsAllShortestPaths(grid, start, sw, inverted));
   }
 
-  return { realPaths, dummyPaths, restPaths, flagPaths, switchPaths, invertSwitchPaths };
+  const playerInvertSwitchPaths: Point[][] = [];
+  for (const sw of playerInvertSwitchPositions) {
+    playerInvertSwitchPaths.push(...bfsAllShortestPaths(grid, start, sw, inverted));
+  }
+
+  return { realPaths, dummyPaths, restPaths, flagPaths, switchPaths, invertSwitchPaths, playerInvertSwitchPaths };
 };
 
 /**
@@ -72,7 +79,8 @@ const createCandidates = (
   restPaths: Point[][],
   flagPaths: Point[][],
   switchPaths: Point[][],
-  invertSwitchPaths: Point[][]
+  invertSwitchPaths: Point[][],
+  playerInvertSwitchPaths: Point[][]
 ): Candidate[] => {
   const allCandidates: Candidate[] = [];
 
@@ -93,6 +101,9 @@ const createCandidates = (
   }
   for (const path of invertSwitchPaths) {
     allCandidates.push({ path, kind: 5, crowCount: 0 });
+  }
+  for (const path of playerInvertSwitchPaths) {
+    allCandidates.push({ path, kind: 6, crowCount: 0 });
   }
 
   return allCandidates;
@@ -130,10 +141,10 @@ export const findPath = (grid: Grid, phaseHistory?: Grid[]): PathResult => {
     return { result: Result.NoGoal, path: [], nextGrid: null};
 
   // 2. 全経路の収集
-  const { realPaths, dummyPaths, restPaths, flagPaths, switchPaths, invertSwitchPaths } = findAllPaths(grid, start);
+  const { realPaths, dummyPaths, restPaths, flagPaths, switchPaths, invertSwitchPaths, playerInvertSwitchPaths } = findAllPaths(grid, start);
 
   // 3. 候補リストの作成
-  const allCandidates = createCandidates(realPaths, dummyPaths, restPaths, flagPaths, switchPaths, invertSwitchPaths);
+  const allCandidates = createCandidates(realPaths, dummyPaths, restPaths, flagPaths, switchPaths, invertSwitchPaths, playerInvertSwitchPaths);
   if (allCandidates.length === 0)
     return { result: Result.NoPath, path: [], nextGrid: null };
   

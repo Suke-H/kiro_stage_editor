@@ -5,6 +5,7 @@ import { createRestTransitionGrid } from './rest-transition';
 import { createFlagTransitionGrid } from './flag-transition';
 import { createSwitchTransitionGrid } from './switch-transition';
 import { createInvertSwitchTransitionGrid } from './invert-switch-transition';
+import { createPlayerInvertSwitchTransitionGrid } from './player-invert-switch-transition';
 import { Candidate } from './types';
 
 /**
@@ -20,6 +21,7 @@ const createFootprintGrid = (grid: Grid, path: Point[], phaseHistory?: Grid[]): 
   let isStartOriginallyRest = false;
   let isStartOriginallySwitch = false;
   let isStartOriginallyInvertSwitch = false;
+  let isStartOriginallyPlayerInvertSwitch = false;
   if (phaseHistory && phaseHistory.length >= 2) {
     const previousGrid = phaseHistory[phaseHistory.length - 2];
     if (start.y < previousGrid.length && start.x < previousGrid[start.y].length) {
@@ -27,6 +29,7 @@ const createFootprintGrid = (grid: Grid, path: Point[], phaseHistory?: Grid[]): 
       isStartOriginallyRest = originalCell.type === 'Rest';
       isStartOriginallySwitch = originalCell.type === 'Switch';
       isStartOriginallyInvertSwitch = originalCell.type === 'InvertSwitch';
+      isStartOriginallyPlayerInvertSwitch = originalCell.type === 'PlayerInvertSwitch';
     }
   }
 
@@ -37,6 +40,8 @@ const createFootprintGrid = (grid: Grid, path: Point[], phaseHistory?: Grid[]): 
     newGrid[start.y][start.x] = { type: 'Switch', side: 'front' };
   } else if (isStartOriginallyInvertSwitch) {
     newGrid[start.y][start.x] = { type: 'InvertSwitch', side: 'front' };
+  } else if (isStartOriginallyPlayerInvertSwitch) {
+    newGrid[start.y][start.x] = { type: 'PlayerInvertSwitch', side: 'front' };
   } else {
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };
   }
@@ -120,6 +125,11 @@ export const determineResult = (
     status = Result.HasInvertSwitchPath;
     const switchPosition = best.path[best.path.length - 1];
     nextGrid = createInvertSwitchTransitionGrid(grid, start, switchPosition, crowPositions, best.path, phaseHistory);
+  } else if (best.kind === 6) {
+    // PlayerInvertSwitch到達時の特別処理
+    status = Result.HasPlayerInvertSwitchPath;
+    const switchPosition = best.path[best.path.length - 1];
+    nextGrid = createPlayerInvertSwitchTransitionGrid(grid, start, switchPosition, crowPositions, best.path, phaseHistory);
   } else {
     // ダミーゴール到達（失敗）
     status = Result.HasFailPath;

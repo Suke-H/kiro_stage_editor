@@ -151,6 +151,13 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
     front: { code: "j", picture: "flip_switch_on.png" },
     back:  { code: "J", picture: "flip_switch_off.png" },
   },
+  PlayerInvertSwitch: {
+    label: "プレイヤー反転スイッチ",
+    color: "bg-fuchsia-400",
+    defaultSide: "back",
+    front: { code: "PF", picture: "player_flip_switch_on.png" },
+    back:  { code: "PB", picture: "player_flip_switch_off.png" },
+  },
   SwapCell: {
     label: "入れ替えマス",
     color: "bg-amber-500",

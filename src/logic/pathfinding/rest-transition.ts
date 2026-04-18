@@ -17,12 +17,14 @@ export const createRestTransitionGrid = (
   // フェーズ履歴から元の状態を判定
   let isStartOriginallyRest = false;
   let isStartOriginallySwitch = false;
+  let isStartOriginallyPlayerInvertSwitch = false;
   if (phaseHistory && phaseHistory.length >= 2) {
     const previousGrid = phaseHistory[phaseHistory.length - 2];
     if (start.y < previousGrid.length && start.x < previousGrid[start.y].length) {
       const originalCell = previousGrid[start.y][start.x];
       isStartOriginallyRest = originalCell.type === 'Rest';
       isStartOriginallySwitch = originalCell.type === 'Switch';
+      isStartOriginallyPlayerInvertSwitch = originalCell.type === 'PlayerInvertSwitch';
     }
   }
 
@@ -33,6 +35,9 @@ export const createRestTransitionGrid = (
   } else if (isStartOriginallySwitch) {
     // Switch経由時：前のSwitch（現在のStart）をSwitchOff(back)に戻す
     newGrid[start.y][start.x] = { type: 'Switch', side: 'front' };
+  } else if (isStartOriginallyPlayerInvertSwitch) {
+    // PlayerInvertSwitch経由時：前のPlayerInvertSwitch（現在のStart）をPlayerInvertSwitchに戻す
+    newGrid[start.y][start.x] = { type: 'PlayerInvertSwitch', side: 'front' };
   } else {
     // 初回Rest到達：StartをNormal:frontに変更
     newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };
