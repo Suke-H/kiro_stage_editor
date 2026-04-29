@@ -77,7 +77,7 @@ export const exportStageToYaml = (grid: Grid, panels: Panel[]): string => {
     };
 
     // 特殊パネル（Flag, Swap）の場合は固定座標（X: 0, Y: 0）を追加
-    if (panel.type === "Flag" || panel.type === "Swap") {
+    if (panel.type === "Flag" || panel.type === "Swap" || panel.type === "Invert") {
       return {
         ...baseData,
         Coordinates: [{ X: 0, Y: 0 }]
@@ -132,6 +132,12 @@ export const importStageFromYaml = (yamlString: string): [Grid, Panel[]] => {
           cells: [["Swap"]],
           type: "Swap",
         };
+      } else if (panel.Type === "Invert") {
+        return {
+          id: `panel-${index}`,
+          cells: [["InvertCell"]],
+          type: "Invert",
+        };
       } else {
         const panelGrid: PanelCellTypeKey[][] = Array.from(
           { length: Height },
@@ -167,7 +173,7 @@ const trimPanelCells = (panel: Panel): Panel => {
   console.log("Trimming panel:", panel);
 
   // 特殊パネル（Flag、Swap）は既に1x1で作成されているのでトリム不要
-  if (panel.type === "Flag" || panel.type === "Swap") {
+  if (panel.type === "Flag" || panel.type === "Swap" || panel.type === "Invert") {
     return panel;
   }
 

@@ -31,6 +31,7 @@ const encodeStageToUrl = (grid: Grid, panels: Panel[]) => {
       else if (panel.type === "Paste") prefix = "p-";
       else if (panel.type === "Flag") prefix = "f-";
       else if (panel.type === "Swap") prefix = "s-";
+      else if (panel.type === "Invert") prefix = "i-";
       const panelStr = `h${height}w${width}g${gridData}`;
       return `${prefix}${panelStr}`;
     })
@@ -151,6 +152,9 @@ export const decodeStageFromUrl = (stageData: string) => {
     } else if (panelStr.startsWith("s-")) {
       type = "Swap";
       panelStr = panelStr.slice(2);
+    } else if (panelStr.startsWith("i-")) {
+      type = "Invert";
+      panelStr = panelStr.slice(2);
     }
 
     const heightMatch = panelStr.match(/h(\d+)/);
@@ -173,6 +177,9 @@ export const decodeStageFromUrl = (stageData: string) => {
     // Swapセルが含まれている場合はSwapタイプに設定
     if (decodedPanelCells.includes("Swap")) {
       type = "Swap";
+    }
+    if (decodedPanelCells.includes("InvertCell")) {
+      type = "Invert";
     }
 
     return { id: `panel-${index}`, cells: panelCells, type };

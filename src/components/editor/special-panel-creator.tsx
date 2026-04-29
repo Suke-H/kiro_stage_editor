@@ -2,16 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Panel } from "@/types/panel";
 import { Button } from "@/components/ui/button";
 import { panelListSlice } from "@/store/slices/panel-list-slice";
-import { useDispatch, } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { PanelCellTypeKey } from "@/types/panel";
-
 
 export const SpecialPanelCreator: React.FC = () => {
   const dispatch = useDispatch();
 
   const addFlag = () => {
-    // 1セルにFlagがある高さ1幅1のPanelGridを作成
     const flagGrid: PanelCellTypeKey[][] = Array.from({ length: 1 }, () =>
       Array.from({ length: 1 }, () => "Flag")
     );
@@ -22,12 +20,10 @@ export const SpecialPanelCreator: React.FC = () => {
       type: "Flag",
     };
 
-    // パネル追加
     dispatch(panelListSlice.actions.createPanel(newPanel));
   };
 
   const addSwap = () => {
-    // 1セルにSwapがある高さ1幅1のPanelGridを作成
     const swapGrid: PanelCellTypeKey[][] = Array.from({ length: 1 }, () =>
       Array.from({ length: 1 }, () => "Swap")
     );
@@ -38,7 +34,20 @@ export const SpecialPanelCreator: React.FC = () => {
       type: "Swap",
     };
 
-    // パネル追加
+    dispatch(panelListSlice.actions.createPanel(newPanel));
+  };
+
+  const addInvert = () => {
+    const invertGrid: PanelCellTypeKey[][] = Array.from({ length: 1 }, () =>
+      Array.from({ length: 1 }, () => "InvertCell")
+    );
+
+    const newPanel: Panel = {
+      id: `panel-${Date.now()}`,
+      cells: invertGrid,
+      type: "Invert",
+    };
+
     dispatch(panelListSlice.actions.createPanel(newPanel));
   };
 
@@ -49,11 +58,14 @@ export const SpecialPanelCreator: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-row gap-2">
-          <Button onClick={addFlag} className="w-1/2 flex items-center justify-center gap-2">
-            🚩旗
+          <Button onClick={addFlag} className="w-1/3 flex items-center justify-center gap-2">
+            旗
           </Button>
-          <Button onClick={addSwap} className="w-1/2 flex items-center justify-center gap-2">
-            ⇔入れ替え
+          <Button onClick={addSwap} className="w-1/3 flex items-center justify-center gap-2">
+            入れ替え
+          </Button>
+          <Button onClick={addInvert} className="w-1/3 flex items-center justify-center gap-2">
+            反転マス
           </Button>
         </div>
       </CardContent>

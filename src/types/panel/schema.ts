@@ -1,12 +1,20 @@
 import { Vector } from '@/types/path';
 import { GridCell } from '@/types/grid';
 
-export type PanelCellTypeKey = "White" | "Black" | "Flag" | "Cut" | "CopyWhite" | "CopyBlack" | "Swap";
+export type PanelCellTypeKey =
+  | "White"
+  | "Black"
+  | "Flag"
+  | "Cut"
+  | "CopyWhite"
+  | "CopyBlack"
+  | "Swap"
+  | "InvertCell";
 
 export interface Panel {
   id: string;
   cells: PanelCellTypeKey[][];
-  type?: "Normal" | "Cut" | "Paste" | "Flag" | "Swap" | "SwapSecond";
+  type?: "Normal" | "Cut" | "Paste" | "Flag" | "Swap" | "SwapSecond" | "Invert";
 }
 
 export type CopyPanel = Omit<Panel, "cells"> & {

@@ -28,6 +28,8 @@ import { PlacementControllPart } from "./panel-list/placement-controll-part";
 const gridToPanelCell = (cell: GridCell): PanelCellTypeKey =>
   cell.type === "Flag"
     ? "Flag"
+    : cell.type === "InvertCell"
+    ? "InvertCell"
     : cell.type === "Empty"
     ? "White"
     : "Black";

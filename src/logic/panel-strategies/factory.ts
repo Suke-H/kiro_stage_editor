@@ -5,6 +5,7 @@ import { CutPanelStrategy } from "./cut-strategy";
 import { PastePanelStrategy } from "./paste-strategy";
 import { SwapFirstStrategy } from "./swap-first-strategy";
 import { SwapSecondStrategy } from "./swap-second-strategy";
+import { InvertPanelStrategy } from "./invert-strategy";
 
 /**
  * パネルタイプに応じたStrategyを取得
@@ -24,6 +25,8 @@ export const getStrategy = (panelType?: string): IPanelStrategy => {
       return new SwapFirstStrategy();
     case "SwapSecond":
       return new SwapSecondStrategy();
+    case "Invert":
+      return new InvertPanelStrategy();
     default:
       throw new Error(`Unknown panel type: ${panelType}`);
   }

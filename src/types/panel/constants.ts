@@ -34,5 +34,9 @@ export const PANEL_CELL_TYPES: Record<PanelCellTypeKey, PanelCellInfo> = {
     code: "s",
     picture: "swap.png",
   },
+  InvertCell: {
+    code: "v",
+    picture: "warp-white.png",
+  },
 
 } as const;
