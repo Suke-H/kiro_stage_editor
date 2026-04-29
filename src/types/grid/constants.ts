@@ -162,6 +162,6 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
     label: "入れ替えマス",
     color: "bg-amber-500",
     defaultSide: "neutral",
-    neutral: { code: "sw", picture: "swap.png" },
+    neutral: { code: "i", picture: "swap.png" },
   },
 } as const;
