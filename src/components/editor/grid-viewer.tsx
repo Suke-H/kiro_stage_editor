@@ -6,7 +6,7 @@ import { panelListSlice } from "@/store/slices/panel-list-slice";
 import { copyPanelListSlice } from "@/store/slices/copy-panel-list-slice";
 import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
 import { useSwapHandler } from "@/hooks/useSwapHandler";
-import { useMovePositionHandler } from "@/hooks/useMovePositionHandler";
+import { useMovePointHandler } from "@/hooks/useMovePointHandler";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -29,7 +29,7 @@ export const GridViewer: React.FC = () => {
   const placementMode   = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
   const copyPanels      = useSelector((s: RootState) => s.copyPanelList.copyPanels);
   const { selectFirstSwapTarget, selectSecondSwapTarget, hasSwapTarget, isSwapTarget } = useSwapHandler();
-  const { selectFirstMoveTarget, selectSecondMoveTarget, hasMoveTarget, isMoveTarget } = useMovePositionHandler();
+  const { selectFirstMoveTarget, selectSecondMoveTarget, hasMoveTarget, isMoveTarget } = useMovePointHandler();
 
   const handleGridCellClick = (rowIdx: number, colIdx: number): void => {
     const placing = placementMode.panel;
@@ -44,7 +44,7 @@ export const GridViewer: React.FC = () => {
       return;
     }
 
-    if (studioMode === StudioMode.Play && grid[rowIdx][colIdx].type === "MoveCell") {
+    if (studioMode === StudioMode.Play && grid[rowIdx][colIdx].type === "MovePoint") {
       selectFirstMoveTarget(rowIdx, colIdx);
       return;
     }

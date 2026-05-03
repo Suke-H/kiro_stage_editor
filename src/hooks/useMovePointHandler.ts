@@ -9,7 +9,7 @@ import { Grid } from "@/types/grid";
 import { bfsAllShortestPaths } from "@/logic/pathfinding/bfs";
 import { createMoveTransitionGrid } from "@/logic/pathfinding/move-transition";
 
-export const useMovePositionHandler = () => {
+export const useMovePointHandler = () => {
   const dispatch = useDispatch();
   const grid = useSelector((state: RootState) => state.grid.grid) as Grid;
   const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
@@ -36,7 +36,7 @@ export const useMovePositionHandler = () => {
     if (
       clickedCell.type === "Empty" ||
       clickedCell.type === "Normal" ||
-      clickedCell.type === "MoveCell"
+      clickedCell.type === "MovePoint"
     ) {
       toast.error("このセルは移動できません。");
       dispatch(clearMoveTarget());

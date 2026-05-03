@@ -164,7 +164,7 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
     defaultSide: "neutral",
     neutral: { code: "i", picture: "swap.png" },
   },
-  MoveCell: {
+  MovePoint: {
     label: "移動地点",
     color: "bg-emerald-500",
     defaultSide: "neutral",
