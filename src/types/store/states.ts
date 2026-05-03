@@ -11,6 +11,10 @@ export interface GridState {
   phaseHistory: Grid[];
 }
 
+export interface MoveState {
+  moveTarget: { row: number; col: number } | null;
+}
+
 export interface CellTypeState {
   selectedCellType: GridCellKey;
   selectedSide: "neutral" | "front" | "back";

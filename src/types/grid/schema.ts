@@ -20,6 +20,7 @@ export type GridCellKey =
   | "InvertSwitch"
   | "PlayerInvertSwitch"
   | "SwapCell"
+  | "MovePoint"
 
 export type GridCell = {
   type: GridCellKey;
