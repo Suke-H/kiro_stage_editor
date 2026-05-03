@@ -168,6 +168,6 @@ export const GRID_CELL_TYPES: Record<GridCellKey, CellDefinition> = {
     label: "移動地点",
     color: "bg-emerald-500",
     defaultSide: "neutral",
-    neutral: { code: "m", picture: "arrow-right.png" },
+    neutral: { code: "m", picture: "move-point.png" },
   },
 } as const;
