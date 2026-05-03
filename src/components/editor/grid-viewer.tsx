@@ -6,6 +6,7 @@ import { panelListSlice } from "@/store/slices/panel-list-slice";
 import { copyPanelListSlice } from "@/store/slices/copy-panel-list-slice";
 import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
 import { useSwapHandler } from "@/hooks/useSwapHandler";
+import { useMovePositionHandler } from "@/hooks/useMovePositionHandler";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -28,12 +29,23 @@ export const GridViewer: React.FC = () => {
   const placementMode   = useSelector((s: RootState) => s.panelPlacement.panelPlacementMode);
   const copyPanels      = useSelector((s: RootState) => s.copyPanelList.copyPanels);
   const { selectFirstSwapTarget, selectSecondSwapTarget, hasSwapTarget, isSwapTarget } = useSwapHandler();
+  const { selectFirstMoveTarget, selectSecondMoveTarget, hasMoveTarget, isMoveTarget } = useMovePositionHandler();
 
   const handleGridCellClick = (rowIdx: number, colIdx: number): void => {
     const placing = placementMode.panel;
 
+    if (hasMoveTarget) {
+      selectSecondMoveTarget(rowIdx, colIdx);
+      return;
+    }
+
     if (hasSwapTarget) {
       selectSecondSwapTarget(rowIdx, colIdx);
+      return;
+    }
+
+    if (studioMode === StudioMode.Play && grid[rowIdx][colIdx].type === "MoveCell") {
+      selectFirstMoveTarget(rowIdx, colIdx);
       return;
     }
 
@@ -125,7 +137,7 @@ export const GridViewer: React.FC = () => {
         key={`${r}-${c}`}
         className={`relative h-10 w-10 flex items-center justify-center ${
           cell.type === "Empty" ? "" : "border"
-        } ${isSwapTarget(r, c) ? "ring-2 ring-red-500" : ""}`}
+        } ${isSwapTarget(r, c) || isMoveTarget(r, c) ? "ring-2 ring-red-500" : ""}`}
         onClick={() => handleGridCellClick(r, c)}
       >
         {cell.type !== "Empty" && sideInfo && (

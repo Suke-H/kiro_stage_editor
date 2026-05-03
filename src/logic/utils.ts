@@ -16,7 +16,7 @@ export const inBounds = (point: Point, grid: Grid): boolean => {
  * セルが通行可能かチェック
  */
 export const isPassable = (cell: GridCell, inverted: boolean = false): boolean => {
-  if (cell.type === 'Switch' || cell.type === 'InvertSwitch' || cell.type === 'PlayerInvertSwitch') return true;
+  if (cell.type === 'Switch' || cell.type === 'InvertSwitch' || cell.type === 'PlayerInvertSwitch' || cell.type === 'MoveCell') return true;
   if (cell.type === 'Empty') return false;
   if (inverted) return cell.side !== 'front';
   return cell.side !== 'back';

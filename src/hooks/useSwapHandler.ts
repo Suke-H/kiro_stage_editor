@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { gridSlice } from "@/store/slices/grid-slice";
 import { setSwapTarget, clearSwapTarget } from "@/store/slices/swap-slice";
+import { clearMoveTarget } from "@/store/slices/move-slice";
 import { Grid, GridCell } from "@/types/grid";
 import { swapGridCells } from "@/logic/grid-utils";
 
@@ -21,6 +22,7 @@ export const useSwapHandler = () => {
   };
 
   const selectFirstSwapTarget = (rowIdx: number, colIdx: number) => {
+    dispatch(clearMoveTarget());
     dispatch(setSwapTarget({ row: rowIdx, col: colIdx }));
   };
 
