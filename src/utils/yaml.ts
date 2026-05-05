@@ -19,7 +19,7 @@ interface PanelYamlData {
 
 const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
   return {
-    Type: cell.type,
+    Type: cell.type === "SwapCell" ? "Swap" : cell.type,
     CellSide: capitalize(cell.side),
   };
 };
@@ -112,7 +112,7 @@ export const importStageFromYaml = (yamlString: string): [Grid, Panel[]] => {
   // グリッド変換（Y軸を反転して読み込み）
   const grid: Grid = [...Cells].reverse().map((row: CellYamlData[]) =>
     row.map((cell: CellYamlData) => ({
-      type: cell.Type as GridCellKey,
+      type: (cell.Type === "Swap" ? "SwapCell" : cell.Type) as GridCellKey,
       side: uncapitalize(cell.CellSide) as GridCell["side"],
     }))
   );
