@@ -29,7 +29,6 @@ export const useSwapHandler = () => {
   const selectSecondSwapTarget = (rowIdx: number, colIdx: number) => {
     const clickedCell = grid[rowIdx][colIdx];
     if (
-      clickedCell.type === "Normal" ||
       clickedCell.type === "Empty" ||
       clickedCell.type === "SwapCell"
     ) {
