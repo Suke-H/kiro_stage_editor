@@ -35,19 +35,16 @@ export const gridSlice = createSlice({
     },
 
     // 行列の追加・削除
-    addToRow: (state, action: PayloadAction<{ isFirst: boolean }>) => {
-        if (action.payload.isFirst) {
-            state.grid.unshift(Array(state.grid[0].length).fill({ type: 'Normal', side: 'front' }));
-        } else {
-            state.grid.push(Array(state.grid[0].length).fill({ type: 'Normal', side: 'front' }));
-        }
+    addToRow: (state, action: PayloadAction<{ isFirst: boolean; cellType: GridCellKey; side: "neutral" | "front" | "back" }>) => {
+        const { isFirst, cellType, side } = action.payload;
+        const newRow = Array(state.grid[0].length).fill({ type: cellType, side });
+        if (isFirst) state.grid.unshift(newRow);
+        else state.grid.push(newRow);
     },
-    addToCol: (state, action: PayloadAction<{ isFirst: boolean }>) => {
-        if (action.payload.isFirst) {
-            state.grid = state.grid.map((row) => [ { type: 'Normal', side: 'front' }, ...row ]);
-        } else {
-            state.grid = state.grid.map((row) => [ ...row, { type: 'Normal', side: 'front' } ]);
-        }
+    addToCol: (state, action: PayloadAction<{ isFirst: boolean; cellType: GridCellKey; side: "neutral" | "front" | "back" }>) => {
+        const { isFirst, cellType, side } = action.payload;
+        if (isFirst) state.grid = state.grid.map((row) => [{ type: cellType, side }, ...row]);
+        else state.grid = state.grid.map((row) => [...row, { type: cellType, side }]);
     },
     removeFromRow: (state, action: PayloadAction<{ isFirst: boolean }>) => {
         if (action.payload.isFirst) {

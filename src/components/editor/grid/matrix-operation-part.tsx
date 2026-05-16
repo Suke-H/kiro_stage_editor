@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { gridSlice } from "@/store/slices/grid-slice";
+import { RootState } from "@/store";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Add, Remove } from "@mui/icons-material";
@@ -8,6 +9,8 @@ import { Add, Remove } from "@mui/icons-material";
 export const MatrixOperationPart: React.FC = () => {
   const [isFirst, setIsFirst] = useState(false);
   const dispatch = useDispatch();
+  const selectedCellType = useSelector((state: RootState) => state.cellType.selectedCellType);
+  const selectedSide = useSelector((state: RootState) => state.cellType.selectedSide);
 
   return (
     <div className="flex flex-col gap-4">
@@ -18,7 +21,7 @@ export const MatrixOperationPart: React.FC = () => {
           <span className="font-semibold text-lg ml-2.5">行</span>
           <div className="flex justify-center gap-2 mt-2">
             <Button
-              onClick={() => dispatch(gridSlice.actions.addToRow({ isFirst }))}
+              onClick={() => dispatch(gridSlice.actions.addToRow({ isFirst, cellType: selectedCellType, side: selectedSide }))}
               className="flex items-center justify-center w-10 h-10"
             >
               <Add />
@@ -36,7 +39,7 @@ export const MatrixOperationPart: React.FC = () => {
           <span className="font-semibold text-lg ml-2.5">列</span>
           <div className="flex justify-center gap-2 mt-2">
             <Button
-              onClick={() => dispatch(gridSlice.actions.addToCol({ isFirst }))}
+              onClick={() => dispatch(gridSlice.actions.addToCol({ isFirst, cellType: selectedCellType, side: selectedSide }))}
               className="flex items-center justify-center w-10 h-10"
             >
               <Add />
