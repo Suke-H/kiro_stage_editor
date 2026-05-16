@@ -14,6 +14,30 @@ import { RootState } from "@/store";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+function trimToBlackBoundingBox(grid: PanelCellTypeKey[][]): PanelCellTypeKey[][] {
+  const blackRows = grid.reduce<number[]>((acc, row, i) => {
+    if (row.some((cell) => cell !== "White")) acc.push(i);
+    return acc;
+  }, []);
+
+  const minRow = blackRows[0];
+  const maxRow = blackRows[blackRows.length - 1];
+
+  const colCount = grid[0].length;
+  let minCol = colCount;
+  let maxCol = -1;
+  for (let r = minRow; r <= maxRow; r++) {
+    for (let c = 0; c < colCount; c++) {
+      if (grid[r][c] !== "White") {
+        minCol = Math.min(minCol, c);
+        maxCol = Math.max(maxCol, c);
+      }
+    }
+  }
+
+  return grid.slice(minRow, maxRow + 1).map((row) => row.slice(minCol, maxCol + 1));
+}
+
 export const NewPanelCreator: React.FC = () => {
   const [isCut, setIsCut] = useState<boolean>(false);
   const dispatch = useDispatch();
@@ -31,7 +55,7 @@ export const NewPanelCreator: React.FC = () => {
 
     const newPanel: Panel = {
       id: `panel-${Date.now()}`,
-      cells: newPanelGrid,
+      cells: trimToBlackBoundingBox(newPanelGrid),
       type: isCut ? "Cut" : "Normal",
     };
 
