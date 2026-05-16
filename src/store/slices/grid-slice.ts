@@ -61,6 +61,21 @@ export const gridSlice = createSlice({
         }
     },
 
+    // 変換操作
+    invertVertical: (state) => {
+        state.grid = [...state.grid].reverse();
+    },
+    invertHorizontal: (state) => {
+        state.grid = state.grid.map((row) => [...row].reverse());
+    },
+    transpose: (state) => {
+        const rows = state.grid.length;
+        const cols = state.grid[0].length;
+        state.grid = Array.from({ length: cols }, (_, c) =>
+            Array.from({ length: rows }, (_, r) => state.grid[r][c])
+        );
+    },
+
     // セル操作
     placeCell: (state, action: PayloadAction<{ row: number; col: number; cell: GridCell }>) => {
         const { row, col, cell } = action.payload;

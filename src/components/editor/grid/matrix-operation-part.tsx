@@ -4,7 +4,7 @@ import { gridSlice } from "@/store/slices/grid-slice";
 import { RootState } from "@/store";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Add, Remove } from "@mui/icons-material";
+import { Add, Remove, SwapVert, SwapHoriz, Transform } from "@mui/icons-material";
 
 export const MatrixOperationPart: React.FC = () => {
   const [isFirst, setIsFirst] = useState(false);
@@ -49,6 +49,43 @@ export const MatrixOperationPart: React.FC = () => {
               className="flex items-center justify-center w-10 h-10"
             >
               <Remove />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* 変換操作 */}
+      <div className="grid grid-cols-3 gap-4 text-left">
+        <div>
+          <span className="font-semibold text-lg ml-2.5">上下</span>
+          <div className="flex justify-center mt-2">
+            <Button
+              onClick={() => dispatch(gridSlice.actions.invertVertical())}
+              className="flex items-center justify-center w-10 h-10"
+            >
+              <SwapVert />
+            </Button>
+          </div>
+        </div>
+        <div>
+          <span className="font-semibold text-lg ml-2.5">左右</span>
+          <div className="flex justify-center mt-2">
+            <Button
+              onClick={() => dispatch(gridSlice.actions.invertHorizontal())}
+              className="flex items-center justify-center w-10 h-10"
+            >
+              <SwapHoriz />
+            </Button>
+          </div>
+        </div>
+        <div>
+          <span className="font-semibold text-lg ml-2.5">転置</span>
+          <div className="flex justify-center mt-2">
+            <Button
+              onClick={() => dispatch(gridSlice.actions.transpose())}
+              className="flex items-center justify-center w-10 h-10"
+            >
+              <Transform />
             </Button>
           </div>
         </div>
