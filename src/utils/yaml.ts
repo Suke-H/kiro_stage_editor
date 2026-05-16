@@ -181,7 +181,7 @@ const trimPanelCells = (panel: Panel): Panel => {
   const coordinates = panel.cells.flatMap((row, rowIndex) =>
     row
       .map((cell, colIndex) =>
-        cell === "Black" ? { X: colIndex, Y: rowIndex } : null
+        (cell === "Black" || cell === "Cut") ? { X: colIndex, Y: rowIndex } : null
       )
       .filter((coord) => coord !== null)
   );
