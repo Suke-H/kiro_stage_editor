@@ -49,11 +49,6 @@ export const GridViewer: React.FC = () => {
       return;
     }
 
-    if (studioMode === StudioMode.Play && grid[rowIdx][colIdx].type === "SwapCell") {
-      selectFirstSwapTarget(rowIdx, colIdx);
-      return;
-    }
-
     if (studioMode === StudioMode.Editor && !placing) {
       if (selectedCellKey === "Flip") {
         if (grid[rowIdx][colIdx].type !== "Empty") {
@@ -75,7 +70,12 @@ export const GridViewer: React.FC = () => {
       return;
     }
 
-    if (!placing) return;
+    if (!placing) {
+      if (studioMode === StudioMode.Play && grid[rowIdx][colIdx].type === "SwapCell") {
+        selectFirstSwapTarget(rowIdx, colIdx);
+      }
+      return;
+    }
 
     const panelType = placing.type ?? "Normal";
 
