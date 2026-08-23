@@ -1,6 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { gridSlice } from "@/store/slices/grid-slice";
+import { panelListSlice } from "@/store/slices/panel-list-slice";
+import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
 import { setSwapTarget, clearSwapTarget } from "@/store/slices/swap-slice";
 import { clearMoveTarget } from "@/store/slices/move-slice";
 import { Grid, GridCell } from "@/types/grid";
@@ -11,6 +13,10 @@ export const useSwapHandler = () => {
   const grid = useSelector((s: RootState) => s.grid.grid) as Grid;
   const gridHistory = useSelector((s: RootState) => s.grid.gridHistory);
   const swapState = useSelector((s: RootState) => s.swap);
+  const panels = useSelector((s: RootState) => s.panelList.panels);
+  const selectedPanel = useSelector(
+    (s: RootState) => s.panelPlacement.panelPlacementMode.panel
+  );
 
   const saveHistory = () => {
     if (gridHistory.length === 0) {
@@ -23,7 +29,13 @@ export const useSwapHandler = () => {
 
   const selectFirstSwapTarget = (rowIdx: number, colIdx: number) => {
     dispatch(clearMoveTarget());
-    dispatch(setSwapTarget({ row: rowIdx, col: colIdx }));
+    dispatch(
+      setSwapTarget({
+        row: rowIdx,
+        col: colIdx,
+        panelId: selectedPanel?.type === "Swap" ? selectedPanel.id : undefined,
+      })
+    );
   };
 
   const selectSecondSwapTarget = (rowIdx: number, colIdx: number) => {
@@ -49,6 +61,13 @@ export const useSwapHandler = () => {
     const newGrid = swapGridCells(targetGrid, first, { row: rowIdx, col: colIdx });
 
     dispatch(gridSlice.actions.replaceGrid(newGrid));
+
+    const usedSwapPanel = panels.find((panel) => panel.id === swapState.swapPanelId);
+    if (usedSwapPanel) {
+      dispatch(panelListSlice.actions.placePanel(usedSwapPanel));
+      dispatch(panelPlacementSlice.actions.clearPanelSelection());
+    }
+
     dispatch(clearSwapTarget());
   };
 
