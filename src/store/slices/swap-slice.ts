@@ -1,13 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { SwapOperation } from "@/logic/grid-utils";
 
 export interface SwapState {
   swapTarget: { row: number; col: number } | null;
   swapPanelId: string | null;
+  operations: SwapOperation[];
 }
 
 const initialState: SwapState = {
   swapTarget: null,
   swapPanelId: null,
+  operations: [],
 };
 
 const swapSlice = createSlice({
@@ -26,8 +29,25 @@ const swapSlice = createSlice({
       state.swapTarget = null;
       state.swapPanelId = null;
     },
+    recordSwapOperation: (state, action: PayloadAction<SwapOperation>) => {
+      state.operations.push(action.payload);
+    },
+    undoSwapOperation: (state, action: PayloadAction<number>) => {
+      state.operations = state.operations.filter(
+        (operation) => operation.historyDepth !== action.payload
+      );
+    },
+    clearSwapOperations: (state) => {
+      state.operations = [];
+    },
   },
 });
 
-export const { setSwapTarget, clearSwapTarget } = swapSlice.actions;
+export const {
+  setSwapTarget,
+  clearSwapTarget,
+  recordSwapOperation,
+  undoSwapOperation,
+  clearSwapOperations,
+} = swapSlice.actions;
 export default swapSlice.reducer;

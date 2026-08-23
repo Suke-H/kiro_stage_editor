@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { placePanels } from '@/logic/panels';
+import { canPlacePanelAt, placePanels } from '@/logic/panels';
 import { Panel } from '@/types/panel';
 import { PanelPlacement } from '@/types/panel-placement';
 import { gridFrom } from './test-utils';
@@ -22,6 +22,12 @@ describe('panel placement logic', () => {
     id: 'invert-panel',
     cells: [['InvertCell']],
     type: 'Invert',
+  };
+
+  const swapPanel: Panel = {
+    id: 'swap-panel',
+    cells: [['Swap']],
+    type: 'Swap',
   };
 
   describe('placement validity', () => {
@@ -76,6 +82,13 @@ describe('panel placement logic', () => {
 
       const [, success] = placePanels(grid, [placement]);
       expect(success).toBe(false);
+    });
+
+    it('cannot select Start with a Swap panel', () => {
+      const grid = gridFrom(['SG']);
+
+      expect(canPlacePanelAt(grid, 0, 0, swapPanel)).toBe(false);
+      expect(canPlacePanelAt(grid, 0, 1, swapPanel)).toBe(true);
     });
   });
 

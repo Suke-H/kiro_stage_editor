@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { gridSlice } from "@/store/slices/grid-slice";
 import { panelListSlice } from "@/store/slices/panel-list-slice";
 import { clearMoveTarget } from "@/store/slices/move-slice";
-import { clearSwapTarget } from "@/store/slices/swap-slice";
+import { clearSwapOperations, clearSwapTarget } from "@/store/slices/swap-slice";
 
 import { GridViewer } from "@/components/editor/grid-viewer";
 import { PanelList } from "@/components/editor/panel-list";
@@ -17,6 +17,7 @@ const PlayPage: React.FC = () => {
     dispatch(gridSlice.actions.resetPhase());
     dispatch(panelListSlice.actions.reset());
     dispatch(clearSwapTarget());
+    dispatch(clearSwapOperations());
     dispatch(clearMoveTarget());
 
     dispatch(gridSlice.actions.initHistory());

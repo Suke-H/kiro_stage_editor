@@ -7,7 +7,7 @@ import { store } from "@/store";
 export class SwapSecondStrategy implements IPanelStrategy {
   canPlace(grid: Grid, rowIdx: number, colIdx: number, _panel: Panel | CopyPanel): boolean {
     const cell = grid[rowIdx][colIdx];
-    return cell.type !== "Normal" && cell.type !== "Empty";
+    return cell.type !== "Normal" && cell.type !== "Empty" && cell.type !== "Start";
   }
 
   applyEffect(grid: Grid, rowIdx: number, colIdx: number, _panel: Panel | CopyPanel): [Grid, undefined, { swapAction: string }] {

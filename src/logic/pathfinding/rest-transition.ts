@@ -1,5 +1,6 @@
 import { Grid } from '@/types/grid';
 import { deepCopyGrid, Point } from '../utils';
+import { restoreGridCellSwaps, SwapOperation } from '../grid-utils';
 
 /**
  * Rest到達時の次状態グリッド作成
@@ -10,9 +11,10 @@ export const createRestTransitionGrid = (
   restPosition: Point, 
   crowPositions: Set<string>, 
   path: Point[], 
-  phaseHistory?: Grid[]
+  phaseHistory?: Grid[],
+  swapOperations: SwapOperation[] = []
 ): Grid => {
-  const newGrid = deepCopyGrid(grid);
+  let newGrid = deepCopyGrid(grid);
   
   // フェーズ履歴から元の状態を判定
   let isStartOriginallyRest = false;
@@ -51,6 +53,12 @@ export const createRestTransitionGrid = (
     }
   }
   
+  // 到達したRestを新しいStartに置換
+  newGrid[restPosition.y][restPosition.x] = { type: 'Start', side: 'neutral' };
+
+  // このフェーズの入れ替えを逆順に戻す。Restが入れ替えられていた場合はStartも元位置へ戻る
+  newGrid = restoreGridCellSwaps(newGrid, swapOperations);
+
   // Rest到達時：Normalパネルのfront/back状態をフェーズ履歴末尾からリセット
   if (phaseHistory && phaseHistory.length > 0) {
     const latestGrid = phaseHistory[phaseHistory.length - 1];
@@ -64,9 +72,6 @@ export const createRestTransitionGrid = (
       }
     }
   }
-  
-  // 到達したRestを新しいStartに置換
-  newGrid[restPosition.y][restPosition.x] = { type: 'Start', side: 'neutral' };
   
   return newGrid;
 };

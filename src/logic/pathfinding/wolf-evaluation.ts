@@ -3,17 +3,22 @@ import { PathResult, Result } from '@/types/path';
 import { findPath } from './main';
 import { findWolfPath } from './wolf';
 import { findAll } from '../utils';
+import { SwapOperation } from '../grid-utils';
 
 /**
  * Wolf対応の統合判定関数
  */
-export const evaluateAllPaths = (grid: Grid, phaseHistory?: Grid[]): {
+export const evaluateAllPaths = (
+  grid: Grid,
+  phaseHistory?: Grid[],
+  swapOperations: SwapOperation[] = []
+): {
   startResult: PathResult;
   wolfResults: PathResult[];
   finalResult: Result;
 } => {
   // 1. Startの経路取得
-  const startResult = findPath(grid, phaseHistory);
+  const startResult = findPath(grid, phaseHistory, swapOperations);
   
   // 2. 全Wolfの経路取得
   const wolves = findAll(grid, 'Wolf');

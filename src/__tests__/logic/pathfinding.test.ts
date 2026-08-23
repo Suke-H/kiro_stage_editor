@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { findPath } from '@/logic/pathfinding'
 import { Result } from '@/types/path'
 import { gridFrom, TestCase, TEST_CASES } from './test-utils'
+import { createRestTransitionGrid } from '@/logic/pathfinding/rest-transition'
 
 describe('パス探索アルゴリズム', () => {
   // 現在実装で動作する基本テストケース
@@ -98,6 +99,44 @@ describe('パス探索アルゴリズム', () => {
   })
   
   describe('フェーズ履歴対応', () => {
+    it('連鎖した入れ替えを休憩到達時に元の位置へ戻す', () => {
+      const initialGrid = gridFrom(['SRGD'])
+      const swappedGrid = gridFrom(['SGDR'])
+
+      const nextGrid = createRestTransitionGrid(
+        swappedGrid,
+        { x: 0, y: 0 },
+        { x: 3, y: 0 },
+        new Set(),
+        [
+          { x: 0, y: 0 },
+          { x: 1, y: 0 },
+          { x: 2, y: 0 },
+          { x: 3, y: 0 },
+        ],
+        [initialGrid],
+        [
+          {
+            first: { row: 0, col: 1 },
+            second: { row: 0, col: 2 },
+            historyDepth: 2,
+          },
+          {
+            first: { row: 0, col: 2 },
+            second: { row: 0, col: 3 },
+            historyDepth: 3,
+          },
+        ]
+      )
+
+      expect(nextGrid[0].map((cell) => cell.type)).toEqual([
+        'Normal',
+        'Start',
+        'Goal',
+        'DummyGoal',
+      ])
+    })
+
     it('フェーズ履歴ありでRest移動が正しく動作する', () => {
       // 初期状態
       const initialGrid = gridFrom([

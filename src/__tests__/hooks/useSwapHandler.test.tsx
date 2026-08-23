@@ -8,7 +8,7 @@ import { store } from "@/store";
 import { gridSlice } from "@/store/slices/grid-slice";
 import { panelListSlice } from "@/store/slices/panel-list-slice";
 import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
-import { clearSwapTarget } from "@/store/slices/swap-slice";
+import { clearSwapOperations, clearSwapTarget } from "@/store/slices/swap-slice";
 import { Panel } from "@/types/panel";
 import { gridFrom } from "../logic/test-utils";
 
@@ -28,6 +28,7 @@ describe("useSwapHandler", () => {
     store.dispatch(panelListSlice.actions.loadPanels([swapPanel]));
     store.dispatch(panelPlacementSlice.actions.clearPanelSelection());
     store.dispatch(clearSwapTarget());
+    store.dispatch(clearSwapOperations());
   });
 
   it("入れ替えパネルによる交換が成功したときパネルを消費する", () => {
@@ -58,5 +59,39 @@ describe("useSwapHandler", () => {
     act(() => result.current.selectSecondSwapTarget(0, 1));
 
     expect(store.getState().panelList.panels).toEqual([swapPanel]);
+  });
+
+  it("Startを1つ目の入れ替え対象にできない", () => {
+    store.dispatch(gridSlice.actions.loadGrid(gridFrom(["SG"])));
+    store.dispatch(
+      panelPlacementSlice.actions.selectPanelForPlacement({
+        panel: swapPanel,
+        highlightedCell: { row: 0, col: 0 },
+      })
+    );
+    const { result } = renderHook(() => useSwapHandler(), { wrapper });
+
+    act(() => result.current.selectFirstSwapTarget(0, 0));
+
+    expect(result.current.hasSwapTarget).toBe(false);
+    expect(store.getState().panelList.panels).toEqual([swapPanel]);
+  });
+
+  it("Startを2つ目の入れ替え対象にできない", () => {
+    store.dispatch(gridSlice.actions.loadGrid(gridFrom(["GS"])));
+    store.dispatch(
+      panelPlacementSlice.actions.selectPanelForPlacement({
+        panel: swapPanel,
+        highlightedCell: { row: 0, col: 0 },
+      })
+    );
+    const { result } = renderHook(() => useSwapHandler(), { wrapper });
+
+    act(() => result.current.selectFirstSwapTarget(0, 0));
+    act(() => result.current.selectSecondSwapTarget(0, 1));
+
+    expect(store.getState().grid.grid[0].map((cell) => cell.type)).toEqual(["Goal", "Start"]);
+    expect(store.getState().panelList.panels).toEqual([swapPanel]);
+    expect(store.getState().swap.operations).toEqual([]);
   });
 });

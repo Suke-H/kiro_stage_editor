@@ -11,6 +11,10 @@ import { useState } from "react";
 import { evaluateAllPaths, createCombinedNextGrid } from "@/logic";
 import { Result, resultMessages } from "@/types/path";
 import { StudioModeInEditor } from "@/types/store";
+import {
+  clearSwapOperations,
+  undoSwapOperation,
+} from "@/store/slices/swap-slice";
 
 // import { useToast } from "@/hooks/use-toast"
 import { toast } from "sonner";
@@ -20,6 +24,7 @@ export const PlacementControllPart: React.FC = () => {
   const gridHistory = useSelector((state: RootState) => state.grid.gridHistory);
   const phaseHistory = useSelector((state: RootState) => state.grid.phaseHistory);
   const grid = useSelector((state: RootState) => state.grid.grid);
+  const swapOperations = useSelector((state: RootState) => state.swap.operations);
   const lastOperationType = useSelector((state: RootState) => state.copyPanelList.lastOperationType);
   
   // クリア状態を管理するローカルstate
@@ -29,6 +34,7 @@ export const PlacementControllPart: React.FC = () => {
   
   // 「1つ戻す」メソッド
   const undoLastPlacement = () => {
+    dispatch(undoSwapOperation(gridHistory.length));
     if (lastOperationType === 'cut' || lastOperationType === 'paste') {
       // Cut/Paste操作の場合
       dispatch(copyPanelListSlice.actions.undo());
@@ -52,6 +58,7 @@ export const PlacementControllPart: React.FC = () => {
     // グリッドとパネル配置履歴をリセット
     dispatch(panelListSlice.actions.reset());
     dispatch(gridSlice.actions.reset());
+    dispatch(clearSwapOperations());
 
     // パネル配置モードの終了
     dispatch(
@@ -67,6 +74,7 @@ export const PlacementControllPart: React.FC = () => {
   const resetPhase = () => {
     // フェーズ履歴をリセット
     dispatch(gridSlice.actions.resetPhase());
+    dispatch(clearSwapOperations());
 
     // グリッドとパネル配置履歴をリセット
     dispatch(panelListSlice.actions.reset());
@@ -89,7 +97,11 @@ export const PlacementControllPart: React.FC = () => {
       // StudioModeInEditorをPlayに切り替え
       dispatch(studioModeInEditorSlice.actions.switchMode(StudioModeInEditor.Play));
 
-      const { startResult, wolfResults, finalResult } = evaluateAllPaths(grid, phaseHistory);
+      const { startResult, wolfResults, finalResult } = evaluateAllPaths(
+        grid,
+        phaseHistory,
+        swapOperations
+      );
       
       // nextGridを決定（nullの場合は元のgridを使用）
       const nextGrid = startResult.nextGrid !== null ? startResult.nextGrid : grid;
@@ -138,6 +150,10 @@ export const PlacementControllPart: React.FC = () => {
             && _pathResult.result !== Result.HasPlayerInvertSwitchPath) {
               dispatch(gridSlice.actions.initHistory());
               dispatch(panelListSlice.actions.reset());
+          }
+
+          if (_pathResult.result === Result.HasRestPath) {
+              dispatch(clearSwapOperations());
           }
       }
 

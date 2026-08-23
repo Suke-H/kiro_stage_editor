@@ -5,6 +5,7 @@ import { bfsAllShortestPaths } from './bfs';
 import { Candidate } from './types';
 import { rankCandidates } from './candidate-ranking';
 import { determineResult } from './result-determination';
+import { SwapOperation } from '../grid-utils';
 
 /**
  * 全ての目標地点（Goal/DummyGoal/Rest/Flag）への経路を収集
@@ -131,7 +132,11 @@ const searchCrowPositions = (grid: Grid): Set<string> => {
  * 優先度: 最短経路 → 本物ゴール優先 → 通過カラス数多い順
  * クリア条件: 本物ゴールに到達かつステージ内の全カラスを通過
  */
-export const findPath = (grid: Grid, phaseHistory?: Grid[]): PathResult => {
+export const findPath = (
+  grid: Grid,
+  phaseHistory?: Grid[],
+  swapOperations: SwapOperation[] = []
+): PathResult => {
   // 1. 基本要素の検証
   const start = findSingle(grid, 'Start');
   const goalReal = findSingle(grid, 'Goal');
@@ -157,5 +162,13 @@ export const findPath = (grid: Grid, phaseHistory?: Grid[]): PathResult => {
   
   // 6. 最終結果の判定
   const best = sortedCandidates[0];
-  return determineResult(best, grid, start, totalCrows, crowPositions, phaseHistory);
+  return determineResult(
+    best,
+    grid,
+    start,
+    totalCrows,
+    crowPositions,
+    phaseHistory,
+    swapOperations
+  );
 };

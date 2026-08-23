@@ -6,7 +6,7 @@ import { panelListSlice } from "@/store/slices/panel-list-slice";
 import { panelPlacementSlice } from "@/store/slices/panel-placement-slice";
 import { studioModeInEditorSlice } from "@/store/slices/studio-mode-in-editor-slice";
 import { clearMoveTarget } from "@/store/slices/move-slice";
-import { clearSwapTarget } from "@/store/slices/swap-slice";
+import { clearSwapOperations, clearSwapTarget } from "@/store/slices/swap-slice";
 import { RootState } from "@/store";
 import { StudioModeInEditor } from "@/types/store";
 
@@ -30,6 +30,7 @@ const EditorPage: React.FC = () => {
     dispatch(panelListSlice.actions.reset());
     dispatch(panelPlacementSlice.actions.clearPanelSelection());
     dispatch(clearSwapTarget());
+    dispatch(clearSwapOperations());
     dispatch(clearMoveTarget());
     // 履歴を初期化
     dispatch(gridSlice.actions.initHistory());
@@ -52,6 +53,7 @@ const EditorPage: React.FC = () => {
       // // パネル配置リセット
       dispatch(panelListSlice.actions.reset());
       dispatch(clearSwapTarget());
+      dispatch(clearSwapOperations());
       dispatch(clearMoveTarget());
     }
   }, [studioModeInEditor, dispatch]);

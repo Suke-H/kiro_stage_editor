@@ -7,6 +7,7 @@ import { createSwitchTransitionGrid } from './switch-transition';
 import { createInvertSwitchTransitionGrid } from './invert-switch-transition';
 import { createPlayerInvertSwitchTransitionGrid } from './player-invert-switch-transition';
 import { Candidate } from './types';
+import { SwapOperation } from '../grid-utils';
 
 /**
  * クリア時の足跡描画グリッド作成
@@ -86,7 +87,8 @@ export const determineResult = (
   start: Point,
   totalCrows: number,
   crowPositions: Set<string>,
-  phaseHistory?: Grid[]
+  phaseHistory?: Grid[],
+  swapOperations: SwapOperation[] = []
 ): PathResult => {
   const vectors: Vector[] = best.path.map(point => ({ x: point.x, y: point.y }));
   
@@ -109,7 +111,7 @@ export const determineResult = (
     // Rest到達時の特別処理
     status = Result.HasRestPath;
     const restPosition = best.path[best.path.length - 1];
-    nextGrid = createRestTransitionGrid(grid, start, restPosition, crowPositions, best.path, phaseHistory);
+    nextGrid = createRestTransitionGrid(grid, start, restPosition, crowPositions, best.path, phaseHistory, swapOperations);
   } else if (best.kind === 3) {
     // Flag到達時の特別処理
     status = Result.HasFlagPath;
