@@ -20,7 +20,7 @@ interface PanelYamlData {
 const transformCellToYamlFormat = (cell: GridCell): CellYamlData => {
   return {
     Type: cell.type === "SwapCell" ? "Swap" : cell.type,
-    CellSide: capitalize(cell.side),
+    CellSide: cell.side === "neutral" ? "Front" : capitalize(cell.side),
   };
 };
 

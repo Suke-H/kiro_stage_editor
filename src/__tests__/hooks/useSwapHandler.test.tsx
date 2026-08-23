@@ -32,7 +32,7 @@ describe("useSwapHandler", () => {
   });
 
   it("入れ替えパネルによる交換が成功したときパネルを消費する", () => {
-    store.dispatch(gridSlice.actions.loadGrid(gridFrom(["SG"])));
+    store.dispatch(gridSlice.actions.loadGrid(gridFrom(["GD"])));
     store.dispatch(
       panelPlacementSlice.actions.selectPanelForPlacement({
         panel: swapPanel,
@@ -46,7 +46,7 @@ describe("useSwapHandler", () => {
 
     expect(store.getState().panelList.panels).toEqual([]);
     expect(store.getState().panelPlacement.panelPlacementMode.panel).toBeNull();
-    expect(store.getState().grid.grid[0].map((cell) => cell.type)).toEqual(["Goal", "Start"]);
+    expect(store.getState().grid.grid[0].map((cell) => cell.type)).toEqual(["DummyGoal", "Goal"]);
   });
 
   it("盤面の入れ替えマスによる交換では所持パネルを消費しない", () => {
