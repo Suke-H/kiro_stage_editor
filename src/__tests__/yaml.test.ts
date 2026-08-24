@@ -2,7 +2,7 @@ import { parse } from "yaml";
 import { describe, expect, it } from "vitest";
 
 import { Grid } from "@/types/grid";
-import { exportStageToYaml } from "@/utils/yaml";
+import { exportStageToYaml } from "../utils/yaml";
 
 describe("YAMLのセル面変換", () => {
   const grid: Grid = [[
