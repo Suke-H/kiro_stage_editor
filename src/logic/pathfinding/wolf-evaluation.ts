@@ -11,14 +11,15 @@ import { SwapOperation } from '../grid-utils';
 export const evaluateAllPaths = (
   grid: Grid,
   phaseHistory?: Grid[],
-  swapOperations: SwapOperation[] = []
+  swapOperations: SwapOperation[] = [],
+  phaseStartGrid?: Grid
 ): {
   startResult: PathResult;
   wolfResults: PathResult[];
   finalResult: Result;
 } => {
   // 1. Startの経路取得
-  const startResult = findPath(grid, phaseHistory, swapOperations);
+  const startResult = findPath(grid, phaseHistory, swapOperations, phaseStartGrid);
   
   // 2. 全Wolfの経路取得
   const wolves = findAll(grid, 'Wolf');

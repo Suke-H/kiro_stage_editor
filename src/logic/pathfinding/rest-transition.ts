@@ -12,9 +12,34 @@ export const createRestTransitionGrid = (
   crowPositions: Set<string>, 
   path: Point[], 
   phaseHistory?: Grid[],
-  swapOperations: SwapOperation[] = []
+  swapOperations: SwapOperation[] = [],
+  phaseStartGrid?: Grid
 ): Grid => {
-  let newGrid = deepCopyGrid(grid);
+  const restorePointAfterSwaps = (point: Point): Point => {
+    let restored = { ...point };
+
+    for (const operation of [...swapOperations].reverse()) {
+      const isFirst =
+        restored.y === operation.first.row && restored.x === operation.first.col;
+      const isSecond =
+        restored.y === operation.second.row && restored.x === operation.second.col;
+
+      if (isFirst) {
+        restored = { x: operation.second.col, y: operation.second.row };
+      } else if (isSecond) {
+        restored = { x: operation.first.col, y: operation.first.row };
+      }
+    }
+
+    return restored;
+  };
+
+  const resetsToPhaseStart = phaseStartGrid !== undefined;
+  const restoredStart = resetsToPhaseStart ? restorePointAfterSwaps(start) : start;
+  const restoredRest = resetsToPhaseStart
+    ? restorePointAfterSwaps(restPosition)
+    : restPosition;
+  let newGrid = deepCopyGrid(phaseStartGrid ?? grid);
   
   // フェーズ履歴から元の状態を判定
   let isStartOriginallyRest = false;
@@ -22,8 +47,11 @@ export const createRestTransitionGrid = (
   let isStartOriginallyPlayerInvertSwitch = false;
   if (phaseHistory && phaseHistory.length >= 2) {
     const previousGrid = phaseHistory[phaseHistory.length - 2];
-    if (start.y < previousGrid.length && start.x < previousGrid[start.y].length) {
-      const originalCell = previousGrid[start.y][start.x];
+    if (
+      restoredStart.y < previousGrid.length &&
+      restoredStart.x < previousGrid[restoredStart.y].length
+    ) {
+      const originalCell = previousGrid[restoredStart.y][restoredStart.x];
       isStartOriginallyRest = originalCell.type === 'Rest';
       isStartOriginallySwitch = originalCell.type === 'Switch';
       isStartOriginallyPlayerInvertSwitch = originalCell.type === 'PlayerInvertSwitch';
@@ -33,34 +61,37 @@ export const createRestTransitionGrid = (
   // スタート地点の状態変更
   if (isStartOriginallyRest) {
     // Rest間移動時：前のRest（現在のStart）をRestに戻す
-    newGrid[start.y][start.x] = { type: 'Rest', side: 'neutral' };
+    newGrid[restoredStart.y][restoredStart.x] = { type: 'Rest', side: 'neutral' };
   } else if (isStartOriginallySwitch) {
     // Switch経由時：前のSwitch（現在のStart）をSwitchOff(back)に戻す
-    newGrid[start.y][start.x] = { type: 'Switch', side: 'front' };
+    newGrid[restoredStart.y][restoredStart.x] = { type: 'Switch', side: 'front' };
   } else if (isStartOriginallyPlayerInvertSwitch) {
     // PlayerInvertSwitch経由時：前のPlayerInvertSwitch（現在のStart）をPlayerInvertSwitchに戻す
-    newGrid[start.y][start.x] = { type: 'PlayerInvertSwitch', side: 'front' };
+    newGrid[restoredStart.y][restoredStart.x] = { type: 'PlayerInvertSwitch', side: 'front' };
   } else {
     // 初回Rest到達：StartをNormal:frontに変更
-    newGrid[start.y][start.x] = { type: 'Normal', side: 'front' };
+    newGrid[restoredStart.y][restoredStart.x] = { type: 'Normal', side: 'front' };
   }
   
   // 通過したCrowをNormal:frontに置き換え
   for (const point of path) {
     const pointKey = `${point.x},${point.y}`;
     if (crowPositions.has(pointKey)) {
-      newGrid[point.y][point.x] = { type: 'Normal', side: 'front' };
+      const restoredPoint = resetsToPhaseStart ? restorePointAfterSwaps(point) : point;
+      newGrid[restoredPoint.y][restoredPoint.x] = { type: 'Normal', side: 'front' };
     }
   }
   
   // 到達したRestを新しいStartに置換
-  newGrid[restPosition.y][restPosition.x] = { type: 'Start', side: 'neutral' };
+  newGrid[restoredRest.y][restoredRest.x] = { type: 'Start', side: 'neutral' };
 
   // このフェーズの入れ替えを逆順に戻す。Restが入れ替えられていた場合はStartも元位置へ戻る
-  newGrid = restoreGridCellSwaps(newGrid, swapOperations);
+  if (!resetsToPhaseStart) {
+    newGrid = restoreGridCellSwaps(newGrid, swapOperations);
+  }
 
   // Rest到達時：Normalパネルのfront/back状態をフェーズ履歴末尾からリセット
-  if (phaseHistory && phaseHistory.length > 0) {
+  if (!resetsToPhaseStart && phaseHistory && phaseHistory.length > 0) {
     const latestGrid = phaseHistory[phaseHistory.length - 1];
     for (let y = 0; y < newGrid.length; y++) {
       for (let x = 0; x < newGrid[y].length; x++) {

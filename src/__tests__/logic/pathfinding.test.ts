@@ -126,7 +126,8 @@ describe('パス探索アルゴリズム', () => {
             second: { row: 0, col: 3 },
             historyDepth: 3,
           },
-        ]
+        ],
+        initialGrid
       )
 
       expect(nextGrid[0].map((cell) => cell.type)).toEqual([
@@ -134,6 +135,32 @@ describe('パス探索アルゴリズム', () => {
         'Start',
         'Goal',
         'DummyGoal',
+      ])
+    })
+
+    it('切り取りと貼り付けを休憩到達時に元へ戻す', () => {
+      const phaseStartGrid = gridFrom(['S.#R'])
+      const cutAndPastedGrid = gridFrom(['S#.R'])
+
+      const nextGrid = createRestTransitionGrid(
+        cutAndPastedGrid,
+        { x: 0, y: 0 },
+        { x: 3, y: 0 },
+        new Set(),
+        [
+          { x: 0, y: 0 },
+          { x: 3, y: 0 },
+        ],
+        [phaseStartGrid],
+        [],
+        phaseStartGrid
+      )
+
+      expect(nextGrid[0].map((cell) => cell.type)).toEqual([
+        'Normal',
+        'Normal',
+        'Empty',
+        'Start',
       ])
     })
 

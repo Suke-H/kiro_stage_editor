@@ -135,7 +135,8 @@ const searchCrowPositions = (grid: Grid): Set<string> => {
 export const findPath = (
   grid: Grid,
   phaseHistory?: Grid[],
-  swapOperations: SwapOperation[] = []
+  swapOperations: SwapOperation[] = [],
+  phaseStartGrid?: Grid
 ): PathResult => {
   // 1. 基本要素の検証
   const start = findSingle(grid, 'Start');
@@ -169,6 +170,7 @@ export const findPath = (
     totalCrows,
     crowPositions,
     phaseHistory,
-    swapOperations
+    swapOperations,
+    phaseStartGrid
   );
 };

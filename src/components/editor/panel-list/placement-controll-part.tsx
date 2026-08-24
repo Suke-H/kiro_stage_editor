@@ -57,6 +57,7 @@ export const PlacementControllPart: React.FC = () => {
   const resetPanelPlacement = () => {
     // グリッドとパネル配置履歴をリセット
     dispatch(panelListSlice.actions.reset());
+    dispatch(copyPanelListSlice.actions.reset());
     dispatch(gridSlice.actions.reset());
     dispatch(clearSwapOperations());
 
@@ -78,6 +79,7 @@ export const PlacementControllPart: React.FC = () => {
 
     // グリッドとパネル配置履歴をリセット
     dispatch(panelListSlice.actions.reset());
+    dispatch(copyPanelListSlice.actions.reset());
     // グリッドの状態を初期化
     dispatch(gridSlice.actions.initHistory());
     // dispatch(gridSlice.actions.reset());
@@ -100,7 +102,8 @@ export const PlacementControllPart: React.FC = () => {
       const { startResult, wolfResults, finalResult } = evaluateAllPaths(
         grid,
         phaseHistory,
-        swapOperations
+        swapOperations,
+        gridHistory[0]
       );
       
       // nextGridを決定（nullの場合は元のgridを使用）
@@ -150,6 +153,7 @@ export const PlacementControllPart: React.FC = () => {
             && _pathResult.result !== Result.HasPlayerInvertSwitchPath) {
               dispatch(gridSlice.actions.initHistory());
               dispatch(panelListSlice.actions.reset());
+              dispatch(copyPanelListSlice.actions.reset());
           }
 
           if (_pathResult.result === Result.HasRestPath) {
