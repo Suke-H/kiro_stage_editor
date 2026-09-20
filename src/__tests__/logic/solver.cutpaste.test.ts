@@ -24,5 +24,26 @@ export const cutPasteTests = () => {
         })
       })
     })
+
+    it('切り貼りと休憩があるステージを解く', () => {
+      // URL: http://localhost:5173/stage?cells=h4w5geereeeeeeewwcwecwswg&panels=c-h1w2gbb_c-h2w1gbb&mode=play
+      const stageData =
+        'cells=h4w5geereeeeeeewwcwecwswg&panels=c-h1w2gbb_c-h2w1gbb'
+      const { cells, panels } = decodeStageFromUrl(stageData)
+
+      const solutions = solveAllWithRest(cells, panels)
+
+      expect(solutions.length).toBeGreaterThan(0)
+      expect(
+        solutions.some((solution) => solution.phases.length > 1),
+      ).toBe(true)
+      expect(
+        solutions.some((solution) =>
+          solution.phases.some((phase) =>
+            phase.some(({ panel }) => panel.type === 'Paste'),
+          ),
+        ),
+      ).toBe(true)
+    })
   })
 }

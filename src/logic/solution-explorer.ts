@@ -12,6 +12,7 @@ import {
   canSelectFirstSwapTarget,
   canSelectSecondSwapTarget,
 } from "./swap-panel-operations";
+import { createCombinedNextGrid } from "./wolf-movement";
 
 /** パラメータ */
 export interface ExploreParams {
@@ -34,6 +35,9 @@ interface PuzzleProblemSet {
 /** 解探索アルゴリズム */
 export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
   const solutions: PhasedSolution[] = [];
+  const visitedPhaseStates = new Set<string>([
+    createPhaseStateKey(opts.initialGrid),
+  ]);
 
   const puzzleSetGroup: PuzzleProblemSet[] = [
     {
@@ -61,7 +65,8 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
       results,
       puzzleSet,
       opts.panels,
-      opts.findAll
+      opts.findAll,
+      visitedPhaseStates,
     );
     solutions.push(...processed.newSolutions);
     puzzleSetGroup.push(...processed.newPuzzleSetGroup);
@@ -77,6 +82,7 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
 /** 探索結果の型 */
 interface StepResult {
   pathResult: PathResult;
+  wolfResults: PathResult[];
   placements: PanelPlacement[];
   finalGrid: Grid; // パネル配置後のグリッド
   swapOperations: SwapOperation[];
@@ -124,7 +130,7 @@ const exploreStep = (
     // 現在の状態を取り出す
     const state = worklist.pop()!;
     // 評価
-    const { startResult, finalResult } = evaluateAllPaths(
+    const { startResult, wolfResults, finalResult } = evaluateAllPaths(
       state.grid,
       phaseHistory,
       state.swapOperations,
@@ -137,6 +143,7 @@ const exploreStep = (
     
     results.push({
       pathResult,
+      wolfResults,
       placements: state.seq,
       finalGrid,
       swapOperations: state.swapOperations,
@@ -250,11 +257,8 @@ const enumerateSwapPanelPlacements = (
 };
 
 
-/** 無限ループ検知：今のグリッドが過去のフェーズ履歴に存在するか */
-const detectInfiniteLoop = (currentGrid: Grid, phaseHistory: Grid[]): boolean =>
-  phaseHistory.some(
-    (prev) => JSON.stringify(prev) === JSON.stringify(currentGrid)
-  );
+/** フェーズ境界の永続状態を識別するキー */
+const createPhaseStateKey = (grid: Grid): string => JSON.stringify(grid);
 
 /** 処理結果の型 */
 interface ProcessResult {
@@ -268,7 +272,8 @@ const handleResult = (
   results: StepResult[],
   current: PuzzleProblemSet,
   allPanels: Panel[],
-  findAll: boolean
+  findAll: boolean,
+  visitedPhaseStates: Set<string>,
 ): ProcessResult => {
   const newSolutions: PhasedSolution[] = [];
   const newPuzzleSetGroup: PuzzleProblemSet[] = [];
@@ -289,8 +294,23 @@ const handleResult = (
         break;
 
       case Result.HasRestPath: {
-        const nextGrid = result.pathResult.nextGrid;
-        if (nextGrid && !detectInfiniteLoop(nextGrid, current.phaseHistory)) {
+        const transitionGrid = result.pathResult.nextGrid;
+        const nextGrid = transitionGrid
+          ? createCombinedNextGrid(
+              result.pathResult,
+              result.wolfResults,
+              transitionGrid,
+              result.finalGrid,
+              result.swapOperations,
+              true,
+            )
+          : null;
+
+        if (nextGrid) {
+          const stateKey = createPhaseStateKey(nextGrid);
+          if (visitedPhaseStates.has(stateKey)) break;
+          visitedPhaseStates.add(stateKey);
+
           newPuzzleSetGroup.push({
             grid: nextGrid,
             phaseHistory: [...current.phaseHistory, nextGrid],
@@ -308,7 +328,15 @@ const handleResult = (
       }
 
       case Result.HasFlagPath: {
-        const nextGrid = result.pathResult.nextGrid;
+        const transitionGrid = result.pathResult.nextGrid;
+        const nextGrid = transitionGrid
+          ? createCombinedNextGrid(
+              result.pathResult,
+              result.wolfResults,
+              transitionGrid,
+              result.finalGrid,
+            )
+          : null;
 
         if (nextGrid) {
           // Flag効果発動後のnextGridで継続探索
@@ -329,7 +357,15 @@ const handleResult = (
       }
 
       case Result.HasSwitchPath: {
-        const nextGrid = result.pathResult.nextGrid;
+        const transitionGrid = result.pathResult.nextGrid;
+        const nextGrid = transitionGrid
+          ? createCombinedNextGrid(
+              result.pathResult,
+              result.wolfResults,
+              transitionGrid,
+              result.finalGrid,
+            )
+          : null;
 
         if (nextGrid) {
           // Switch効果発動後のnextGridで継続探索

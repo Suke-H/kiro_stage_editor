@@ -1,6 +1,10 @@
 import { Grid } from '@/types/grid';
 import { deepCopyGrid, Point } from '../utils';
-import { restoreGridCellSwaps, SwapOperation } from '../grid-utils';
+import {
+  restoreGridCellSwaps,
+  restoreGridPositionAfterSwaps,
+  SwapOperation,
+} from '../grid-utils';
 
 /**
  * Rest到達時の次状態グリッド作成
@@ -16,22 +20,11 @@ export const createRestTransitionGrid = (
   phaseStartGrid?: Grid
 ): Grid => {
   const restorePointAfterSwaps = (point: Point): Point => {
-    let restored = { ...point };
-
-    for (const operation of [...swapOperations].reverse()) {
-      const isFirst =
-        restored.y === operation.first.row && restored.x === operation.first.col;
-      const isSecond =
-        restored.y === operation.second.row && restored.x === operation.second.col;
-
-      if (isFirst) {
-        restored = { x: operation.second.col, y: operation.second.row };
-      } else if (isSecond) {
-        restored = { x: operation.first.col, y: operation.first.row };
-      }
-    }
-
-    return restored;
+    const restored = restoreGridPositionAfterSwaps(
+      { row: point.y, col: point.x },
+      swapOperations,
+    );
+    return { x: restored.col, y: restored.row };
   };
 
   const resetsToPhaseStart = phaseStartGrid !== undefined;

@@ -13,6 +13,7 @@ const usesPanelType = (
 export const swapTests = () => {
   describe('入れ替えパネル対応ソルバー', () => {
     it('入れ替えパネルを使って解ける', () => {
+      // URL: http://localhost:5173/stage?cells=h4w4gwcwwwwswwwwcgwww&panels=h2w2gwbbw_h2w1gbb_s-h1w1gs&mode=play
       const stageData =
         'cells=h4w4gwcwwwwswwwwcgwww&panels=h2w2gwbbw_h2w1gbb_s-h1w1gs';
       const { cells, panels } = decodeStageFromUrl(stageData);
@@ -23,6 +24,7 @@ export const swapTests = () => {
     });
 
     it('入れ替えパネルと旗パネルを使って解ける', () => {
+      // URL: http://localhost:5173/stage?cells=h5w4geeeewwsewwwccwwgeeee&panels=f-h1w1gf_s-h1w1gs&mode=play
       const stageData =
         'cells=h5w4geeeewwsewwwccwwgeeee&panels=f-h1w1gf_s-h1w1gs';
       const { cells, panels } = decodeStageFromUrl(stageData);

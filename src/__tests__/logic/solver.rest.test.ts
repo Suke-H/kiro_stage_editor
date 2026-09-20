@@ -5,7 +5,7 @@ import { decodeStageFromUrl } from '../../utils/url'
 export const restTests = () => {
   describe('Rest版ソルバー', () => {
     it('基本的なRestパズルを解く', () => {
-      // URL: https://kiro-stage-editor-708973678663.asia-northeast1.run.app/stage?cells=h4w4gsbbrbeebweebgbbw&panels=h2w1gbb_h1w2gbb&mode=play
+      // URL: http://localhost:5173/stage?cells=h4w4gsbbrbeebweebgbbw&panels=h2w1gbb_h1w2gbb&mode=play
       const stageData = 'cells=h4w4gsbbrbeebweebgbbw&panels=h2w1gbb_h1w2gbb'
       const { cells, panels } = decodeStageFromUrl(stageData)
       
@@ -27,7 +27,7 @@ export const restTests = () => {
     })
 
     it('複数Rest地点があるパズルを解く', () => {
-      // URL: https://kiro-stage-editor-708973678663.asia-northeast1.run.app/stage?cells=h4w5gewwwwwwswwwwrwwrwwdg&panels=h1w2gbb_h2w1gbb&mode=play  
+      // URL: http://localhost:5173/stage?cells=h4w5gewwwwwwswwwwrwwrwwdg&panels=h1w2gbb_h2w1gbb&mode=play  
       const stageData = 'cells=h4w5gewwwwwwswwwwrwwrwwdg&panels=h1w2gbb_h2w1gbb'
       const { cells, panels } = decodeStageFromUrl(stageData)
       

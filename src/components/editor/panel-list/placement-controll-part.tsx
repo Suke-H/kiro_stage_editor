@@ -110,7 +110,14 @@ export const PlacementControllPart: React.FC = () => {
       const nextGrid = startResult.nextGrid !== null ? startResult.nextGrid : grid;
       
       // Wolf移動を統合
-      const combinedNextGrid = createCombinedNextGrid(startResult, wolfResults, nextGrid);
+      const combinedNextGrid = createCombinedNextGrid(
+        startResult,
+        wolfResults,
+        nextGrid,
+        grid,
+        swapOperations,
+        startResult.result === Result.HasRestPath,
+      );
       
       // UI処理用にcombinedNextGridを持つPathResultを作成
       const _pathResult = { 

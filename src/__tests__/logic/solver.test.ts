@@ -6,6 +6,7 @@ import { restTests } from './solver.rest.test'
 import { flagTests } from './solver.flag.test'
 import { cutPasteTests } from './solver.cutpaste.test'
 import { swapTests } from './solver.swap.test'
+import { wolfTests } from './solver.wolf.test'
 
 describe('パズルソルバー', () => {
   basicTests()
@@ -15,4 +16,5 @@ describe('パズルソルバー', () => {
   flagTests()
   cutPasteTests()
   swapTests()
+  wolfTests()
 })
