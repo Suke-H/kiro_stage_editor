@@ -27,7 +27,8 @@ const panelStructKey = (p: Panel | CopyPanel): string =>
 
 // 「同じパネル、同じ場所」を識別
 const placementKey = (pl: PanelPlacement): string =>
-  `${panelStructKey(pl.panel)}@${pl.point.x},${pl.point.y}`;
+  `${panelStructKey(pl.panel)}@${pl.point.x},${pl.point.y}` +
+  (pl.secondPoint ? `>${pl.secondPoint.x},${pl.secondPoint.y}` : '');
 
 // Normal だけの連続ブロックを検出し、その内部は順序を潰して正規化する
 const normalizePlacements = (seq: PanelPlacement[]): PanelPlacement[] => {

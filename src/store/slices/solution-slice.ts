@@ -45,6 +45,9 @@ const buildNumberGrid = (
   );
   placements.forEach((p, i) => {
     g[p.point.y][p.point.x] = i + 1;
+    if (p.secondPoint) {
+      g[p.secondPoint.y][p.secondPoint.x] = i + 1;
+    }
   });
   return g;
 };

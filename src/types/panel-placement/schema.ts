@@ -6,6 +6,7 @@ export type PanelPlacement = {
   panel: Panel | CopyPanel;
   highlight: Vector; // パネル内座標
   point: Vector;     // 盤面座標
+  secondPoint?: Vector; // 入れ替えパネルの2地点目
 };
 
 export interface PhaseGrids {

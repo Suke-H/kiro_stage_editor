@@ -2,7 +2,6 @@ import { Grid } from '@/types/grid';
 import { Panel } from '@/types/panel';
 import { PanelPlacement, PhasedSolution } from '@/types/panel-placement';
 import { exploreSolutions } from './solution-explorer';
-import { placePanels } from './panels';
 
 
 /** 最初の解 */
@@ -49,23 +48,7 @@ export const solvePuzzle = (
   panels: Panel[],
   minimizePanels: boolean = false
 ): SolveResponse => {
-  // Rest マスの有無
-  const hasRest = grid.some(row => row.some(cell => cell.type === 'Rest'));
-
-  let solutions: PhasedSolution[];
-  if (hasRest) {
-    solutions = solveAllWithRest(grid, panels);
-  } else {
-    const normal = solveAll(grid, panels);
-    solutions = normal.map(solution => ({
-      phases: [solution],        // 単フェーズとして格納
-      phaseHistory: [grid],      // 初期グリッドのみ
-      phaseGrids: [{             // 配置前後のグリッド
-        before: grid,
-        after: placePanels(grid, solution, false)[0]
-      }]
-    }));
-  }
+  let solutions = solveAllWithRest(grid, panels);
 
   // パネル枚数最小化
   if (minimizePanels && solutions.length) {

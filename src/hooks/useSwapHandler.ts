@@ -9,8 +9,12 @@ import {
   recordSwapOperation,
 } from "@/store/slices/swap-slice";
 import { clearMoveTarget } from "@/store/slices/move-slice";
-import { Grid, GridCell } from "@/types/grid";
-import { swapGridCells } from "@/logic/grid-utils";
+import { Grid } from "@/types/grid";
+import {
+  applySwapPanel,
+  canSelectFirstSwapTarget,
+  canSelectSecondSwapTarget,
+} from "@/logic/swap-panel-operations";
 
 export const useSwapHandler = () => {
   const dispatch = useDispatch();
@@ -33,11 +37,7 @@ export const useSwapHandler = () => {
 
   const selectFirstSwapTarget = (rowIdx: number, colIdx: number) => {
     const clickedCell = grid[rowIdx][colIdx];
-    if (
-      clickedCell.type === "Normal" ||
-      clickedCell.type === "Empty" ||
-      clickedCell.type === "Start"
-    ) {
+    if (!canSelectFirstSwapTarget(clickedCell)) {
       dispatch(clearSwapTarget());
       return;
     }
@@ -54,12 +54,9 @@ export const useSwapHandler = () => {
 
   const selectSecondSwapTarget = (rowIdx: number, colIdx: number) => {
     const clickedCell = grid[rowIdx][colIdx];
-    if (
-      clickedCell.type === "Empty" ||
-      clickedCell.type === "Normal" ||
-      clickedCell.type === "SwapCell" ||
-      clickedCell.type === "Start"
-    ) {
+    const isSameTarget =
+      swapState.swapTarget?.row === rowIdx && swapState.swapTarget?.col === colIdx;
+    if (isSameTarget || !canSelectSecondSwapTarget(clickedCell)) {
       dispatch(clearSwapTarget());
       return;
     }
@@ -67,14 +64,7 @@ export const useSwapHandler = () => {
     saveHistory();
 
     const first = swapState.swapTarget!;
-    let targetGrid = grid;
-
-    // 入れ替えマスは削除する（一度きり）
-    if (grid[first.row][first.col].type === "SwapCell") {
-      targetGrid = vanishSwapCell(grid, first);
-    }
-
-    const newGrid = swapGridCells(targetGrid, first, { row: rowIdx, col: colIdx });
+    const newGrid = applySwapPanel(grid, first, { row: rowIdx, col: colIdx });
 
     dispatch(gridSlice.actions.replaceGrid(newGrid));
     dispatch(
@@ -92,16 +82,6 @@ export const useSwapHandler = () => {
     }
 
     dispatch(clearSwapTarget());
-  };
-
-  const vanishSwapCell = (grid: Grid, target: { row: number; col: number }): Grid => {
-    return grid.map((row, r) =>
-      row.map((cell, c) =>
-        r === target.row && c === target.col
-          ? ({ type: "Normal", side: "front" } as GridCell)
-          : cell
-      )
-    );
   };
 
   const selectSwapCell = (rowIdx: number, colIdx: number) => {
