@@ -26,9 +26,17 @@ const panelStructKey = (p: Panel | CopyPanel): string =>
   `${p.type}:${JSON.stringify(p.cells)}`;
 
 // 「同じパネル、同じ場所」を識別
-const placementKey = (pl: PanelPlacement): string =>
-  `${panelStructKey(pl.panel)}@${pl.point.x},${pl.point.y}` +
-  (pl.secondPoint ? `>${pl.secondPoint.x},${pl.secondPoint.y}` : '');
+const placementKey = (pl: PanelPlacement): string => {
+  if (pl.panel.type === "Swap" && pl.secondPoint) {
+    const [first, second] = [pl.point, pl.secondPoint].sort(
+      (a, b) => a.y - b.y || a.x - b.x
+    );
+    return `${panelStructKey(pl.panel)}@${first.x},${first.y}>${second.x},${second.y}`;
+  }
+
+  return `${panelStructKey(pl.panel)}@${pl.point.x},${pl.point.y}` +
+    (pl.secondPoint ? `>${pl.secondPoint.x},${pl.secondPoint.y}` : '');
+};
 
 // Normal だけの連続ブロックを検出し、その内部は順序を潰して正規化する
 const normalizePlacements = (seq: PanelPlacement[]): PanelPlacement[] => {
