@@ -13,8 +13,8 @@ export class NormalPanelStrategy implements IPanelStrategy {
       for (let j = 0; j < panel.cells[0].length; j++) {
         if (panel.cells[i][j] === "Black") {
           const targetCell = grid[rowIdx + i][colIdx + j];
-          // Normalパネルは Empty 以外のセルに配置可能
-          if (targetCell.type === "Empty") return false;
+          // 反転パネルは Normal マスにのみ配置可能
+          if (targetCell.type !== "Normal") return false;
         }
       }
     }
