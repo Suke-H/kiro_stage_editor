@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { solveAllWithRest } from '@/logic/solver'
-import { decodeStageFromUrl } from '@/utils/url'
+import { decodeStageFromUrl } from '../../utils/url'
 
 export const wolfTests = () => {
   describe('Wolfギミック', () => {
