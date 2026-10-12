@@ -1,5 +1,5 @@
 import { Grid } from '@/types/grid';
-import { deepCopyGrid, Point } from '../utils';
+import { deepCopyGrid, findSingle, Point } from '../utils';
 import {
   restoreGridCellSwaps,
   restoreGridPositionAfterSwaps,
@@ -28,7 +28,11 @@ export const createRestTransitionGrid = (
   };
 
   const resetsToPhaseStart = phaseStartGrid !== undefined;
-  const restoredStart = resetsToPhaseStart ? restorePointAfterSwaps(start) : start;
+  let restoredStart = start;
+  if (phaseStartGrid) {
+    const phaseStart = findSingle(phaseStartGrid, 'Start');
+    if (phaseStart) restoredStart = phaseStart;
+  }
   const restoredRest = resetsToPhaseStart
     ? restorePointAfterSwaps(restPosition)
     : restPosition;

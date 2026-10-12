@@ -164,6 +164,29 @@ describe('パス探索アルゴリズム', () => {
       ])
     })
 
+    it('旗到達後の休憩で開始地点を分身させない', () => {
+      const phaseStartGrid = gridFrom(['S..R'])
+      const gridAfterFlag = gridFrom(['..SR'])
+
+      const nextGrid = createRestTransitionGrid(
+        gridAfterFlag,
+        { x: 2, y: 0 },
+        { x: 3, y: 0 },
+        new Set(),
+        [{ x: 2, y: 0 }, { x: 3, y: 0 }],
+        [phaseStartGrid],
+        [],
+        phaseStartGrid
+      )
+
+      expect(nextGrid[0].map((cell) => cell.type)).toEqual([
+        'Normal',
+        'Normal',
+        'Normal',
+        'Start',
+      ])
+    })
+
     it('フェーズ履歴ありでRest移動が正しく動作する', () => {
       // 初期状態
       const initialGrid = gridFrom([
