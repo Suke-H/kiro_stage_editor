@@ -13,6 +13,13 @@ import {
   canSelectSecondSwapTarget,
 } from "./swap-panel-operations";
 import { createCombinedNextGrid } from "./wolf-movement";
+import { PanelInventory } from "@/types/panel-inventory";
+import {
+  collectPlacedFlagInInventory,
+  createPanelInventory,
+  placePanelInInventory,
+  resetPanelInventory,
+} from "./panel-inventory";
 
 /** パラメータ */
 export interface ExploreParams {
@@ -27,7 +34,8 @@ interface PuzzleProblemSet {
   phaseHistory: Grid[];
   placementHistory: PanelPlacement[][];
   phaseGrids: PhaseGrids[];
-  availablePanels: Panel[];
+  panelInventory: PanelInventory;
+  copyPanels: CopyPanel[];
   swapOperations: SwapOperation[];
   phaseStartGrid: Grid;
 }
@@ -36,7 +44,7 @@ interface PuzzleProblemSet {
 export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
   const solutions: PhasedSolution[] = [];
   const visitedPhaseStates = new Set<string>([
-    createPhaseStateKey(opts.initialGrid),
+    createPhaseStateKey(opts.initialGrid, createPanelInventory(opts.panels), []),
   ]);
 
   const puzzleSetGroup: PuzzleProblemSet[] = [
@@ -45,7 +53,8 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
       phaseHistory: [opts.initialGrid],
       placementHistory: [],
       phaseGrids: [],
-      availablePanels: opts.panels,
+      panelInventory: createPanelInventory(opts.panels),
+      copyPanels: [],
       swapOperations: [],
       phaseStartGrid: opts.initialGrid,
     },
@@ -55,7 +64,8 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
     const puzzleSet = puzzleSetGroup.pop()!;
     const results = exploreStep(
       puzzleSet.grid,
-      puzzleSet.availablePanels,
+      puzzleSet.panelInventory,
+      puzzleSet.copyPanels,
       puzzleSet.phaseHistory,
       puzzleSet.swapOperations,
       puzzleSet.phaseStartGrid,
@@ -64,7 +74,6 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
     const processed = handleResult(
       results,
       puzzleSet,
-      opts.panels,
       opts.findAll,
       visitedPhaseStates,
     );
@@ -85,6 +94,8 @@ interface StepResult {
   wolfResults: PathResult[];
   placements: PanelPlacement[];
   finalGrid: Grid; // パネル配置後のグリッド
+  panelInventory: PanelInventory;
+  copyPanels: CopyPanel[];
   swapOperations: SwapOperation[];
 }
 
@@ -102,7 +113,8 @@ function hasCopyPanel(
 /** 1ステップ：順序つき・1枚ずつ置く（0枚＝何もしない も含め全組み合わせを評価） */
 const exploreStep = (
   currentGrid: Grid,
-  availablePanels: Panel[],
+  panelInventory: PanelInventory,
+  currentCopyPanels: CopyPanel[],
   phaseHistory: Grid[],
   initialSwapOperations: SwapOperation[],
   phaseStartGrid: Grid,
@@ -111,7 +123,8 @@ const exploreStep = (
 
   type State = {
     grid: Grid;
-    inventory: (Panel | CopyPanel)[];      // パネル在庫（Cutで生成されたCopyもここに入る）
+    panelInventory: PanelInventory;
+    copyPanels: CopyPanel[];
     seq: PanelPlacement[];   // 置いた順序の履歴（= placements）
     swapOperations: SwapOperation[];
   };
@@ -120,7 +133,8 @@ const exploreStep = (
   const worklist: State[] = [
     {
       grid: currentGrid,
-      inventory: availablePanels,
+      panelInventory,
+      copyPanels: currentCopyPanels,
       seq: [],
       swapOperations: initialSwapOperations,
     },
@@ -146,6 +160,8 @@ const exploreStep = (
       wolfResults,
       placements: state.seq,
       finalGrid,
+      panelInventory: state.panelInventory,
+      copyPanels: state.copyPanels,
       swapOperations: state.swapOperations,
     });
     // アクション実施
@@ -164,33 +180,38 @@ const exploreStep = (
 */
 function handleAction(state: {
   grid: Grid;
-  inventory: (Panel | CopyPanel)[];
+  panelInventory: PanelInventory;
+  copyPanels: CopyPanel[];
   seq: PanelPlacement[];
   swapOperations: SwapOperation[];
 }): Array<{
   grid: Grid;
-  inventory: (Panel | CopyPanel)[];
+  panelInventory: PanelInventory;
+  copyPanels: CopyPanel[];
   seq: PanelPlacement[];
   swapOperations: SwapOperation[];
 }> {
   const out: Array<{
     grid: Grid;
-    inventory: (Panel | CopyPanel)[];
+    panelInventory: PanelInventory;
+    copyPanels: CopyPanel[];
     seq: PanelPlacement[];
     swapOperations: SwapOperation[];
   }> = [];
 
   // 在庫から1枚ずつ取り出して配置
-  for (const panel of state.inventory) {
+  const panels = [...state.panelInventory.panels, ...state.copyPanels];
+  for (const panel of panels) {
     if (panel.type === "Swap") {
-      const remaining = state.inventory.filter((p) => p.id !== panel.id);
+      const panelInventoryAfterPlacement = placePanelInInventory(state.panelInventory, panel as Panel);
       for (const placement of enumerateSwapPanelPlacements(state.grid, panel)) {
         const secondPoint = placement.secondPoint!;
         const first = { row: placement.point.y, col: placement.point.x };
         const second = { row: secondPoint.y, col: secondPoint.x };
         out.push({
           grid: applySwapPanel(state.grid, first, second),
-          inventory: remaining,
+          panelInventory: panelInventoryAfterPlacement,
+          copyPanels: state.copyPanels,
           seq: [...state.seq, placement],
           swapOperations: [
             ...state.swapOperations,
@@ -212,12 +233,19 @@ function handleAction(state: {
       if (!isValid) continue;
 
       // 在庫更新：使った1枚を消費し、Cutなら生成されたCopyを在庫に加える
-      const remaining = state.inventory.filter((p) => p.id !== panel.id);
+      const isCopyPanel = panel.type === "Paste";
+      const panelInventoryAfterPlacement = isCopyPanel
+        ? state.panelInventory
+        : placePanelInInventory(state.panelInventory, panel as Panel);
+      const copyPanelsAfterPlacement = isCopyPanel
+        ? state.copyPanels.filter((copyPanel) => copyPanel.id !== panel.id)
+        : state.copyPanels;
       const generated = hasCopyPanel(ret) ? [ret[2].copyPanel] : [];
 
       out.push({
         grid: gridAfter,
-        inventory: [...remaining, ...generated],
+        panelInventory: panelInventoryAfterPlacement,
+        copyPanels: [...copyPanelsAfterPlacement, ...generated],
         seq: [...state.seq, placement], // 順序を保持
         swapOperations: state.swapOperations,
       });
@@ -258,7 +286,12 @@ const enumerateSwapPanelPlacements = (
 
 
 /** フェーズ境界の永続状態を識別するキー */
-const createPhaseStateKey = (grid: Grid): string => JSON.stringify(grid);
+const createPhaseStateKey = (grid: Grid, panelInventory: PanelInventory, copyPanels: CopyPanel[]): string => JSON.stringify({
+  grid,
+  availablePanelIds: panelInventory.panels.map(({ id }) => id),
+  removedPanels: panelInventory.removedPanels.map(({ panel, isCollected }) => ({ id: panel.id, isCollected })),
+  copyPanelIds: copyPanels.map(({ id }) => id),
+});
 
 /** 処理結果の型 */
 interface ProcessResult {
@@ -271,7 +304,6 @@ interface ProcessResult {
 const handleResult = (
   results: StepResult[],
   current: PuzzleProblemSet,
-  allPanels: Panel[],
   findAll: boolean,
   visitedPhaseStates: Set<string>,
 ): ProcessResult => {
@@ -307,7 +339,8 @@ const handleResult = (
           : null;
 
         if (nextGrid) {
-          const stateKey = createPhaseStateKey(nextGrid);
+          const panelInventory = resetPanelInventory(result.panelInventory);
+          const stateKey = createPhaseStateKey(nextGrid, panelInventory, []);
           if (visitedPhaseStates.has(stateKey)) break;
           visitedPhaseStates.add(stateKey);
 
@@ -319,7 +352,8 @@ const handleResult = (
               before: current.grid,
               after: result.finalGrid
             }],
-            availablePanels: allPanels,
+            panelInventory,
+            copyPanels: [],
             swapOperations: [],
             phaseStartGrid: nextGrid,
           });
@@ -339,6 +373,7 @@ const handleResult = (
           : null;
 
         if (nextGrid) {
+          const panelInventory = collectPlacedFlagInInventory(result.panelInventory);
           // Flag効果発動後のnextGridで継続探索
           newPuzzleSetGroup.push({
             grid: nextGrid,
@@ -348,7 +383,8 @@ const handleResult = (
               before: current.grid,
               after: result.finalGrid
             }],
-            availablePanels: [], // Flag到達で全パネル破棄
+            panelInventory,
+            copyPanels: result.copyPanels,
             swapOperations: result.swapOperations,
             phaseStartGrid: current.phaseStartGrid,
           });
@@ -377,7 +413,8 @@ const handleResult = (
               before: current.grid,
               after: result.finalGrid
             }],
-            availablePanels: [], // Switch到達で全パネル破棄
+            panelInventory: result.panelInventory,
+            copyPanels: result.copyPanels,
             swapOperations: result.swapOperations,
             phaseStartGrid: current.phaseStartGrid,
           });

@@ -78,7 +78,7 @@ export const PlacementControllPart: React.FC = () => {
     dispatch(clearSwapOperations());
 
     // グリッドとパネル配置履歴をリセット
-    dispatch(panelListSlice.actions.reset());
+    dispatch(panelListSlice.actions.resetAll());
     dispatch(copyPanelListSlice.actions.reset());
     // グリッドの状態を初期化
     dispatch(gridSlice.actions.initHistory());
@@ -152,6 +152,10 @@ export const PlacementControllPart: React.FC = () => {
 
           // フェーズ履歴を保存
           dispatch(gridSlice.actions.savePhaseHistory());
+
+          if (_pathResult.result === Result.HasFlagPath) {
+              dispatch(panelListSlice.actions.collectPlacedFlag());
+          }
 
           // Flag・Switch・InvertSwitch以外の場合は配置履歴を初期化する
           if (_pathResult.result !== Result.HasFlagPath

@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { exploreSolutions } from '@/logic/solution-explorer'
 import { decodeStageFromUrl } from '../../utils/url'
+import { Panel } from '@/types/panel'
+import { gridFrom } from './test-utils'
 
 export const flagTests = () => {
 describe('Flag版ソルバー', () => {
@@ -33,7 +35,23 @@ describe('Flag版ソルバー', () => {
     })
 
     it('Flag + Rest混在パズルを解く', () => {
-      // Flag と Rest が混在するケースのテスト（今後追加可能）
+      const cells = gridFrom(['S.xR.G'])
+      const panels: Panel[] = [
+        { id: 'flag-panel', cells: [['Flag']], type: 'Flag' },
+        { id: 'normal-panel', cells: [['Black']], type: 'Normal' },
+      ]
+
+      const solutions = exploreSolutions({ initialGrid: cells, panels, findAll: true })
+
+      expect(solutions.length).toBeGreaterThan(0)
+      const solutionsUsingFlag = solutions.filter(solution =>
+        solution.phases.flat().some(({ panel }) => panel.id === 'flag-panel')
+      )
+      expect(solutionsUsingFlag.length).toBeGreaterThan(0)
+      solutionsUsingFlag.forEach(solution => {
+        const flagPlacements = solution.phases.flat().filter(({ panel }) => panel.id === 'flag-panel')
+        expect(flagPlacements).toHaveLength(1)
+      })
     })
 })
 }
