@@ -1,12 +1,12 @@
 import { describe } from 'vitest'
-import { basicTests } from './solver.basic.test'
-import { crowTests } from './solver.crow.test'
-import { dummyGoalTests } from './solver.dummygoal.test'
-import { restTests } from './solver.rest.test'
-import { flagTests } from './solver.flag.test'
-import { cutPasteTests } from './solver.cutpaste.test'
-import { swapTests } from './solver.swap.test'
-import { wolfTests } from './solver.wolf.test'
+import { basicTests } from './solver.basic'
+import { crowTests } from './solver.crow'
+import { dummyGoalTests } from './solver.dummygoal'
+import { restTests } from './solver.rest'
+import { flagTests } from './solver.flag'
+import { cutPasteTests } from './solver.cutpaste'
+import { swapTests } from './solver.swap'
+import { wolfTests } from './solver.wolf'
 
 describe('パズルソルバー', () => {
   basicTests()
