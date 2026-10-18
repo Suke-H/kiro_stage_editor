@@ -30,6 +30,12 @@ describe('panel placement logic', () => {
     type: 'Swap',
   };
 
+  const flagPanel: Panel = {
+    id: 'flag-panel',
+    cells: [['Flag']],
+    type: 'Flag',
+  };
+
   describe('placement validity', () => {
     it('can place on Normal(front)', () => {
       const grid = gridFrom(['S...', '....', '...G']);
@@ -89,6 +95,19 @@ describe('panel placement logic', () => {
 
       expect(canPlacePanelAt(grid, 0, 0, swapPanel)).toBe(false);
       expect(canPlacePanelAt(grid, 0, 1, swapPanel)).toBe(true);
+    });
+
+    it('cannot place a second Flag panel on the board', () => {
+      const grid = gridFrom(['S..G']);
+      grid[0][1] = { type: 'Flag', side: 'neutral' };
+
+      expect(canPlacePanelAt(grid, 0, 2, flagPanel)).toBe(false);
+    });
+
+    it('can place a Flag panel when the board has no Flag', () => {
+      const grid = gridFrom(['S..G']);
+
+      expect(canPlacePanelAt(grid, 0, 2, flagPanel)).toBe(true);
     });
   });
 

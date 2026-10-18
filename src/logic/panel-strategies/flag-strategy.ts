@@ -10,6 +10,9 @@ import { deepCopyGrid } from '../utils';
 export class FlagPanelStrategy implements IPanelStrategy {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   canPlace(grid: Grid, rowIdx: number, colIdx: number, _panel: Panel): boolean {
+    const hasFlag = grid.some((row) => row.some((cell) => cell.type === "Flag"));
+    if (hasFlag) return false;
+
     const targetCell = grid[rowIdx][colIdx];
     // Flagパネルは Normal かつ front側にのみ配置可能
     return targetCell.type === "Normal" && targetCell.side === "front";
