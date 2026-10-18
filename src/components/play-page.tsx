@@ -15,7 +15,7 @@ const PlayPage: React.FC = () => {
   useEffect(() => {
     dispatch(gridSlice.actions.reset());
     dispatch(gridSlice.actions.resetPhase());
-    dispatch(panelListSlice.actions.reset());
+    dispatch(panelListSlice.actions.resetAll());
     dispatch(clearSwapTarget());
     dispatch(clearSwapOperations());
     dispatch(clearMoveTarget());

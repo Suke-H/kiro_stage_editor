@@ -4,6 +4,7 @@ import { GridCellKey } from "@/types/grid";
 import { PanelCellTypeKey } from "@/types/panel";
 import { NumberGrid } from "@/types/solution";
 import { PanelPlacement } from "@/types/panel-placement";
+import { PanelInventory } from "@/types/panel-inventory";
 
 export interface GridState {
   grid: Grid;
@@ -20,10 +21,7 @@ export interface CellTypeState {
   selectedSide: "neutral" | "front" | "back";
 }
 
-export interface PanelListState {
-  panels: Panel[];
-  removedPanels: { panel: Panel; index: number }[];
-}
+export interface PanelListState extends PanelInventory {}
 
 export interface CopyPanelListState {
   copyPanels: CopyPanel[];

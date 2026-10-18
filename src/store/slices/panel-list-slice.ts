@@ -1,6 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Panel } from "@/types/panel"
 import { PanelListState } from "@/types/store/states";
+import {
+  collectPlacedFlagInInventory,
+  placePanelInInventory,
+  resetAllPanelInventory,
+  resetPanelInventory,
+  undoPanelPlacementInInventory,
+} from "@/logic/panel-inventory";
 
 const initialState: PanelListState = {
   panels: [
@@ -30,6 +37,7 @@ export const panelListSlice = createSlice({
     // URLから読み込み
     loadPanels: (state, action: PayloadAction<Panel[]>) => {
       state.panels = action.payload;
+      state.removedPanels = [];
     },
 
     /* Editorモード */
@@ -45,32 +53,19 @@ export const panelListSlice = createSlice({
 
     /* Playモード */
     // パネル選択（設置）
-    placePanel: (state, action: PayloadAction<Panel>) => {
-      const index = state.panels.findIndex((panel) => panel.id === action.payload.id);
-      
-      if (index !== -1 && action.payload) {
-        state.removedPanels.push({ panel: action.payload, index }); // 履歴に保存
-        state.panels.splice(index, 1);                              // パネルを削除       
-      }
-    },
+    placePanel: (state, action: PayloadAction<Panel>) => placePanelInInventory(state, action.payload),
+
+    // 盤面上の旗を取得済みにする
+    collectPlacedFlag: (state) => collectPlacedFlagInInventory(state),
 
     // 設置を元に戻す（undo）
-    undo: (state) => {
-      const lastRemoved = state.removedPanels.pop();
-      if (lastRemoved) {
-        state.panels.splice(lastRemoved.index, 0, lastRemoved.panel);
-      }
-    },
+    undo: (state) => undoPanelPlacementInInventory(state),
 
     // 設置履歴をリセット（reset）
-    reset: (state) => {
-      while (state.removedPanels.length > 0) {
-        const lastRemoved = state.removedPanels.pop();
-        if (lastRemoved) {
-          state.panels.splice(lastRemoved.index, 0, lastRemoved.panel);
-        }
-      }
-    },
+    reset: (state) => resetPanelInventory(state),
+
+    // 取得済みの旗を含む全パネルを元に戻す
+    resetAll: (state) => resetAllPanelInventory(state),
 
   },
 });

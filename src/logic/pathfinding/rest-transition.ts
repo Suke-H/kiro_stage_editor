@@ -37,6 +37,19 @@ export const createRestTransitionGrid = (
     ? restorePointAfterSwaps(restPosition)
     : restPosition;
   let newGrid = deepCopyGrid(phaseStartGrid ?? grid);
+
+  if (phaseStartGrid) {
+    const currentGridWithoutSwaps = restoreGridCellSwaps(grid, swapOperations);
+    for (let y = 0; y < phaseStartGrid.length; y++) {
+      for (let x = 0; x < phaseStartGrid[y].length; x++) {
+        const wasCrow = phaseStartGrid[y][x].type === 'Crow';
+        const isAlreadyCollected = currentGridWithoutSwaps[y][x].type !== 'Crow';
+        if (wasCrow && isAlreadyCollected) {
+          newGrid[y][x] = { type: 'Normal', side: 'front' };
+        }
+      }
+    }
+  }
   
   // フェーズ履歴から元の状態を判定
   let isStartOriginallyRest = false;

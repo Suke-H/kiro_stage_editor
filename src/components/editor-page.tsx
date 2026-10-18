@@ -27,7 +27,7 @@ const EditorPage: React.FC = () => {
   useEffect(() => {
     dispatch(gridSlice.actions.reset());
     dispatch(gridSlice.actions.resetPhase());
-    dispatch(panelListSlice.actions.reset());
+    dispatch(panelListSlice.actions.resetAll());
     dispatch(panelPlacementSlice.actions.clearPanelSelection());
     dispatch(clearSwapTarget());
     dispatch(clearSwapOperations());
@@ -51,7 +51,7 @@ const EditorPage: React.FC = () => {
       dispatch(gridSlice.actions.initHistory());
       dispatch(gridSlice.actions.initPhaseHistory());
       // // パネル配置リセット
-      dispatch(panelListSlice.actions.reset());
+      dispatch(panelListSlice.actions.resetAll());
       dispatch(clearSwapTarget());
       dispatch(clearSwapOperations());
       dispatch(clearMoveTarget());
