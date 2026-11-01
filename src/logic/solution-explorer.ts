@@ -38,6 +38,7 @@ interface PuzzleProblemSet {
   copyPanels: CopyPanel[];
   swapOperations: SwapOperation[];
   phaseStartGrid: Grid;
+  canPlacePanels: boolean; // 旗・スイッチ到達後はゴールか休憩までパネル配置不可
 }
 
 /** 解探索アルゴリズム */
@@ -57,6 +58,7 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
       copyPanels: [],
       swapOperations: [],
       phaseStartGrid: opts.initialGrid,
+      canPlacePanels: true,
     },
   ];
 
@@ -69,6 +71,7 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
       puzzleSet.phaseHistory,
       puzzleSet.swapOperations,
       puzzleSet.phaseStartGrid,
+      puzzleSet.canPlacePanels,
     );
 
     const processed = handleResult(
@@ -118,6 +121,7 @@ const exploreStep = (
   phaseHistory: Grid[],
   initialSwapOperations: SwapOperation[],
   phaseStartGrid: Grid,
+  canPlacePanels: boolean,
 ): StepResult[] => {
   const results: StepResult[] = [];
 
@@ -164,6 +168,7 @@ const exploreStep = (
       copyPanels: state.copyPanels,
       swapOperations: state.swapOperations,
     });
+    if (!canPlacePanels) continue;
     // アクション実施
     const nextStates = handleAction(state);
     // 組み合わせを追加
@@ -356,6 +361,7 @@ const handleResult = (
             copyPanels: [],
             swapOperations: [],
             phaseStartGrid: nextGrid,
+            canPlacePanels: true,
           });
         }
         break;
@@ -387,6 +393,7 @@ const handleResult = (
             copyPanels: result.copyPanels,
             swapOperations: result.swapOperations,
             phaseStartGrid: current.phaseStartGrid,
+            canPlacePanels: false,
           });
         }
         break;
@@ -417,6 +424,7 @@ const handleResult = (
             copyPanels: result.copyPanels,
             swapOperations: result.swapOperations,
             phaseStartGrid: current.phaseStartGrid,
+            canPlacePanels: false,
           });
         }
         break;
