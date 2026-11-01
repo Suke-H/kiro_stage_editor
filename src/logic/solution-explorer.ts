@@ -38,13 +38,14 @@ interface PuzzleProblemSet {
   copyPanels: CopyPanel[];
   swapOperations: SwapOperation[];
   phaseStartGrid: Grid;
+  canPlacePanels: boolean; // 旗・スイッチ到達後はゴールか休憩までパネル配置不可
 }
 
 /** 解探索アルゴリズム */
 export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
   const solutions: PhasedSolution[] = [];
   const visitedPhaseStates = new Set<string>([
-    createPhaseStateKey(opts.initialGrid, createPanelInventory(opts.panels), []),
+    createStateKey(opts.initialGrid, createPanelInventory(opts.panels), [], []),
   ]);
 
   const puzzleSetGroup: PuzzleProblemSet[] = [
@@ -57,6 +58,7 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
       copyPanels: [],
       swapOperations: [],
       phaseStartGrid: opts.initialGrid,
+      canPlacePanels: true,
     },
   ];
 
@@ -69,6 +71,7 @@ export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
       puzzleSet.phaseHistory,
       puzzleSet.swapOperations,
       puzzleSet.phaseStartGrid,
+      puzzleSet.canPlacePanels,
     );
 
     const processed = handleResult(
@@ -118,6 +121,7 @@ const exploreStep = (
   phaseHistory: Grid[],
   initialSwapOperations: SwapOperation[],
   phaseStartGrid: Grid,
+  canPlacePanels: boolean,
 ): StepResult[] => {
   const results: StepResult[] = [];
 
@@ -140,9 +144,15 @@ const exploreStep = (
     },
   ];
 
+  const visitedStates = new Set<string>();
+
   while (worklist.length > 0) {
     // 現在の状態を取り出す
     const state = worklist.pop()!;
+    // 置き順や同形パネルの違いだけの状態は評価済みなのでスキップ
+    const stateKey = createStateKey(state.grid, state.panelInventory, state.copyPanels, state.swapOperations);
+    if (visitedStates.has(stateKey)) continue;
+    visitedStates.add(stateKey);
     // 評価
     const { startResult, wolfResults, finalResult } = evaluateAllPaths(
       state.grid,
@@ -164,6 +174,7 @@ const exploreStep = (
       copyPanels: state.copyPanels,
       swapOperations: state.swapOperations,
     });
+    if (!canPlacePanels) continue;
     // アクション実施
     const nextStates = handleAction(state);
     // 組み合わせを追加
@@ -263,12 +274,22 @@ const enumerateSwapPanelPlacements = (
 
   for (let firstY = 0; firstY < grid.length; firstY++) {
     for (let firstX = 0; firstX < grid[firstY].length; firstX++) {
-      if (!canSelectFirstSwapTarget(grid[firstY][firstX])) continue;
+      const firstCell = grid[firstY][firstX];
+      if (!canSelectFirstSwapTarget(firstCell)) continue;
+      // 入れ替えマスは消費されるため (A,B) と (B,A) で結果が異なるが、それ以外は同じ結果になる
+      const isFirstSwapCell = firstCell.type === 'SwapCell';
 
       for (let secondY = 0; secondY < grid.length; secondY++) {
         for (let secondX = 0; secondX < grid[secondY].length; secondX++) {
           if (firstX === secondX && firstY === secondY) continue;
-          if (!canSelectSecondSwapTarget(grid[secondY][secondX])) continue;
+          const secondCell = grid[secondY][secondX];
+          if (!canSelectSecondSwapTarget(secondCell)) continue;
+          if (!isFirstSwapCell) {
+            // (B,A) は (A,B) と同じ結果なので片方のみ列挙
+            if (secondY < firstY || (secondY === firstY && secondX < firstX)) continue;
+            // 同じ中身のマス同士の入れ替えは盤面が変わらないので除外
+            if (firstCell.type === secondCell.type && firstCell.side === secondCell.side) continue;
+          }
 
           placements.push({
             panel,
@@ -285,12 +306,27 @@ const enumerateSwapPanelPlacements = (
 };
 
 
-/** フェーズ境界の永続状態を識別するキー */
-const createPhaseStateKey = (grid: Grid, panelInventory: PanelInventory, copyPanels: CopyPanel[]): string => JSON.stringify({
+/** パネルの形状キー（同形パネルはIDが違っても同じとみなす） */
+const panelShapeKey = (panel: Panel | CopyPanel): string =>
+  `${panel.type}:${JSON.stringify(panel.cells)}`;
+
+/**
+ * 探索状態を識別するキー
+ * ボード・手元のパネル・貼付パネル・入替の記録が同じなら、置き順や同形パネルの違いは同じ状態とみなす
+ */
+const createStateKey = (
+  grid: Grid,
+  panelInventory: PanelInventory,
+  copyPanels: CopyPanel[],
+  swapOperations: SwapOperation[],
+): string => JSON.stringify({
   grid,
-  availablePanelIds: panelInventory.panels.map(({ id }) => id),
-  removedPanels: panelInventory.removedPanels.map(({ panel, isCollected }) => ({ id: panel.id, isCollected })),
-  copyPanelIds: copyPanels.map(({ id }) => id),
+  availablePanels: panelInventory.panels.map(panelShapeKey).sort(),
+  removedPanels: panelInventory.removedPanels
+    .map(({ panel, isCollected }) => `${panelShapeKey(panel)}:${isCollected}`)
+    .sort(),
+  copyPanels: copyPanels.map(panelShapeKey).sort(),
+  swaps: swapOperations.map(({ first, second }) => [first, second]),
 });
 
 /** 処理結果の型 */
@@ -340,7 +376,7 @@ const handleResult = (
 
         if (nextGrid) {
           const panelInventory = resetPanelInventory(result.panelInventory);
-          const stateKey = createPhaseStateKey(nextGrid, panelInventory, []);
+          const stateKey = createStateKey(nextGrid, panelInventory, [], []);
           if (visitedPhaseStates.has(stateKey)) break;
           visitedPhaseStates.add(stateKey);
 
@@ -356,6 +392,7 @@ const handleResult = (
             copyPanels: [],
             swapOperations: [],
             phaseStartGrid: nextGrid,
+            canPlacePanels: true,
           });
         }
         break;
@@ -387,6 +424,7 @@ const handleResult = (
             copyPanels: result.copyPanels,
             swapOperations: result.swapOperations,
             phaseStartGrid: current.phaseStartGrid,
+            canPlacePanels: false,
           });
         }
         break;
@@ -417,6 +455,7 @@ const handleResult = (
             copyPanels: result.copyPanels,
             swapOperations: result.swapOperations,
             phaseStartGrid: current.phaseStartGrid,
+            canPlacePanels: false,
           });
         }
         break;

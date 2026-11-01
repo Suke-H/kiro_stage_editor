@@ -46,7 +46,7 @@ export class CutPanelStrategy implements IPanelStrategy {
 
     // CopyPanelを作成
     const copyPanel: CopyPanel = {
-      id: `copy-${Date.now()}`,
+      id: `copy-${panel.id}`,
       type: "Paste",
       cells: copyCells,
     };
