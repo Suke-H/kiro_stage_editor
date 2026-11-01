@@ -145,14 +145,18 @@ const exploreStep = (
   ];
 
   const visitedStates = new Set<string>();
+  const panelUsageRecorder = createPanelUsageRecorder();
 
-  while (worklist.length > 0) {
+  // 置いた枚数の少ない順に探索する（同ボードでパネルの少ない状態を先に記録するため）
+  for (let head = 0; head < worklist.length; head++) {
     // 現在の状態を取り出す
-    const state = worklist.pop()!;
+    const state = worklist[head];
     // 置き順や同形パネルの違いだけの状態は評価済みなのでスキップ
     const stateKey = createStateKey(state.grid, state.panelInventory, state.copyPanels, state.swapOperations);
     if (visitedStates.has(stateKey)) continue;
     visitedStates.add(stateKey);
+    // 同ボードで、より少ないパネルで済む状態が既にあれば無駄なのでスキップ
+    if (!panelUsageRecorder.recordIfNotWasteful(state)) continue;
     // 評価
     const { startResult, wolfResults, finalResult } = evaluateAllPaths(
       state.grid,
@@ -175,6 +179,8 @@ const exploreStep = (
       swapOperations: state.swapOperations,
     });
     if (!canPlacePanels) continue;
+    // クリア済みの状態にパネルを足すのは無駄なので探索しない
+    if (finalResult === Result.HasClearPath) continue;
     // アクション実施
     const nextStates = handleAction(state);
     // 組み合わせを追加
@@ -328,6 +334,60 @@ const createStateKey = (
   copyPanels: copyPanels.map(panelShapeKey).sort(),
   swaps: swapOperations.map(({ first, second }) => [first, second]),
 });
+
+/** パネル形状ごとの枚数 */
+const countPanelShapes = (panels: (Panel | CopyPanel)[]): Map<string, number> => {
+  const counts = new Map<string, number>();
+  for (const panel of panels) {
+    const key = panelShapeKey(panel);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return counts;
+};
+
+/** a が b の枚数をすべて満たしているか */
+const coversPanelShapes = (a: Map<string, number>, b: Map<string, number>): boolean => {
+  for (const [key, count] of b) {
+    if ((a.get(key) ?? 0) < count) return false;
+  }
+  return true;
+};
+
+/**
+ * 同ボードでのパネル使用状況を記録し、無駄な状態を判定する
+ * 同じボード・入替の記録で、手元のパネルと貼付パネルがどちらも多い（以上の）状態が既にあれば、
+ * パネルを余分に使っただけの無駄な状態とみなす
+ */
+const createPanelUsageRecorder = () => {
+  const recordsByBoard = new Map<string, { panels: Map<string, number>; copyPanels: Map<string, number> }[]>();
+
+  return {
+    /** 無駄でなければ記録して true、無駄なら false */
+    recordIfNotWasteful: (state: {
+      grid: Grid;
+      panelInventory: PanelInventory;
+      copyPanels: CopyPanel[];
+      swapOperations: SwapOperation[];
+    }): boolean => {
+      const boardKey = JSON.stringify({
+        grid: state.grid,
+        swaps: state.swapOperations.map(({ first, second }) => [first, second]),
+      });
+      const panels = countPanelShapes(state.panelInventory.panels);
+      const copyPanels = countPanelShapes(state.copyPanels);
+      const records = recordsByBoard.get(boardKey) ?? [];
+
+      const isWasteful = records.some(
+        (record) => coversPanelShapes(record.panels, panels) && coversPanelShapes(record.copyPanels, copyPanels),
+      );
+      if (isWasteful) return false;
+
+      records.push({ panels, copyPanels });
+      recordsByBoard.set(boardKey, records);
+      return true;
+    },
+  };
+};
 
 /** 処理結果の型 */
 interface ProcessResult {
