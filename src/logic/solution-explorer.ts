@@ -45,7 +45,7 @@ interface PuzzleProblemSet {
 export const exploreSolutions = (opts: ExploreParams): PhasedSolution[] => {
   const solutions: PhasedSolution[] = [];
   const visitedPhaseStates = new Set<string>([
-    createPhaseStateKey(opts.initialGrid, createPanelInventory(opts.panels), []),
+    createStateKey(opts.initialGrid, createPanelInventory(opts.panels), [], []),
   ]);
 
   const puzzleSetGroup: PuzzleProblemSet[] = [
@@ -144,9 +144,15 @@ const exploreStep = (
     },
   ];
 
+  const visitedStates = new Set<string>();
+
   while (worklist.length > 0) {
     // 現在の状態を取り出す
     const state = worklist.pop()!;
+    // 置き順や同形パネルの違いだけの状態は評価済みなのでスキップ
+    const stateKey = createStateKey(state.grid, state.panelInventory, state.copyPanels, state.swapOperations);
+    if (visitedStates.has(stateKey)) continue;
+    visitedStates.add(stateKey);
     // 評価
     const { startResult, wolfResults, finalResult } = evaluateAllPaths(
       state.grid,
@@ -290,12 +296,27 @@ const enumerateSwapPanelPlacements = (
 };
 
 
-/** フェーズ境界の永続状態を識別するキー */
-const createPhaseStateKey = (grid: Grid, panelInventory: PanelInventory, copyPanels: CopyPanel[]): string => JSON.stringify({
+/** パネルの形状キー（同形パネルはIDが違っても同じとみなす） */
+const panelShapeKey = (panel: Panel | CopyPanel): string =>
+  `${panel.type}:${JSON.stringify(panel.cells)}`;
+
+/**
+ * 探索状態を識別するキー
+ * ボード・手元のパネル・貼付パネル・入替の記録が同じなら、置き順や同形パネルの違いは同じ状態とみなす
+ */
+const createStateKey = (
+  grid: Grid,
+  panelInventory: PanelInventory,
+  copyPanels: CopyPanel[],
+  swapOperations: SwapOperation[],
+): string => JSON.stringify({
   grid,
-  availablePanelIds: panelInventory.panels.map(({ id }) => id),
-  removedPanels: panelInventory.removedPanels.map(({ panel, isCollected }) => ({ id: panel.id, isCollected })),
-  copyPanelIds: copyPanels.map(({ id }) => id),
+  availablePanels: panelInventory.panels.map(panelShapeKey).sort(),
+  removedPanels: panelInventory.removedPanels
+    .map(({ panel, isCollected }) => `${panelShapeKey(panel)}:${isCollected}`)
+    .sort(),
+  copyPanels: copyPanels.map(panelShapeKey).sort(),
+  swaps: swapOperations.map(({ first, second }) => [first, second]),
 });
 
 /** 処理結果の型 */
@@ -345,7 +366,7 @@ const handleResult = (
 
         if (nextGrid) {
           const panelInventory = resetPanelInventory(result.panelInventory);
-          const stateKey = createPhaseStateKey(nextGrid, panelInventory, []);
+          const stateKey = createStateKey(nextGrid, panelInventory, [], []);
           if (visitedPhaseStates.has(stateKey)) break;
           visitedPhaseStates.add(stateKey);
 
