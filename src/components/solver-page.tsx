@@ -12,6 +12,9 @@ import { PanelList } from "@/components/editor/panel-list";
 import { SolverGridViewer } from "@/components/solver/solver-grid-viewer";
 import { useState } from "react";
 
+/** 画面に表示する解の最大件数（探索結果そのものは制限しない） */
+const MAX_DISPLAY_SOLUTIONS = 50;
+
 const SolverPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [minimizePanels, setMinimizePanels] = useState(true);
@@ -21,6 +24,7 @@ const SolverPage: React.FC = () => {
   const solutions = useSelector((s: RootState) => s.solution.solutions);
   const status    = useSelector((s: RootState) => s.solution.status);
   const error     = useSelector((s: RootState) => s.solution.error);
+  const displaySolutions = solutions.slice(0, MAX_DISPLAY_SOLUTIONS);
 
   const solve = async () => {
     const resultAction = await dispatch(solvePuzzleAsync({ 
@@ -90,9 +94,12 @@ const SolverPage: React.FC = () => {
                   <>
                     <div className="text-center text-sm text-gray-600 mb-4">
                       {solutions.length}個の解が見つかりました
+                      {solutions.length > MAX_DISPLAY_SOLUTIONS && (
+                        <div>多いため、先頭の{MAX_DISPLAY_SOLUTIONS}個のみ表示しています</div>
+                      )}
                     </div>
                     
-                    {solutions.map((phasedSolution, solutionIdx) =>
+                    {displaySolutions.map((phasedSolution, solutionIdx) =>
                       phasedSolution.phases.map((_, phaseIdx) => {
                         const globalIndex = solutions.slice(0, solutionIdx).reduce((acc, ps) => acc + ps.phases.length, 0) + phaseIdx;
                         return (
