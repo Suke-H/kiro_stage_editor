@@ -274,12 +274,22 @@ const enumerateSwapPanelPlacements = (
 
   for (let firstY = 0; firstY < grid.length; firstY++) {
     for (let firstX = 0; firstX < grid[firstY].length; firstX++) {
-      if (!canSelectFirstSwapTarget(grid[firstY][firstX])) continue;
+      const firstCell = grid[firstY][firstX];
+      if (!canSelectFirstSwapTarget(firstCell)) continue;
+      // 入れ替えマスは消費されるため (A,B) と (B,A) で結果が異なるが、それ以外は同じ結果になる
+      const isFirstSwapCell = firstCell.type === 'SwapCell';
 
       for (let secondY = 0; secondY < grid.length; secondY++) {
         for (let secondX = 0; secondX < grid[secondY].length; secondX++) {
           if (firstX === secondX && firstY === secondY) continue;
-          if (!canSelectSecondSwapTarget(grid[secondY][secondX])) continue;
+          const secondCell = grid[secondY][secondX];
+          if (!canSelectSecondSwapTarget(secondCell)) continue;
+          if (!isFirstSwapCell) {
+            // (B,A) は (A,B) と同じ結果なので片方のみ列挙
+            if (secondY < firstY || (secondY === firstY && secondX < firstX)) continue;
+            // 同じ中身のマス同士の入れ替えは盤面が変わらないので除外
+            if (firstCell.type === secondCell.type && firstCell.side === secondCell.side) continue;
+          }
 
           placements.push({
             panel,
